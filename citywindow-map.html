@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CityWindow — Chicago</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1614;
+    --cream: #faf8f4;
+    --parchment: #f2ede4;
+    --terracotta: #b85c38;
+    --sage: #5c7a5e;
+    --gold: #c9a84c;
+    --indigo: #3d5a80;
+    --dust: #8a7f72;
+    --border: #e0d8cc;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+
+  .logo span {
+    color: var(--terracotta);
+  }
+
+  .city-badge {
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(250,248,244,0.6);
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .filter-btn {
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--dust);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .filter-btn.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--cream);
+  }
+
+  .filter-btn .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  /* MAP CONTAINER */
+  #map {
+    flex: 1;
+    width: 100%;
+  }
+
+  /* BOTTOM SHEET */
+  .sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.12);
+    z-index: 200;
+    transform: translateY(calc(100% - 72px));
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sheet.open {
+    transform: translateY(0);
+  }
+
+  .sheet.peek {
+    transform: translateY(calc(100% - 72px));
+  }
+
+  .sheet-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 12px auto 0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .sheet-header {
+    padding: 14px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sheet-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .sheet-count {
+    font-size: 12px;
+    color: var(--dust);
+    font-weight: 300;
+  }
+
+  .sheet-body {
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* PLACE DETAIL */
+  .place-detail {
+    padding: 20px;
+    display: none;
+  }
+
+  .place-detail.visible {
+    display: block;
+  }
+
+  .place-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .place-meta {
+    font-size: 12px;
+    color: var(--dust);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .place-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #3a3530;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: var(--parchment);
+    border-left: 3px solid var(--terracotta);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .endorsements {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .endorsement {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--parchment);
+    border-radius: 8px;
+  }
+
+  .endo-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .endo-body { flex: 1; }
+
+  .endo-blogger {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .endo-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: #3a3530;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .endo-link {
+    font-size: 11px;
+    color: var(--indigo);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  .endo-link:hover { text-decoration: underline; }
+
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .btn-save {
+    flex: 1;
+    background: var(--ink);
+    color: var(--cream);
+    border: none;
+    padding: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .btn-maps {
+    flex: 1;
+    background: white;
+    color: var(--ink);
+    border: 1px solid var(--border);
+    padding: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  /* PLACE LIST */
+  .place-list { display: none; }
+  .place-list.visible { display: block; }
+
+  .place-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .place-item:hover { background: var(--parchment); }
+
+  .place-item-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .place-item-info { flex: 1 }
+
+  .place-item-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .place-item-sub {
+    font-size: 11px;
+    color: var(--dust);
+    font-weight: 300;
+  }
+
+  .place-item-badges {
+    display: flex;
+    gap: 4px;
+  }
+
+  .badge {
+    font-size: 9px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* LAYER LEGEND */
+  .legend {
+    position: fixed;
+    top: 110px;
+    right: 12px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    z-index: 50;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--ink);
+    font-weight: 400;
+  }
+
+  .legend-item:last-child { margin-bottom: 0; }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* SAVED TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--sage);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 300;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* VOICE TABS */
+  .voice-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .voice-tab {
+    flex: 1;
+    padding: 10px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dust);
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .voice-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--terracotta);
+  }
+
+  /* Scrollbar */
+  .sheet-body::-webkit-scrollbar { width: 3px; }
+  .sheet-body::-webkit-scrollbar-track { background: transparent; }
+  .sheet-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  @media (min-width: 768px) {
+    body { flex-direction: row; flex-wrap: wrap; }
+    header { width: 100%; }
+    .filter-bar { width: 100%; }
+    #map { flex: 1; height: calc(100vh - 97px); }
+    .sheet {
+      position: fixed;
+      top: 97px;
+      right: 0;
+      bottom: 0;
+      left: auto;
+      width: 360px;
+      border-radius: 0;
+      transform: none !important;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.08);
+      max-height: none;
+    }
+    .legend { top: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">City<span>Window</span></div>
+  <div class="city-badge">Chicago · ACC 2025</div>
+</header>
+
+<div class="filter-bar" id="filterBar">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">
+    All Places
+  </button>
+  <button class="filter-btn" data-filter="lottie" onclick="setFilter('lottie')">
+    <span class="dot" style="background:#b85c38"></span> Lottie + Doof
+  </button>
+  <button class="filter-btn" data-filter="312food" onclick="setFilter('312food')">
+    <span class="dot" style="background:#3d5a80"></span> 312food
+  </button>
+  <button class="filter-btn" data-filter="infatuation" onclick="setFilter('infatuation')">
+    <span class="dot" style="background:#5c7a5e"></span> The Infatuation
+  </button>
+  <button class="filter-btn" data-filter="saved" onclick="setFilter('saved')">
+    ★ Saved
+  </button>
+</div>
+
+<div id="map"></div>
+
+<!-- Layer Legend (desktop) -->
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot" style="background:#b85c38"></span> Lottie + Doof</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#3d5a80"></span> 312food</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#5c7a5e"></span> The Infatuation</div>
+</div>
+
+<!-- Bottom Sheet -->
+<div class="sheet peek" id="sheet">
+  <div class="sheet-handle" onclick="toggleSheet()"></div>
+
+  <!-- List Header -->
+  <div class="sheet-header" id="listHeader" onclick="toggleSheet()">
+    <div class="sheet-title">Chicago Picks</div>
+    <div class="sheet-count" id="placeCount">14 places</div>
+  </div>
+
+  <!-- Voice Tabs -->
+  <div class="voice-tabs" id="voiceTabs" style="display:none">
+    <button class="voice-tab active" onclick="showTab('detail')">Details</button>
+    <button class="voice-tab" onclick="showTab('list')">All Places</button>
+  </div>
+
+  <div class="sheet-body" id="sheetBody">
+
+    <!-- Default list view -->
+    <div class="place-list visible" id="placeList"></div>
+
+    <!-- Place detail view -->
+    <div class="place-detail" id="placeDetail"></div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">Saved to your guide ✓</div>
+
+<script>
+// ─── REAL BLOGGER DATA ──────────────────────────────────────────────
+const PLACES = [
+  {
+    id: 1,
+    name: "The Publican",
+    address: "837 W Fulton Market, Chicago, IL 60607",
+    neighborhood: "West Loop",
+    category: "Restaurant",
+    lat: 41.8863, lng: -87.6487,
+    note: "A Chicago classic — pork-focused, great beer list, communal tables. The place I have eaten at the most in my life.",
+    endorsements: [
+      {
+        blogger: "Lottie + Doof",
+        handle: "@lottieanddoof",
+        color: "#b85c38",
+        initial: "L",
+        text: "If I could only recommend one restaurant in Chicago, it would be this long-time favorite. The perfect neighborhood restaurant that also happens to be a destination.",
+        url: "https://www.lottieanddoof.com/chicagoguide/",
+        source: "lottie"
+      },
+      {
+        blogger: "312food",
+        handle: "@312food",
+        color: "#3d5a80",
+        initial: "3",
+        text: "The Publican is on EVERY best Chicago brunch list because it is the best of the best.",
+        url: "https://www.312food.com/chicago-brunch-checklist/",
+        source: "312food"
+      }
+    ],
+    sources: ["lottie","312food"]
+  },
+  {
+    id: 2,
+    name: "Avec",
+    address: "615 W Randolph St, Chicago, IL 60661",
+    neighborhood: "West Loop",
+    category: "Restaurant",
+    lat: 41.8836, lng: -87.6437,
+    note: "Mediterranean small plates in a cozy cedar-clad space. One of Chicago's most enduring great restaurants.",
+    endorsements: [
+      {
+        blogger: "The Infatuation",
+        handle: "@infatuationchi",
+        color: "#5c7a5e",
+        initial: "I",
+        text: "The second restaurant in Paul Kahan's empire, and a Chicago classic. Rated 9.0.",
+        url: "https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago",
+        source: "infatuation"
+      },
+      {
+        blogger: "312food",
+        handle: "@312food",
+        color: "#3d5a80",
+        initial: "3",
+        text: "A West Loop staple that never disappoints — perfect for a long dinner with wine.",
+        url: "https://www.312food.com/",
+        source: "312food"
+      }
+    ],
+    sources: ["infatuation","312food"]
+  },
+  {
+    id: 3,
+    name: "Kyoten Next Door",
+    address: "2507 N Kedzie Ave, Chicago, IL 60647",
+    neighborhood: "Logan Square",
+    category: "Sushi",
+    lat: 41.9268, lng: -87.7067,
+    note: "10-seat omakase, $169 for 18 courses. Blowtorched wagyu. Chicago's best sushi, full stop.",
+    endorsements: [
+      {
+        blogger: "The Infatuation",
+        handle: "@infatuationchi",
+        color: "#5c7a5e",
+        initial: "I",
+        text: "Our highest-rated restaurant. Sometimes the sequel is better than the original — this is that case. Rated 9.5.",
+        url: "https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago",
+        source: "infatuation"
+      }
+    ],
+    sources: ["infatuation"]
+  },
+  {
+    id: 4,
+    name: "Xocome Antojeria",
+    address: "3616 W 26th St, Chicago, IL 60623",
+    neighborhood: "Archer Heights",
+    category: "Mexican",
+    lat: 41.8444, lng: -87.7135,
+    note: "Counter service. Best masa in Chicago — tacos, tlacoyos, enchiladas. Closes at 7:30pm. Go early.",
+    endorsements: [
+      {
+        blogger: "The Infatuation",
+        handle: "@infatuationchi",
+        color: "#5c7a5e",
+        initial: "I",
+        text: "The protagonist is the unbelievable masa. Everything is made-to-order with tender filet mignon asada and rich red mole. One of the best in Chicago.",
+        url: "https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago",
+        source: "infatuation"
+      }
+    ],
+    sources: ["infatuation"]
+  },
+  {
+    id: 5,
+    name: "Maxwells Trading",
+    address: "1516 W Chicago Ave, Chicago, IL 60642",
+    neighborhood: "West Town",
+    category: "Restaurant",
+    lat: 41.8960, lng: -87.6680,
+    note: "Chic West Loop-adjacent spot with inventive American menu. The Japanese sweet potato dish is extraordinary.",
+    endorsements: [
+      {
+        blogger: "The Infatuation",
+        handle: "@infatuationchi",
+        color: "#5c7a5e",
+        initial: "I",
+        text: "One of our favorite new restaurants of 2024. A Japanese sweet potato masquerading as crème brûlée is a big reason why. Rated 9.0.",
+        url: "https://www.theinfatuation.com/chicago/guides/best-new-restaurants-chicago-2024",
+        source: "infatuation"
+      }
+    ],
+    sources: ["infatuation"]
+  },
+  {
+    id: 6,
+    name: "Elske",
+    address: "1350 W Randolph St, Chicago, IL 60607",
+    neighborhood: "West Loop",
+    category: "Fine Dining",
+    lat: 41.8838, lng: -87.6612,
+    note: "Scandinavian tasting menu that doesn't take itself too seriously. A special occasion spot that earns every penny.",
+    endorsements: [
+      {
+        blogger: "The Infatuation",
+        handle: "@infatuationchi",
+        color: "#5c7a5e",
+        initial: "I",
+        text: "A tasting menu spot in West Loop that doesn't take itself too seriously, and we're big fans. Rated 9.0.",
+        url: "https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago",
+        source: "infatuation"
+      }
+    ],
+    sources: ["infatuation"]
+  },
+  {
+    id: 7,
+    name: "Spinning J",
+    address: "1000 N California Ave, Chicago, IL 60622",
+    neighborhood: "Humboldt Park",
+    category: "Bakery & Cafe",
+    lat: 41.8993, lng: -87.6969,
+    note: "Soda fountain bar, perfect breakfast pastries, vintage-inspired space. A neighborhood gem that feels like Chicago's best-kept secret.",
+    endorsements: [
+      {
+        blogger: "Lottie + Doof",
+        handle: "@lottieanddoof",
+        color: "#b85c38",
+        initial: "L",
+        text: "One of my favorite spots in Chicago. The breakfast pastries are perfect — the platonic ideal of a scone, a coffee cake. Dinah Grossman makes it what it is.",
+        url: "https://www.lottieanddoof.com/2017/08/spinning-j/",
+        source: "lottie"
+      }
+    ],
+    sources: ["lottie"]
+  },
+  {
+    id: 8,
+    name: "Lula Cafe",
+    address: "2537 N Kedzie Ave, Chicago, IL 60647",
+    neighborhood: "Logan Square",
+    category: "Restaurant",
+    lat: 41.9272, lng: -87.7062,
+    note: "Farm-to-table pioneer, still the best. A place for a special night out that never feels precious.",
+    endorsements: [
+      {
+        blogger: "Lottie + Doof",
+        handle: "@lottieanddoof",
+        color: "#b85c38",
+        initial: "L",
+        text: "Lula Cafe for a special night out. One of the great Chicago restaurants. Inventive, delicious, consistent.",
+        url: "https://www.lottieanddoof.com/chicagoguide/",
+        source: "lottie"
+      }
+    ],
+    sources: ["lottie"]
+  },
+  {
+    id: 9,
+    name: "Au Cheval",
+    address: "800 W Randolph St, Chicago, IL 60607",
+    neighborhood: "West Loop",
+    category: "Restaurant",
+    lat: 41.8840, lng: -87.6483,
+    note: "The burger. Worth every minute of the wait. Go at 5pm when they open or expect a long line.",
+    endorsements: [
+      {
+        blogger: "Lottie + Doof",
+        handle: "@lottieanddoof",
+        color: "#b85c38",
+        initial: "L",
+        text: "Extremely delicious burgers and fries. Very hard to beat. And they supply ear plugs for the trains running overhead.",
+        url: "https://www.lottieanddoof.com/chicagoguide/",
+        source: "lottie"
+      },
+      {
+        blogger: "312food",
+        handle: "@312food",
+        color: "#3d5a80",
+        initial: "3",
+        text: "On the Chicago Wait List Hacks guide — because yes, this one requires patience. Worth it every time.",
+        url: "https://www.312food.com/",
+        source: "312food"
+      }
+    ],
+    sources: ["lottie","312food"]
+  },
+  {
+    id: 10,
+    name: "Cindy's Rooftop",
+    address: "12 S Michigan Ave, Chicago, IL 60603",
+    neighborhood: "Loop",
+    category: "Bar & Restaurant",
+    lat: 41.8824, lng: -87.6246,
+    note: "Best view in the city — Millennium Park and the Bean from above. Great brunch menu and cocktails. Make a reservation.",
+    endorsements: [
+      {
+        blogger: "312food",
+        handle: "@312food",
+        color: "#3d5a80",
+        initial: "3",
+        text: "A beautiful restaurant with one of the best views in the city. Awesome brunch menu, beautiful cocktails, and the view of Millennium Park.",
+        url: "https://www.312food.com/chicago-brunch-checklist/",
+        source: "312food"
+      }
+    ],
+    sources: ["312food"]
+  },
+  {
+    id: 11,
+    name: "Logan Square Market",
+    address: "2682 N Milwaukee Ave, Chicago, IL 60647",
+    neighborhood: "Logan Square",
+    category: "Market",
+    lat: 41.9290, lng: -87.7084,
+    note: "Sundays, late spring through fall. Local vendors, great coffee, flowers, pastries. Perfect Saturday morning.",
+    endorsements: [
+      {
+        blogger: "312food",
+        handle: "@312food",
+        color: "#3d5a80",
+        initial: "3",
+        text: "The Logan Square Market is one of the best ways to experience Chicago's neighborhoods. Weekend mornings at their best.",
+        url: "https://www.312food.com/",
+        source: "312food"
+      }
+    ],
+    sources: ["312food"]
+  },
+  {
+    id: 12,
+    name: "Publican Quality Meats",
+    address: "825 W Fulton Market, Chicago, IL 60607",
+    neighborhood: "West Loop",
+    category: "Butcher & Cafe",
+    lat: 41.8861, lng: -87.6484,
+    note: "Next door to The Publican. Exceptional sandwiches, charcuterie, and coffee. Perfect quick lunch before the afternoon session.",
+    endorsements: [
+      {
+        blogger: "Lottie + Doof",
+        handle: "@lottieanddoof",
+        color: "#b85c38",
+        initial: "L",
+        text: "One of the great spots in the west loop that opened in recent years. The sandwiches alone are worth the detour.",
+        url: "https://www.lottieanddoof.com/chicagoguide/",
+        source: "lottie"
+      }
+    ],
+    sources: ["lottie"]
+  },
+  {
+    id: 13,
+    name: "Chicago Riverwalk",
+    address: "Chicago Riverwalk, Chicago, IL 60601",
+    neighborhood: "Downtown",
+    category: "Outdoor",
+    lat: 41.8874, lng: -87.6298,
+    note: "Walk west from Michigan Ave along the river. Great at any hour — coffee in morning, drinks at sunset. Free and beautiful.",
+    endorsements: [
+      {
+        blogger: "312food",
+        handle: "@312food",
+        color: "#3d5a80",
+        initial: "3",
+        text: "One of Chicago's best features — the Riverwalk is a perfect way to experience the city between conference sessions.",
+        url: "https://www.312food.com/",
+        source: "312food"
+      }
+    ],
+    sources: ["312food"]
+  },
+  {
+    id: 14,
+    name: "Schwa",
+    address: "1466 N Ashland Ave, Chicago, IL 60622",
+    neighborhood: "Wicker Park",
+    category: "Fine Dining",
+    lat: 41.9082, lng: -87.6687,
+    note: "BYOB tasting menu. The Chicago restaurant equivalent of the most interesting man in the world. Reservations required, months in advance.",
+    endorsements: [
+      {
+        blogger: "The Infatuation",
+        handle: "@infatuationchi",
+        color: "#5c7a5e",
+        initial: "I",
+        text: "The Chicago restaurant equivalent of the most interesting man in the world. Rated 9.5 — one of the most unique dining experiences in the city.",
+        url: "https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago",
+        source: "infatuation"
+      }
+    ],
+    sources: ["infatuation"]
+  }
+];
+
+// Source colors
+const SOURCE_COLORS = {
+  lottie: "#b85c38",
+  "312food": "#3d5a80",
+  infatuation: "#5c7a5e"
+};
+
+let map, markers = [], savedPlaces = new Set(), currentFilter = "all";
+let sheetOpen = false, currentPlace = null;
+
+// ─── INIT MAP ───────────────────────────────────────────────────────
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 41.8881, lng: -87.6565 },
+    zoom: 13,
+    styles: [
+      { featureType: "all", elementType: "geometry", stylers: [{ color: "#f5f0e8" }] },
+      { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+      { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#e8e0d0" }] },
+      { featureType: "water", elementType: "geometry", stylers: [{ color: "#c8dce8" }] },
+      { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#d4e6c3" }] },
+      { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+      { featureType: "transit", stylers: [{ visibility: "simplified" }] },
+      { featureType: "administrative", elementType: "labels.text.fill", stylers: [{ color: "#8a7f72" }] },
+      { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#6b6356" }] },
+      { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#ede8de" }] }
+    ],
+    disableDefaultUI: true,
+    zoomControl: true,
+    zoomControlOptions: {
+      position: google.maps.ControlPosition.LEFT_BOTTOM
+    }
+  });
+
+  buildMarkers();
+  buildList();
+}
+
+// ─── MARKERS ────────────────────────────────────────────────────────
+function buildMarkers() {
+  markers.forEach(m => m.setMap(null));
+  markers = [];
+
+  const filtered = getFiltered();
+
+  filtered.forEach(place => {
+    const primarySource = place.sources[0];
+    const color = SOURCE_COLORS[primarySource] || "#8a7f72";
+
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40">
+        <path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 24 16 24S32 28 32 16C32 7.163 24.837 0 16 0z"
+              fill="${color}" opacity="0.95"/>
+        <circle cx="16" cy="16" r="7" fill="white"/>
+        <circle cx="16" cy="16" r="4" fill="${color}"/>
+        ${place.sources.length > 1 ? `<circle cx="24" cy="8" r="5" fill="#1a1614" stroke="white" stroke-width="1.5"/>
+        <text x="24" y="12" font-size="7" font-weight="600" fill="white" text-anchor="middle" font-family="sans-serif">${place.sources.length}</text>` : ''}
+      </svg>`;
+
+    const icon = {
+      url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+      scaledSize: new google.maps.Size(32, 40),
+      anchor: new google.maps.Point(16, 40)
+    };
+
+    const marker = new google.maps.Marker({
+      position: { lat: place.lat, lng: place.lng },
+      map,
+      icon,
+      title: place.name,
+      animation: google.maps.Animation.DROP
+    });
+
+    marker.addListener("click", () => openPlace(place));
+    markers.push(marker);
+  });
+
+  document.getElementById("placeCount").textContent = `${filtered.length} places`;
+}
+
+// ─── FILTER ─────────────────────────────────────────────────────────
+function getFiltered() {
+  if (currentFilter === "all") return PLACES;
+  if (currentFilter === "saved") return PLACES.filter(p => savedPlaces.has(p.id));
+  return PLACES.filter(p => p.sources.includes(currentFilter));
+}
+
+function setFilter(filter) {
+  currentFilter = filter;
+  document.querySelectorAll(".filter-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.filter === filter);
+  });
+  buildMarkers();
+  buildList();
+  if (sheetOpen && currentPlace) {
+    closeDetail();
+  }
+}
+
+// ─── LIST ───────────────────────────────────────────────────────────
+function buildList() {
+  const list = document.getElementById("placeList");
+  const filtered = getFiltered();
+  list.innerHTML = "";
+
+  filtered.forEach(place => {
+    const primarySource = place.sources[0];
+    const color = SOURCE_COLORS[primarySource] || "#8a7f72";
+
+    const div = document.createElement("div");
+    div.className = "place-item";
+    div.onclick = () => openPlace(place);
+
+    const badges = place.sources.map(s => {
+      const labels = { lottie: "L+D", "312food": "312", infatuation: "Infat." };
+      return `<span class="badge" style="background:${SOURCE_COLORS[s]}20;color:${SOURCE_COLORS[s]}">${labels[s]}</span>`;
+    }).join("");
+
+    const savedStar = savedPlaces.has(place.id) ? ' ★' : '';
+
+    div.innerHTML = `
+      <span class="place-item-dot" style="background:${color}"></span>
+      <div class="place-item-info">
+        <div class="place-item-name">${place.name}${savedStar}</div>
+        <div class="place-item-sub">${place.neighborhood} · ${place.category}</div>
+      </div>
+      <div class="place-item-badges">${badges}</div>`;
+
+    list.appendChild(div);
+  });
+}
+
+// ─── OPEN PLACE ─────────────────────────────────────────────────────
+function openPlace(place) {
+  currentPlace = place;
+  map.panTo({ lat: place.lat, lng: place.lng });
+  map.setZoom(15);
+
+  const detail = document.getElementById("placeDetail");
+  const endos = place.endorsements.map(e => `
+    <div class="endorsement">
+      <div class="endo-avatar" style="background:${e.color}">${e.initial}</div>
+      <div class="endo-body">
+        <div class="endo-blogger">${e.blogger} <span style="font-weight:300;color:#8a7f72">${e.handle}</span></div>
+        <div class="endo-text">"${e.text}"</div>
+        <a href="${e.url}" target="_blank" class="endo-link">Read full post →</a>
+      </div>
+    </div>`).join("");
+
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + " " + place.address)}`;
+
+  detail.innerHTML = `
+    <div class="place-name">${place.name}</div>
+    <div class="place-meta">${place.neighborhood} · ${place.category}</div>
+    <div class="place-note">${place.note}</div>
+    <div class="endorsements">${endos}</div>
+    <div class="action-row">
+      <button class="btn-save" onclick="savePlace(${place.id})" id="saveBtn${place.id}">
+        ${savedPlaces.has(place.id) ? '★ Saved' : '☆ Save to Guide'}
+      </button>
+      <a href="${mapsUrl}" target="_blank" class="btn-maps">
+        ↗ Google Maps
+      </a>
+    </div>`;
+
+  showTab("detail");
+  openSheet();
+}
+
+function closeDetail() {
+  currentPlace = null;
+  showTab("list");
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────
+function showTab(tab) {
+  const detail = document.getElementById("placeDetail");
+  const list = document.getElementById("placeList");
+  const voiceTabs = document.getElementById("voiceTabs");
+  const listHeader = document.getElementById("listHeader");
+  const tabs = document.querySelectorAll(".voice-tab");
+
+  if (tab === "detail") {
+    detail.classList.add("visible");
+    list.classList.remove("visible");
+    voiceTabs.style.display = "flex";
+    listHeader.style.display = "none";
+    tabs[0].classList.add("active");
+    tabs[1].classList.remove("active");
+  } else {
+    detail.classList.remove("visible");
+    list.classList.add("visible");
+    voiceTabs.style.display = "flex";
+    listHeader.style.display = "none";
+    tabs[1].classList.add("active");
+    tabs[0].classList.remove("active");
+    buildList();
+  }
+}
+
+// ─── SHEET ──────────────────────────────────────────────────────────
+function openSheet() {
+  sheetOpen = true;
+  document.getElementById("sheet").classList.add("open");
+  document.getElementById("sheet").classList.remove("peek");
+}
+
+function toggleSheet() {
+  if (!sheetOpen) {
+    openSheet();
+    if (!currentPlace) {
+      showTab("list");
+      document.getElementById("listHeader").style.display = "flex";
+      document.getElementById("voiceTabs").style.display = "none";
+    }
+  } else {
+    sheetOpen = false;
+    document.getElementById("sheet").classList.remove("open");
+    document.getElementById("sheet").classList.add("peek");
+    document.getElementById("listHeader").style.display = "flex";
+    document.getElementById("voiceTabs").style.display = "none";
+  }
+}
+
+// ─── SAVE ───────────────────────────────────────────────────────────
+function savePlace(id) {
+  if (savedPlaces.has(id)) {
+    savedPlaces.delete(id);
+  } else {
+    savedPlaces.add(id);
+    showToast("Saved to your guide ✓");
+  }
+  const btn = document.getElementById(`saveBtn${id}`);
+  if (btn) btn.textContent = savedPlaces.has(id) ? '★ Saved' : '☆ Save to Guide';
+  buildList();
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+// ─── INIT LIST ───────────────────────────────────────────────────────
+buildList();
+</script>
+
+<!-- Replace AIzaSyDMdpiUSTdK0cNv3I2T4Pz5f-VOpQoEY with your actual key -->
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDMdpiUSTdK0cNv3I2T4Pz5f-VOpQoEY&callback=initMap">
+</script>
+
+</body>
+</html>
