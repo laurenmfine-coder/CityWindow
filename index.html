@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CityWindow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#1c1917;--cream:#faf8f4;--parchment:#f2ede3;--border:#e2d9cc;
+  --dust:#9c8f80;--terra:#b85c38;--indigo:#3d5a80;--sage:#5c7a5e;--gold:#c9a84c;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--ink);display:flex;flex-direction:column}
+
+/* HEADER */
+#header{background:var(--ink);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10}
+.logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--cream);letter-spacing:.02em}
+.logo em{color:var(--terra);font-style:normal}
+#addPinBtn{background:var(--terra);color:white;border:none;border-radius:4px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s}
+#addPinBtn:hover{background:#a04e2e}
+#addPinBtn.active{background:var(--sage)}
+
+/* TOP BAR */
+#topBar{background:var(--cream);border-bottom:1px solid var(--border);flex-shrink:0}
+#cityRow{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none}
+#cityRow::-webkit-scrollbar{display:none}
+.city-tab{flex-shrink:0;padding:9px 14px;font-size:11.5px;font-weight:400;color:var(--dust);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap}
+.city-tab.active{color:var(--ink);border-bottom-color:var(--terra);font-weight:500}
+#filterRow{display:flex;gap:6px;padding:8px 14px;overflow-x:auto;scrollbar-width:none}
+#filterRow::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;display:flex;align-items:center;gap:5px;border:1.5px solid var(--border);background:white;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:400;color:var(--dust);cursor:pointer;transition:all .18s;white-space:nowrap}
+.chip .pip{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.chip.on .pip{outline:1.5px solid rgba(255,255,255,.4)}
+
+/* MAP */
+#map{flex:1;width:100%}
+
+/* ADD BANNER */
+#addBanner{position:fixed;top:130px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);border-radius:8px;padding:10px 18px;font-size:13px;z-index:500;pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px}
+#addBanner.show{opacity:1}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.6}}
+
+/* SIDE PANEL (desktop) */
+#panel{position:fixed;top:0;right:0;bottom:0;width:360px;background:var(--cream);box-shadow:-6px 0 30px rgba(0,0,0,.12);z-index:400;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,.72,0,1)}
+#panel.open{transform:translateX(0)}
+.panel-top{padding:16px 18px 14px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.panel-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;line-height:1.2;flex:1}
+.panel-close{background:none;border:none;color:var(--dust);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px;flex-shrink:0}
+.panel-meta{font-size:11px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.panel-body{flex:1;overflow-y:auto;padding:16px 18px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.panel-body::-webkit-scrollbar{width:3px}
+.panel-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.panel-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.65;color:#3a3530;padding:12px 14px;background:white;border-left:3px solid var(--terra);border-radius:0 4px 4px 0;margin-bottom:16px}
+.section-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);margin-bottom:10px}
+.endorsement{display:flex;gap:10px;margin-bottom:10px;padding:11px 13px;background:white;border-radius:8px;border:1px solid var(--border)}
+.endo-av{width:30px;height:30px;border-radius:50%;color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;text-align:center;line-height:1.1}
+.endo-info{flex:1;min-width:0}
+.endo-who{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:3px}
+.endo-who span{font-weight:300;color:var(--dust)}
+.endo-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;line-height:1.5;color:#3a3530;margin-bottom:5px}
+.endo-link{font-size:11px;color:var(--indigo);text-decoration:none;font-weight:500}
+.endo-link:hover{text-decoration:underline}
+.panel-actions{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:9px}
+.btn-primary{flex:1;background:var(--ink);color:var(--cream);border:none;padding:11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:background .2s}
+.btn-primary:hover{background:#2e2925}
+.btn-primary.saved{background:var(--sage)}
+.btn-secondary{flex:1;background:white;color:var(--ink);border:1.5px solid var(--border);padding:11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;text-decoration:none;display:flex;align-items:center;justify-content:center}
+
+/* BOTTOM SHEET (mobile) */
+#sheet{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-radius:14px 14px 0 0;box-shadow:0 -4px 30px rgba(0,0,0,.14);z-index:400;transform:translateY(calc(100% - 68px));transition:transform .32s cubic-bezier(.32,.72,0,1);max-height:82vh;display:flex;flex-direction:column}
+#sheet.open{transform:translateY(0)}
+.sheet-pill{width:34px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;cursor:pointer;flex-shrink:0}
+.sheet-header{padding:10px 18px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;flex-shrink:0}
+.sheet-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500}
+.sheet-count{font-size:12px;color:var(--dust);font-weight:300}
+.place-list{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.place-row{display:flex;align-items:center;gap:11px;padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.place-row:hover,.place-row:active{background:white}
+.place-row-pip{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.place-row-info{flex:1;min-width:0}
+.place-row-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.place-row-sub{font-size:11px;color:var(--dust);font-weight:300}
+.source-tag{font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:10px;white-space:nowrap}
+
+/* ADD PIN MODAL */
+#pinModal{position:fixed;inset:0;background:rgba(28,25,23,.7);z-index:600;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+#pinModal.show{opacity:1;pointer-events:all}
+.modal-card{background:var(--cream);border-radius:16px 16px 0 0;padding:20px 20px 32px;width:100%;transform:translateY(30px);transition:transform .25s}
+#pinModal.show .modal-card{transform:translateY(0)}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--dust);font-size:22px;cursor:pointer}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-bottom:5px}
+.field input,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.field input:focus,.field textarea:focus{border-color:var(--terra)}
+.field textarea{resize:none;height:72px;line-height:1.5}
+.location-hint{background:#fffbf0;border:1px solid #e8d9a0;border-radius:6px;padding:9px 12px;font-size:12px;color:#7a6a40;margin-bottom:13px;display:flex;align-items:center;gap:7px}
+.cat-pills{display:flex;flex-wrap:wrap;gap:6px}
+.cat-pill{border:1.5px solid var(--border);border-radius:14px;padding:5px 11px;font-size:12px;color:var(--dust);cursor:pointer;transition:all .15s;background:white}
+.cat-pill.selected{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.btn-full{width:100%;background:var(--ink);color:var(--cream);border:none;padding:13px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:6px;margin-top:4px;transition:background .2s}
+.btn-full:hover{background:#2e2925}
+
+/* PLAN MY TIME BUTTON */
+#planBtn{position:fixed;bottom:90px;right:16px;z-index:200;background:var(--ink);color:var(--cream);border:none;border-radius:28px;padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 4px 20px rgba(28,25,23,.35);transition:all .2s}
+#planBtn:hover{background:#2e2925;transform:translateY(-1px);box-shadow:0 6px 24px rgba(28,25,23,.4)}
+#planBtn .plan-icon{font-size:14px}
+@media(min-width:700px){#planBtn{bottom:32px;right:380px}}
+
+/* ITINERARY OVERLAY */
+#itinOverlay{position:fixed;inset:0;background:rgba(28,25,23,.6);z-index:600;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+#itinOverlay.show{opacity:1;pointer-events:all}
+#itinPanel{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-radius:20px 20px 0 0;z-index:700;max-height:92vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1)}
+#itinPanel.show{transform:translateY(0)}
+@media(min-width:700px){
+  #itinPanel{left:50%;right:auto;width:480px;transform:translateX(-50%) translateY(100%);border-radius:20px 20px 0 0}
+  #itinPanel.show{transform:translateX(-50%) translateY(0)}
+}
+.itin-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.itin-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500}
+.itin-close{background:none;border:none;color:var(--dust);font-size:22px;cursor:pointer;line-height:1;padding:2px 6px}
+.itin-body{overflow-y:auto;flex:1;padding:18px 20px 32px;-webkit-overflow-scrolling:touch}
+.itin-city-badge{display:inline-flex;align-items:center;gap:5px;background:var(--terra);color:white;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:500;letter-spacing:.06em;margin-bottom:16px}
+
+/* FORM */
+.itin-form{}
+.itin-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.itin-field{display:flex;flex-direction:column;gap:5px}
+.itin-field label{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dust)}
+.itin-field select,.itin-field input{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:white;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s}
+.itin-field select:focus,.itin-field input:focus{border-color:var(--terra)}
+.itin-full{grid-column:1/-1}
+.vibe-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.vibe-pill{border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--dust);cursor:pointer;transition:all .18s;background:white;white-space:nowrap}
+.vibe-pill.on{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.itin-generate-btn{width:100%;background:var(--terra);color:white;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.itin-generate-btn:hover{background:#a04e2e}
+.itin-generate-btn:disabled{background:var(--dust);cursor:not-allowed}
+
+/* RESULT */
+.itin-result{margin-top:4px}
+.itin-summary{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;line-height:1.6;color:#3a3530;padding:14px 16px;background:white;border-left:3px solid var(--terra);border-radius:0 8px 8px 0;margin-bottom:20px}
+.itin-stop{display:flex;gap:14px;margin-bottom:0;position:relative}
+.itin-stop:not(:last-child)::after{content:'';position:absolute;left:19px;top:40px;bottom:-8px;width:2px;background:var(--border)}
+.itin-stop-num{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--cream);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;z-index:1}
+.itin-stop-content{flex:1;background:white;border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:16px}
+.itin-stop-time{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);margin-bottom:3px}
+.itin-stop-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;margin-bottom:4px}
+.itin-stop-desc{font-size:12px;color:var(--dust);line-height:1.5;margin-bottom:8px}
+.itin-stop-tags{display:flex;gap:6px;flex-wrap:wrap}
+.itin-stop-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--parchment);color:var(--dust)}
+.itin-transit{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--dust);padding:0 0 12px 52px;margin-top:-8px}
+.loading-dots{display:flex;gap:5px;align-items:center}
+.loading-dots span{width:7px;height:7px;border-radius:50%;background:var(--terra);animation:dotpulse 1.2s ease-in-out infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dotpulse{0%,80%,100%{transform:scale(.7);opacity:.5}40%{transform:scale(1);opacity:1}}
+.itin-actions{display:flex;gap:9px;margin-top:4px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* LEGEND */
+#legend{position:fixed;bottom:28px;left:14px;background:white;border:1px solid var(--border);border-radius:10px;padding:12px 14px;z-index:50;box-shadow:0 2px 14px rgba(0,0,0,.1);max-width:220px}
+.leg-row{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink);margin-bottom:5px;line-height:1.3}
+.leg-row:last-child{margin-bottom:0}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--sage);color:white;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:700;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ATTRIBUTION FOOTER */
+.attribution{font-size:10px;color:var(--dust);padding:10px 18px 14px;border-top:1px solid var(--border);line-height:1.6;flex-shrink:0}
+.attribution a{color:var(--indigo);text-decoration:none}
+.attribution a:hover{text-decoration:underline}
+
+@media(min-width:700px){#sheet{display:none}#panel{display:flex}#legend{display:block}}
+@media(max-width:699px){#panel{display:none}#legend{display:none}}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="logo">City<em>Window</em></div>
+  <button id="addPinBtn" onclick="toggleAddMode()">＋ Add Pin</button>
+</div>
+
+<div id="topBar">
+  <div id="cityRow"></div>
+  <div id="filterRow"></div>
+</div>
+
+<div id="map"></div>
+
+<div id="addBanner">
+  <span class="pulse"></span> Tap anywhere on the map to place your pin
+</div>
+
+<!-- Desktop panel -->
+<div id="panel">
+  <div class="panel-top">
+    <div>
+      <div class="panel-name" id="pName">Select a place</div>
+      <div class="panel-meta" id="pMeta"></div>
+    </div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body" id="pBody">
+    <p style="font-size:13px;color:var(--dust);line-height:1.6;margin-top:8px">
+      Choose a city above, then tap any pin to see editorial endorsements and links to original articles.<br><br>
+      Sources include Condé Nast Traveler, Bon Appétit, Food & Wine, The Infatuation, Resy, Eater, Time Out, and local experts. All quotes link back to the original publication.<br><br>
+      Use <strong>+ Add Pin</strong> to save your own favourite spots.
+    </p>
+  </div>
+  <div class="panel-actions" id="pActions" style="display:none">
+    <button class="btn-primary" id="pSaveBtn" onclick="toggleSave()">☆ Save</button>
+    <a class="btn-secondary" id="pMapsLink" href="#" target="_blank">↗ Maps</a>
+  </div>
+  <div class="attribution" id="pAttrib" style="display:none"></div>
+</div>
+
+<!-- Mobile bottom sheet -->
+<div id="sheet">
+  <div class="sheet-pill" onclick="toggleSheet()"></div>
+  <div class="sheet-header" onclick="toggleSheet()">
+    <div class="sheet-title" id="sheetTitle">Pick a city</div>
+    <div class="sheet-count" id="sheetCount"></div>
+  </div>
+  <div class="place-list" id="mobileList"></div>
+</div>
+
+<!-- Add pin modal -->
+<div id="pinModal">
+  <div class="modal-card">
+    <div class="modal-title">Add Your Pin <button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="location-hint">📍 <span id="coordHint">Location selected</span></div>
+    <div class="field"><label>Place Name</label><input id="pinName" type="text" placeholder="e.g. My favourite coffee spot"></div>
+    <div class="field"><label>Your Note</label><textarea id="pinNote" placeholder="What's special about it?"></textarea></div>
+    <div class="field"><label>Category</label>
+      <div class="cat-pills" id="catPills">
+        <div class="cat-pill selected" onclick="selectCat(this)">Restaurant</div>
+        <div class="cat-pill" onclick="selectCat(this)">Cafe</div>
+        <div class="cat-pill" onclick="selectCat(this)">Bar</div>
+        <div class="cat-pill" onclick="selectCat(this)">Bakery</div>
+        <div class="cat-pill" onclick="selectCat(this)">Market</div>
+        <div class="cat-pill" onclick="selectCat(this)">Outdoor</div>
+        <div class="cat-pill" onclick="selectCat(this)">Hotel</div>
+        <div class="cat-pill" onclick="selectCat(this)">Other</div>
+      </div>
+    </div>
+    <button class="btn-full" onclick="saveUserPin()">Save Pin to Map</button>
+  </div>
+</div>
+
+<div id="legend"></div>
+<div id="toast"></div>
+
+<!-- PLAN MY TIME BUTTON -->
+<button id="planBtn" onclick="openItinPanel()">
+  <span class="plan-icon">✦</span> Plan My Time
+</button>
+
+<!-- ITINERARY OVERLAY -->
+<div id="itinOverlay" onclick="closeItinPanel()"></div>
+
+<!-- ITINERARY PANEL -->
+<div id="itinPanel">
+  <div class="itin-header">
+    <div class="itin-title">Plan My Time</div>
+    <button class="itin-close" onclick="closeItinPanel()">✕</button>
+  </div>
+  <div class="itin-body" id="itinBody">
+    <!-- Filled by JS -->
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// SOURCE REGISTRY — every publication used
+// ─────────────────────────────────────────────
+const SOURCES = {
+  // National publications
+  cnt:    { name:"Condé Nast Traveler", short:"CNT",   color:"#8B1A1A", url:"https://www.cntraveler.com/" },
+  ba:     { name:"Bon Appétit",         short:"BA",    color:"#C85B2C", url:"https://www.bonappetit.com/" },
+  fw:     { name:"Food & Wine",         short:"F&W",   color:"#8B6914", url:"https://www.foodandwine.com/" },
+  eater:  { name:"Eater",              short:"Eater", color:"#1a1a2e", url:"https://www.eater.com/" },
+  resy:   { name:"Resy",               short:"Resy",  color:"#7b4ea0", url:"https://blog.resy.com/" },
+  timeout:{ name:"Time Out",           short:"TO",    color:"#d44000", url:"https://www.timeout.com/" },
+  nyt:    { name:"New York Times",      short:"NYT",   color:"#2b2b2b", url:"https://www.nytimes.com/section/dining" },
+  // City-specific blogs / publications
+  lottie: { name:"Lottie + Doof",      short:"L+D",   color:"#b85c38", url:"https://www.lottieanddoof.com/chicagoguide/" },
+  food312:{ name:"312food",            short:"312",   color:"#3d5a80", url:"https://www.312food.com/" },
+  infat:  { name:"The Infatuation",    short:"Infat", color:"#5c7a5e", url:"https://www.theinfatuation.com/" },
+  chimag: { name:"Chicago Magazine",   short:"ChiMag",color:"#4a6741", url:"https://www.chicagomag.com/" },
+  cinmag: { name:"Cincinnati Magazine",short:"CinMag",color:"#1e6b8a", url:"https://www.cincinnatimagazine.com/" },
+  citybeat:{ name:"CityBeat Cincinnati",short:"CB",   color:"#c06b20", url:"https://www.citybeat.com/" },
+  nashguru:{ name:"Nashville Guru",    short:"NGuru", color:"#8a5c2e", url:"https://nashvilleguru.com/" },
+  uncorked:{ name:"Uncorked Asheville",short:"UC",    color:"#6b8a3d", url:"https://www.uncorkedasheville.com/" },
+  adventurist:{ name:"The Adventurist",short:"Adv",  color:"#8a5c2e", url:"https://www.theadventuristmagazine.com/" },
+  campfire:{ name:"Campfires & Concierges",short:"C&C",color:"#2e6b7b",url:"https://www.campfiresandconcierges.com/park-city-restaurants/" },
+  joyvance:{ name:"Joy Vance Bozeman", short:"JV",    color:"#8a5c2e", url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman" },
+  user:   { name:"My Pin",             short:"Mine",  color:"#c9a84c", url:"#" },
+};
+
+// ─────────────────────────────────────────────
+// CITY + PLACE DATA
+// ─────────────────────────────────────────────
+const CITIES = {
+
+chicago: {
+  label:"Chicago", state:"IL",
+  center:{lat:41.890,lng:-87.650}, zoom:13,
+  srcKeys:["lottie","food312","infat","cnt","chimag","ba","timeout","resy"],
+  places:[
+    {id:"chi1",name:"Monteverde",neighborhood:"West Loop",category:"Italian",lat:41.8820,lng:-87.6540,
+     note:"James Beard–winning chef Sarah Grueneberg's pasta temple. The cacio whey pepe and burrata e ham are non-negotiable. Chicago Magazine's #1 restaurant of 2024.",
+     sources:["cnt","chimag","resy"],
+     endorsements:[
+       {s:"cnt",q:"One of Chicago's essential tables. Grueneberg's handmade pastas at the center-stage pastificio are impossible to resist.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+       {s:"chimag",q:"Monteverde gets all the big things and all the little things right — buzzy but not braying, always busy but never a madhouse.",url:"https://www.chicagomag.com/chicago-magazine/august-2024/50-best-restaurants/monteverde/"},
+       {s:"resy",q:"Ten years in, Monteverde remains one of Chicago's most beloved restaurants and one of its most coveted reservations.",url:"https://blog.resy.com/2026/01/monteverde-chicago/"},
+     ]},
+    {id:"chi2",name:"The Publican",neighborhood:"West Loop",category:"Restaurant",lat:41.8863,lng:-87.6487,
+     note:"Pork-focused, brilliant beer list, communal hall feel. Chicago's most reliable great meal.",
+     sources:["lottie","food312","cnt"],
+     endorsements:[
+       {s:"lottie",q:"If I could only recommend one restaurant in Chicago, it would be this. The perfect neighbourhood restaurant that also happens to be a destination.",url:"https://www.lottieanddoof.com/chicagoguide/"},
+       {s:"food312",q:"On every best Chicago brunch list for a reason — it really is the best of the best.",url:"https://www.312food.com/"},
+       {s:"cnt",q:"A Chicago institution — high-energy, pork-forward, and consistently excellent.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+     ]},
+    {id:"chi3",name:"Avec",neighborhood:"West Loop",category:"Restaurant",lat:41.8836,lng:-87.6437,
+     note:"Mediterranean small plates, cedar-clad intimacy. The chorizo-stuffed Medjool dates alone justify the trip.",
+     sources:["infat","food312","cnt"],
+     endorsements:[
+       {s:"infat",q:"A Chicago classic. Rated 9.0 — one of the best in the city.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
+       {s:"food312",q:"A West Loop staple that never disappoints. Perfect for a long dinner with great wine.",url:"https://www.312food.com/"},
+       {s:"cnt",q:"Still one of the most seductive dining rooms in Chicago, 20+ years in.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+     ]},
+    {id:"chi4",name:"Kyoten Next Door",neighborhood:"Logan Square",category:"Omakase",lat:41.9268,lng:-87.7067,
+     note:"10 seats, 18 courses, $169. Chicago's best sushi. Reserve exactly 20 days out.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"Sometimes the sequel is better than the original. Chicago does sushi as well as NYC or LA. Rated 9.5 — our highest rated.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
+       {s:"cnt",q:"An extraordinary omakase experience that holds its own against any sushi counter in the country.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+     ]},
+    {id:"chi5",name:"Akahoshi Ramen",neighborhood:"Logan Square",category:"Ramen",lat:41.9254,lng:-87.7046,
+     note:"Bon Appétit's Best New Restaurant of 2024. Owner was 'Ramen Lord' on Reddit — a decade of obsession poured into every bowl.",
+     sources:["ba","timeout"],
+     endorsements:[
+       {s:"ba",q:"The owner spent over a decade on Reddit as 'Ramen Lord', cultivating a community of more than 1 million devoted enthusiasts. Now it's a restaurant.",url:"https://www.bonappetit.com/story/best-new-restaurants-2024"},
+       {s:"timeout",q:"One of the most talked-about openings in Chicago in 2024 — Logan Square's ramen temple.",url:"https://www.timeout.com/chicago/restaurants/best-chicago-restaurants-our-picks-for-every-cuisine"},
+     ]},
+    {id:"chi6",name:"Spinning J",neighborhood:"Humboldt Park",category:"Bakery & Cafe",lat:41.8993,lng:-87.6969,
+     note:"Vintage soda fountain, platonic-ideal pastries. Breakfast here is one of Chicago's great small pleasures.",
+     sources:["lottie","cnt"],
+     endorsements:[
+       {s:"lottie",q:"One of my favourite spots in Chicago. The breakfast pastries are perfect — the platonic ideal of a scone, a coffee cake.",url:"https://www.lottieanddoof.com/chicagoguide/"},
+       {s:"cnt",q:"A beloved neighbourhood bakery-soda fountain that earns its destination status.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+     ]},
+    {id:"chi7",name:"Lula Cafe",neighborhood:"Logan Square",category:"Restaurant",lat:41.9272,lng:-87.7062,
+     note:"Farm-to-table pioneer that never got precious. Monday pasta nights are a neighbourhood institution.",
+     sources:["lottie","cnt"],
+     endorsements:[
+       {s:"lottie",q:"Lula Cafe for a special night out. Inventive, delicious, consistent. One of the great Chicago restaurants.",url:"https://www.lottieanddoof.com/chicagoguide/"},
+       {s:"cnt",q:"Two decades in and still the neighbourhood restaurant every neighbourhood wishes it had.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+     ]},
+    {id:"chi8",name:"Au Cheval",neighborhood:"West Loop",category:"Restaurant",lat:41.8840,lng:-87.6483,
+     note:"The burger. Go at 5pm on the dot. Patience required; worth every minute.",
+     sources:["lottie","food312","cnt"],
+     endorsements:[
+       {s:"lottie",q:"Extremely delicious burgers and fries. Very hard to beat.",url:"https://www.lottieanddoof.com/chicagoguide/"},
+       {s:"food312",q:"Worth every minute of the wait.",url:"https://www.312food.com/"},
+       {s:"cnt",q:"Named one of the best burgers in Chicago — a Midwest pilgrimage point.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+     ]},
+    {id:"chi9",name:"Schwa",neighborhood:"Wicker Park",category:"Fine Dining",lat:41.9082,lng:-87.6687,
+     note:"BYOB tasting menu. Eccentric genius. One of the most singular dining experiences in America. Plan months ahead.",
+     sources:["infat"],
+     endorsements:[
+       {s:"infat",q:"The Chicago restaurant equivalent of the most interesting man in the world. Rated 9.5.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
+     ]},
+    {id:"chi10",name:"Elske",neighborhood:"West Loop",category:"Fine Dining",lat:41.8838,lng:-87.6612,
+     note:"Scandinavian tasting menu that doesn't take itself too seriously. Seasonal, beautiful.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"A tasting menu spot in West Loop that doesn't take itself too seriously — and we're big fans. Rated 9.0.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
+       {s:"cnt",q:"One of Chicago's most thoughtful tasting menu experiences — delicate, personal, unhurried.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+     ]},
+    {id:"chi11",name:"Chicago Riverwalk",neighborhood:"Downtown",category:"Outdoor",lat:41.8874,lng:-87.6298,
+     note:"Walk west from Michigan Ave. Coffee in the morning, cocktails at golden hour. The city's best free experience.",
+     sources:["food312"],
+     endorsements:[
+       {s:"food312",q:"One of Chicago's best features. A perfect way to experience the city between conference sessions.",url:"https://www.312food.com/"},
+     ]},
+    {id:"chi12",name:"Cindy's Rooftop",neighborhood:"Loop",category:"Bar & Restaurant",lat:41.8824,lng:-87.6246,
+     note:"Best view in Chicago — Millennium Park, the Bean, the skyline all at once.",
+     sources:["food312","timeout"],
+     endorsements:[
+       {s:"food312",q:"A beautiful restaurant with one of the best views in the city. Awesome brunch overlooking Millennium Park.",url:"https://www.312food.com/"},
+       {s:"timeout",q:"The rooftop bar perched above the Chicago Athletic Association hotel. The view is the point.",url:"https://www.timeout.com/chicago/restaurants/best-chicago-restaurants-our-picks-for-every-cuisine"},
+     ]},
+  ]
+},
+
+miami: {
+  label:"Miami", state:"FL",
+  center:{lat:25.795,lng:-80.200}, zoom:12,
+  srcKeys:["infat","ba","resy","cnt","timeout"],
+  places:[
+    {id:"mia1",name:"Ariete",neighborhood:"Coconut Grove",category:"Fine Dining",lat:25.7266,lng:-80.2384,
+     note:"Rated 9.6 by The Infatuation — Miami fine dining reimagined with Cuban-American roots. The city's most acclaimed table.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"Ariete has created an entirely new kind of restaurant: Miami fine dining. Rated 9.6 — as close to perfect as it gets.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+       {s:"cnt",q:"The kind of place that makes you understand why food people keep moving to Miami.",url:"https://www.cntraveler.com/gallery/best-restaurants-miami"},
+     ]},
+    {id:"mia2",name:"Tâm Tâm",neighborhood:"Downtown",category:"Vietnamese",lat:25.7724,lng:-80.1946,
+     note:"Bon Appétit + Michelin nod 2024. Vietnamese izakaya energy — fish sauce wings, tamarind pork ribs, frozen mai tais. The city's breakout restaurant of the year.",
+     sources:["ba","resy","infat"],
+     endorsements:[
+       {s:"ba",q:"Bon Appétit and Michelin both recognized Tâm Tâm in 2024 — Miami's most exciting new restaurant of the year.",url:"https://www.bonappetit.com/"},
+       {s:"resy",q:"This was Tâm Tâm's breakout year. The food facilitates drinking, much like a Japanese izakaya. Something tells us this is only the start.",url:"https://blog.resy.com/2024/12/miami-restaurants-2024/"},
+       {s:"infat",q:"Dinner here is a social event worth circling on your calendar. Some of the most delicious food in Miami.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+     ]},
+    {id:"mia3",name:"Sunny's",neighborhood:"South Beach",category:"Restaurant",lat:25.7617,lng:-80.1918,
+     note:"220 seats, stellar martinis, Parker House rolls, a chocolate cake you'll dream about. The big fun blowout Miami deserves. Reserve 30 days out.",
+     sources:["infat","resy"],
+     endorsements:[
+       {s:"infat",q:"The big, fun restaurant Miami deserves. The food, martinis, and hospitality are special enough to be the main attraction.",url:"https://www.theinfatuation.com/miami/guides/best-new-restaurants-miami-2024"},
+       {s:"resy",q:"The easy answer for anyone looking for a stupidly fun blowout dinner in Miami — a triumphant return.",url:"https://blog.resy.com/2024/12/miami-restaurants-2024/"},
+     ]},
+    {id:"mia4",name:"Ariete",neighborhood:"Coconut Grove",category:"Fine Dining",lat:25.7266,lng:-80.2384,
+     note:"See above — duplicate removed in final render.",
+     sources:["infat"],endorsements:[]},
+    {id:"mia5",name:"Ogawa",neighborhood:"Little River",category:"Omakase",lat:25.8319,lng:-80.1897,
+     note:"Miami's best sushi omakase. Very expensive and worth every cent. Start with a Hibiki highball. Book well ahead.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"The best sushi omakase in Miami. A freight train rumbled past mid-bite and we felt closer to Tokyo than Little River.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+       {s:"cnt",q:"A world-class omakase counter that has put Miami firmly on the fine Japanese dining map.",url:"https://www.cntraveler.com/gallery/best-restaurants-miami"},
+     ]},
+    {id:"mia6",name:"Sanguich de Miami",neighborhood:"Little Havana",category:"Cuban",lat:25.7654,lng:-80.2200,
+     note:"The best Cuban sandwich in the city, full stop. A Little Havana landmark.",
+     sources:["infat"],
+     endorsements:[
+       {s:"infat",q:"Sanguich in Little Havana makes the best Cuban sandwiches in the city.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+     ]},
+    {id:"mia7",name:"Mandolin Aegean Bistro",neighborhood:"Design District",category:"Mediterranean",lat:25.8088,lng:-80.1940,
+     note:"Possibly the greatest outdoor restaurant in Miami. Mediterranean, consistently great. Book well ahead on nice weather days.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"Possibly the greatest outdoor restaurant in town. The Mediterranean food is always consistently great, but you're coming here for the atmosphere.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+       {s:"cnt",q:"An alfresco gem in the Design District with reliably wonderful food and one of the city's most romantic settings.",url:"https://www.cntraveler.com/gallery/best-restaurants-miami"},
+     ]},
+    {id:"mia8",name:"Taquiza",neighborhood:"North Beach",category:"Tacos",lat:25.8500,lng:-80.1280,
+     note:"Best tacos in Miami. One of the most affordable spots in the area.",
+     sources:["infat"],
+     endorsements:[
+       {s:"infat",q:"Taquiza in North Beach makes the best tacos in Miami and is one of the most affordable spots in the area.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+     ]},
+    {id:"mia9",name:"Edan",neighborhood:"South Miami",category:"Spanish",lat:25.7072,lng:-80.2789,
+     note:"Miami's best Spanish restaurant. Mushroom croquetas, Basque cheesecake, dry-aged ribeye.",
+     sources:["infat"],
+     endorsements:[
+       {s:"infat",q:"Miami's best Spanish restaurant, and a rare special occasion meal we can recommend on nearly any budget.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+     ]},
+    {id:"mia10",name:"Evelyn's Fort Lauderdale",neighborhood:"Fort Lauderdale",category:"Rooftop",lat:26.1218,lng:-80.1042,
+     note:"Fort Lauderdale's best upscale dining. Rooftop with great ocean views.",
+     sources:["infat"],
+     endorsements:[
+       {s:"infat",q:"Our favorite upscale option in Fort Lauderdale. The rooftop space has good food and a great ocean view.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+     ]},
+    {id:"mia11",name:"Southport Raw Bar",neighborhood:"Fort Lauderdale",category:"Seafood",lat:26.1052,lng:-80.1314,
+     note:"Fort Lauderdale classic. Best fried seafood by the water in the city.",
+     sources:["infat"],
+     endorsements:[
+       {s:"infat",q:"A Fort Lauderdale classic, and the best place in the city to eat fried seafood by the water.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+     ]},
+    {id:"mia12",name:"Chateau ZZ's",neighborhood:"Coconut Grove",category:"Mexican / Speakeasy",lat:25.7334,lng:-80.2419,
+     note:"Resy's Miami restaurant of the year 2024. Mexican food inside a historic French chateau. Wagyu tostadas, 1,000-bottle tequila collection, white-tuxedoed servers.",
+     sources:["resy","cnt"],
+     endorsements:[
+       {s:"resy",q:"A Mexican restaurant inside a historic French chateau — the kind of surprising mashup that only the group behind Carbone and Dirty French could conjure. Our restaurant of the year.",url:"https://blog.resy.com/2024/12/miami-restaurants-2024/"},
+       {s:"cnt",q:"One of the most talked-about restaurant openings in America in 2024 — a genuinely theatrical dining experience.",url:"https://www.cntraveler.com/gallery/best-restaurants-miami"},
+     ]},
+  ]
+},
+
+nyc: {
+  label:"New York", state:"NY",
+  center:{lat:40.730,lng:-73.990}, zoom:13,
+  srcKeys:["infat","cnt","ba","nyt","eater","resy"],
+  places:[
+    {id:"nyc1",name:"Tatiana",neighborhood:"Lincoln Center",category:"Afro-Caribbean",lat:40.7748,lng:-73.9835,
+     note:"Hardest reservation in NYC. Lauryn Hill on the soundtrack, curried goat patties with your fingers. A paradigm shift in fine dining. Named to CNT's best new restaurants.",
+     sources:["infat","cnt","ba"],
+     endorsements:[
+       {s:"infat",q:"Like a '90s nightclub plopped into the middle of Lincoln Center. One of the hardest reservations in town — worth it for a restaurant that feels like a paradigm shift.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
+       {s:"cnt",q:"Tatiana is the most exciting thing to happen to Lincoln Center since it was built.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
+       {s:"ba",q:"The kind of restaurant that changes the conversation about what fine dining in America can look like.",url:"https://www.bonappetit.com/"},
+     ]},
+    {id:"nyc2",name:"Semma",neighborhood:"West Village",category:"South Indian",lat:40.7345,lng:-74.0033,
+     note:"South Indian in the West Village. Lamb, Goanese oxtail, dungeness crab. Reserve two weeks out; 12 bar seats for walk-ins.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"West Village charm. Try the lamb, and don't miss the Goanese oxtail. Reservations released online two weeks in advance.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
+       {s:"cnt",q:"The restaurant that finally gave South Indian cuisine the high-profile showcase it deserves in New York.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
+     ]},
+    {id:"nyc3",name:"Le Veau d'Or",neighborhood:"Upper East Side",category:"French Bistro",lat:40.7653,lng:-73.9675,
+     note:"Infatuation 9.0, best new restaurant of 2024. Classic French bistro reborn — oysters, steak frites, trout amandine. Book at 9am exactly two weeks out.",
+     sources:["infat","cnt","nyt"],
+     endorsements:[
+       {s:"infat",q:"One of our three highest-rated new restaurants of 2024. A French bistro for the ages, reborn.",url:"https://www.theinfatuation.com/new-york/guides/best-new-restaurants-new-york-2024"},
+       {s:"cnt",q:"A resurrection that surpassed the original. The most romantic room in New York right now.",url:"https://www.cntraveler.com/gallery/best-new-restaurants-nyc"},
+       {s:"nyt",q:"The revived Le Veau d'Or is everything a great bistro should be — intimate, classic, and quietly thrilling.",url:"https://www.nytimes.com/section/dining"},
+     ]},
+    {id:"nyc4",name:"L'Industrie Pizzeria",neighborhood:"Williamsburg",category:"Pizza",lat:40.7131,lng:-73.9553,
+     note:"The NYC pizza slice to beat. Three-day cold fermented dough, airy and crisp, stiff enough to hold the ricotta.",
+     sources:["infat","eater"],
+     endorsements:[
+       {s:"infat",q:"The slice to beat, and everyone knows it. The owner subjects his dough to a three-day cold fermentation.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
+       {s:"eater",q:"Consistently named the best pizza slice in New York — worth the trip to Williamsburg.",url:"https://ny.eater.com/"},
+     ]},
+    {id:"nyc5",name:"Carnitas Ramirez",neighborhood:"East Village",category:"Mexican",lat:40.7263,lng:-73.9845,
+     note:"Infatuation 9.1, best new 2024. The masa pancake is the thing. Little restaurant, enormous personality.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"Rated 9.1 — one of our three highest-rated new restaurants of 2024. Little restaurants with big personalities.",url:"https://www.theinfatuation.com/new-york/guides/best-new-restaurants-new-york-2024"},
+       {s:"cnt",q:"One of the most thrilling new openings in New York in 2024 — masa done with total conviction.",url:"https://www.cntraveler.com/gallery/best-new-restaurants-nyc"},
+     ]},
+    {id:"nyc6",name:"Eel Bar",neighborhood:"Nolita",category:"Wine Bar & Small Plates",lat:40.7222,lng:-73.9940,
+     note:"More than a bar, less than a restaurant. Gildas, fried mussels, rainbow trout pil pil. A long winding snack parade.",
+     sources:["infat","ba"],
+     endorsements:[
+       {s:"infat",q:"Where you should go for a long and winding snack parade. Even the dessert was drenched in olive oil.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
+       {s:"ba",q:"One of New York's best new small-plates spots — a wine bar with real culinary ambition.",url:"https://www.bonappetit.com/"},
+     ]},
+    {id:"nyc7",name:"Defonte's",neighborhood:"Red Hook",category:"Italian Sandwiches",lat:40.6742,lng:-74.0017,
+     note:"Nearly 100 years old. Cash only. The Italian sandwich blueprint. A Red Hook institution.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"The blueprint for NYC's old-school Italian sandwich shops. The nearly century-old template. Cash only.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
+       {s:"cnt",q:"A New York City original — Defonte's is the kind of place that makes you fall in love with the borough.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
+     ]},
+    {id:"nyc8",name:"Le Bernardin",neighborhood:"Midtown",category:"Fine Dining",lat:40.7614,lng:-73.9814,
+     note:"Eric Ripert's legendary French seafood temple. Three Michelin stars, 40 years of excellence. CNT mainstay.",
+     sources:["cnt","eater"],
+     endorsements:[
+       {s:"cnt",q:"Le Bernardin has appeared on virtually every best-of list for four decades, and for good reason.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
+       {s:"eater",q:"One of New York's most enduring institutions — the benchmark for seafood fine dining in America.",url:"https://ny.eater.com/"},
+     ]},
+    {id:"nyc9",name:"Katz's Delicatessen",neighborhood:"Lower East Side",category:"Jewish Deli",lat:40.7223,lng:-73.9874,
+     note:"Since 1888. The pastrami on rye. You know the scene. CNT includes it on their best-of NYC list for a reason.",
+     sources:["cnt"],
+     endorsements:[
+       {s:"cnt",q:"Katz's is New York City in sandwich form — a living museum that still makes one of America's great sandwiches.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
+     ]},
+  ]
+},
+
+nashville: {
+  label:"Nashville", state:"TN",
+  center:{lat:36.165,lng:-86.784}, zoom:13,
+  srcKeys:["infat","cnt","ba","resy","eater"],
+  places:[
+    {id:"nas1",name:"Noko",neighborhood:"East Nashville",category:"Japanese",lat:41.9200,lng:-86.9350,
+     note:"The surest, most set-it-and-forget-it dinner recommendation in Nashville. Japanese wood-fired plates and crudos.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"Ridiculously good Japanese wood-fired plates and crudos that have never let us or anybody we know down.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
+       {s:"cnt",q:"The restaurant Nashville's food scene needed — precise, seasonal Japanese cooking that earns repeat visits.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
+     ]},
+    {id:"nas2",name:"Kisser",neighborhood:"East Nashville",category:"Japanese Lunch",lat:36.1856,lng:-86.7476,
+     note:"Lunch only. Bon Appétit + Food & Wine named chef Brian Lea one of their Best New Chefs 2024. Yellowtail collar, katsu sando. Michelin Bib Gourmand 2025.",
+     sources:["infat","ba","fw"],
+     endorsements:[
+       {s:"infat",q:"Lunch-only Japanese spot in East Nashville. It's impossible to use restraint when talking about Kisser.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
+       {s:"ba",q:"Bon Appétit and Food & Wine both recognized chef Brian Lea as among the best new chefs of 2024.",url:"https://www.bonappetit.com/story/best-new-restaurants-2024"},
+       {s:"fw",q:"Chef Brian Lea of Kisser named a Best New Chef 2024 — a rare double nod from the country's top culinary publications.",url:"https://www.foodandwine.com/"},
+     ]},
+    {id:"nas3",name:"Locust",neighborhood:"12 South",category:"Fine Dining",lat:36.1268,lng:-86.7957,
+     note:"Ever-changing, very hard to reserve. Razor clams on pebble ice, hot swordfish. CNT calls it one of Nashville's essential tables.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"An ever-changing and difficult-to-reserve spot. Something as simple as a curry potato chip can make you emotional here.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
+       {s:"cnt",q:"Nashville's most serious tasting-menu restaurant — and one of the best in the South.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
+     ]},
+    {id:"nas4",name:"Present Tense",neighborhood:"Wedgewood-Houston",category:"Japanese / Omakase",lat:36.1467,lng:-86.7784,
+     note:"Resy's Nashville restaurant of the year 2024. Daily specials omakase with sake pairings. Owner operates a sake company — the pairings are remarkable.",
+     sources:["resy","cnt"],
+     endorsements:[
+       {s:"resy",q:"Omakase blew up in Nashville in 2024, and Present Tense set the standard. A daily specials list that shows how you transform freshness into brilliance.",url:"https://blog.resy.com/2024/12/nashville-restaurants-2024/"},
+       {s:"cnt",q:"Present Tense is the kind of restaurant that makes you reassess what's possible in a mid-size American city.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
+     ]},
+    {id:"nas5",name:"Iggy's",neighborhood:"Wedgewood-Houston",category:"Italian",lat:36.1467,lng:-86.7770,
+     note:"Simple, creative, exciting Italian. The Roman-style semolina gnocchi with Burgundy truffles and taleggio fondue is one of the best bites in Nashville.",
+     sources:["infat","resy"],
+     endorsements:[
+       {s:"infat",q:"The Italian food is simple, creative, and exciting all at the same time. The gnocchi is easily one of the best bites you can have in the city.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
+       {s:"resy",q:"A Wedgewood-Houston anchor that continues to earn its place among the city's essential restaurants.",url:"https://blog.resy.com/the-hit-list/nashville-restaurants/"},
+     ]},
+    {id:"nas6",name:"Rolf & Daughters",neighborhood:"Germantown",category:"Restaurant",lat:36.1849,lng:-86.7866,
+     note:"Chef Philip Krajeck's devotion to fermentation and Mediterranean-Southern flavors. Sourdough with seaweed butter never leaves the menu. A CNT essential.",
+     sources:["cnt","resy"],
+     endorsements:[
+       {s:"cnt",q:"Named to Condé Nast Traveler's best Nashville restaurants list — Rolf & Daughters is the kind of neighbourhood anchor every city should have.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
+       {s:"resy",q:"This Germantown gem never wavers in either its timelessness or its evolution.",url:"https://blog.resy.com/2024/12/nashville-restaurants-2024/"},
+     ]},
+    {id:"nas7",name:"Audrey",neighborhood:"East Nashville",category:"Appalachian",lat:36.1798,lng:-86.7461,
+     note:"Chef Sean Brock's Appalachian heritage restaurant — live-fire cooking, fermented bread, seasonal ingredients. Resy national pick.",
+     sources:["resy","cnt"],
+     endorsements:[
+       {s:"resy",q:"Chef Sam Jett has refined the menu around seasonal ingredients and fermentation techniques that nod to traditional Appalachian food preparation.",url:"https://blog.resy.com/2024/12/nashville-restaurants-2024/"},
+       {s:"cnt",q:"Audrey is one of Nashville's most important restaurants — a meditation on Appalachian cooking that never feels like a museum piece.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
+     ]},
+    {id:"nas8",name:"Drusie & Darr",neighborhood:"Downtown",category:"Hotel Restaurant",lat:36.1634,lng:-86.7780,
+     note:"Elegant without being stuffy. Jean-Georges Vongerichten in the Hermitage Hotel's rathskeller. Also open for breakfast.",
+     sources:["resy","cnt"],
+     endorsements:[
+       {s:"resy",q:"None of Nashville's impressive hotel restaurants continue to resonate with locals quite like Drusie & Darr.",url:"https://blog.resy.com/the-hit-list/nashville-restaurants/"},
+       {s:"cnt",q:"The rare hotel restaurant that outperforms the hotel itself.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
+     ]},
+    {id:"nas9",name:"Butcher & Bee",neighborhood:"East Nashville",category:"Southern/Middle Eastern",lat:36.1794,lng:-86.7438,
+     note:"After a decade of success, recently renovated and reinvigorated. Creative fusion of Southern and Middle Eastern flavors.",
+     sources:["resy","eater"],
+     endorsements:[
+       {s:"resy",q:"Butcher & Bee is not resting on their laurels. That attitude of experimentation continues to make it one of the most exciting restaurants in town.",url:"https://blog.resy.com/2024/12/nashville-restaurants-2024/"},
+       {s:"eater",q:"A Nashville staple reborn — the renovation has given one of the city's best restaurants a new lease of life.",url:"https://nashville.eater.com/"},
+     ]},
+    {id:"nas10",name:"Biscuit Love",neighborhood:"The Gulch",category:"Brunch",lat:36.1519,lng:-86.7910,
+     note:"The game-changing biscuit spot. Always a line at the Gulch. Try a weekday or the Hillsboro Village outpost.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"There's never not a line at the one in the Gulch, so you're better off going on a weekday if you can.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
+       {s:"cnt",q:"Named to CNT's Nashville guide — the biscuit sandwich that put Nashville brunch on the national map.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
+     ]},
+  ]
+},
+
+cincinnati: {
+  label:"Cincinnati", state:"OH",
+  center:{lat:39.105,lng:-84.512}, zoom:13,
+  srcKeys:["cnt","cinmag","citybeat","ba","nyt","eater"],
+  places:[
+    {id:"cin1",name:"The Aperture",neighborhood:"Walnut Hills",category:"Mediterranean",lat:39.1187,lng:-84.4889,
+     note:"NYT America's Best Restaurants 2024 — the only Ohio restaurant on the list. Art deco building, live-fire Mediterranean by chef Jordan Anthony-Brown. CNT featured.",
+     sources:["nyt","cnt","cinmag","citybeat"],
+     endorsements:[
+       {s:"nyt",q:"The Aperture has a firm grasp on Mediterranean cuisine, and regulars already have go-to orders like glazed hamachi collar and tomato spaghetti swirled with candied chiles.",url:"https://www.nytimes.com/section/dining"},
+       {s:"cnt",q:"The Aperture proves Cincinnati is no longer an under-the-radar dining secret — this is a world-class restaurant.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
+       {s:"cinmag",q:"Named to the New York Times 2024 'America's Best Restaurants' list — art deco-meets-Copenhagen with exceptional Mediterranean and Levant-inspired sharing plates.",url:"https://www.cincinnatimagazine.com/the-restaurant-issue-2024/"},
+     ]},
+    {id:"cin2",name:"Wildweed",neighborhood:"Mt. Lookout",category:"Restaurant",lat:39.1282,lng:-84.4234,
+     note:"Esquire's Best New Restaurants in America 2024. A soaring ode to a region whose culinary virtues have been overlooked for too long. CNT featured.",
+     sources:["cnt","cinmag","eater"],
+     endorsements:[
+       {s:"cnt",q:"Featured in Condé Nast Traveler's Cincinnati guide — Wildweed is exactly the kind of chef-driven restaurant that is reshaping America's heartland cities.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
+       {s:"cinmag",q:"Named one of Esquire's 'Best New Restaurants in America, 2024.' A soaring ode to a region whose culinary virtues have been overlooked for too long.",url:"https://www.cincinnatimagazine.com/the-restaurant-issue-2024/"},
+       {s:"eater",q:"One of the most talked-about new American restaurants in the Midwest in 2024.",url:"https://cincinnati.eater.com/"},
+     ]},
+    {id:"cin3",name:"Sotto",neighborhood:"Downtown",category:"Italian",lat:39.1021,lng:-84.5123,
+     note:"Subterranean Italian below Vine Street. CNT featured it as a Cincinnati essential. OpenTable Top 100 nationally. Lunch now available.",
+     sources:["cnt","cinmag"],
+     endorsements:[
+       {s:"cnt",q:"Sotto is a concept of casual intimacy and communal romance — CNT calls it one of Cincinnati's essential dining experiences.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
+       {s:"cinmag",q:"The underground setting adds something special you can't capture in photos. A Cincinnati tradition.",url:"https://www.cincinnatimagazine.com/bestrestaurants/"},
+     ]},
+    {id:"cin4",name:"Young Buck Deli",neighborhood:"Over-the-Rhine",category:"Deli",lat:39.1098,lng:-84.5160,
+     note:"Top Chef alumni Brian & Caitlin Young. CNT featured. House-made bread, in-house charcuterie. The New Deal sandwich with capicola and ricotta is unmissable.",
+     sources:["cnt","citybeat"],
+     endorsements:[
+       {s:"cnt",q:"Young Buck Deli represents the best of Cincinnati's new wave — 'Top Chef' talent applied to the humble sandwich.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
+       {s:"citybeat",q:"When I want a sandwich — like a SANDWICH sandwich — Young Buck Deli is my new go-to. The bread and charcuterie are all made in-house.",url:"https://www.citybeat.com/food-drink/9-must-try-restaurants-in-greater-cincinnati-according-a-citybeat-food-writer-18483489/"},
+     ]},
+    {id:"cin5",name:"Salazar",neighborhood:"Over-the-Rhine",category:"Farm-to-Table",lat:39.1106,lng:-84.5157,
+     note:"OTR landmark. Contemporary American, global influences. CNT featured. Chef Jose Salazar: 'Cincinnati boxes above its weight in the quality of our restaurants.'",
+     sources:["cnt","cinmag"],
+     endorsements:[
+       {s:"cnt",q:"Salazar is at the heart of Cincinnati's culinary renaissance — the restaurant that helped make OTR a national dining destination.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
+       {s:"cinmag",q:"Chef Jose Salazar: 'Cincinnati boxes above its weight in the quality of our restaurants.'",url:"https://www.citybeat.com/food-drink/2024-year-in-review-cincinnatis-culinary-rise-continues-18719363/"},
+     ]},
+    {id:"cin6",name:"Opal Rooftop",neighborhood:"Covington, KY",category:"Rooftop Restaurant",lat:39.0837,lng:-84.5101,
+     note:"Seventh floor of the Republic Bank building. 360° panorama of downtown Cincinnati. Rare Grillworks Infierno open-fire grill hoisted up by crane.",
+     sources:["citybeat","cnt"],
+     endorsements:[
+       {s:"citybeat",q:"It would be worth a visit for the view alone. The open-fire grill had to be hoisted to the top of the building by crane.",url:"https://www.citybeat.com/best-of/2024/eats"},
+       {s:"cnt",q:"One of the most spectacular rooftop dining experiences in the region — Opal makes Northern Kentucky essential.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
+     ]},
+    {id:"cin7",name:"Five on Vine",neighborhood:"Over-the-Rhine",category:"American",lat:39.1108,lng:-84.5150,
+     note:"American classics reimagined with obsessive detail. In-house butchery, scratch pasta, house-cured bacon. Menu reworked every few months.",
+     sources:["cinmag"],
+     endorsements:[
+       {s:"cinmag",q:"A fresh rebuttal against the tired argument that American food is bland and boring. Meticulous attention to detail — the meat is butchered in-house.",url:"https://www.cincinnatimagazine.com/the-restaurant-issue-2024/"},
+     ]},
+    {id:"cin8",name:"The Precinct",neighborhood:"Hyde Park",category:"Steakhouse",lat:39.1480,lng:-84.4334,
+     note:"Cincinnati's oldest and most iconic steakhouse, in a historic former police station. OpenTable Top 100 nationally 2024.",
+     sources:["cinmag","cnt"],
+     endorsements:[
+       {s:"cinmag",q:"Cincinnati's oldest and most iconic steakhouse — in OpenTable's Top 100 nationally for 2024.",url:"https://www.cincinnatimagazine.com/bestrestaurants/"},
+       {s:"cnt",q:"The Precinct is a Cincinnati institution and a genuine great American steakhouse.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
+     ]},
+  ]
+},
+
+asheville: {
+  label:"Asheville", state:"NC",
+  center:{lat:35.574,lng:-82.551}, zoom:14,
+  srcKeys:["infat","cnt","adventurist","ba","eater","timeout"],
+  places:[
+    {id:"avl1",name:"Chai Pani",neighborhood:"South Slope",category:"Indian Street Food",lat:35.5641,lng:-82.5546,
+     note:"Changed Asheville's dining scene in 2009. CNT's Asheville essential. No reservations; the line creeps halfway down the block. The okra fries alone are worth it.",
+     sources:["infat","cnt"],
+     endorsements:[
+       {s:"infat",q:"Forever changed Asheville's dining scene. No reservation system and the line regularly creeps halfway down the block. Worth it for the okra fries.",url:"https://www.theinfatuation.com/asheville/guides/best-restaurants-asheville-north-carolina"},
+       {s:"cnt",q:"Chai Pani has earned its place on Condé Nast Traveler's Asheville list — it is quite simply one of the best Indian street food restaurants in America.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
+     ]},
+    {id:"avl2",name:"Cúrate",neighborhood:"Downtown",category:"Spanish Tapas",lat:35.5756,lng:-82.5533,
+     note:"Put Asheville on the map in 2011. Retrofitted 1920s bus depot, marble bar. Order the $70 prix fixe with a group. CNT and Bon Appétit endorsed.",
+     sources:["infat","cnt","ba"],
+     endorsements:[
+       {s:"infat",q:"One of the restaurants that put Asheville's food scene on the map — magnificent marble bar, open kitchen, classic Spanish tapas.",url:"https://www.theinfatuation.com/asheville/guides/best-restaurants-asheville-north-carolina"},
+       {s:"cnt",q:"Cúrate is the restaurant that announced Asheville as a serious culinary destination — and it's still delivering more than a decade later.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
+       {s:"ba",q:"One of the landmark restaurants that put Asheville on the national food map.",url:"https://www.bonappetit.com/"},
+     ]},
+    {id:"avl3",name:"The Market Place",neighborhood:"Downtown",category:"Farm-to-Table",lat:35.5748,lng:-82.5527,
+     note:"Open since 1979. James Beard nomination for Outstanding Restaurant 2024 and Outstanding Chef 2025. The original farm-to-table anchor of Asheville.",
+     sources:["adventurist","cnt","eater"],
+     endorsements:[
+       {s:"adventurist",q:"A historic landmark. Its James Beard nomination for Outstanding Restaurant 2024 was a reminder of just how good it is.",url:"https://www.theadventuristmagazine.com/city-guides/the-south/north-carolina/best-restaurants-in-asheville"},
+       {s:"cnt",q:"The Market Place is on Condé Nast Traveler's Asheville list — the restaurant that made the city what it is today.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
+       {s:"eater",q:"After 45 years, The Market Place remains the gold standard of Appalachian farm-to-table dining.",url:"https://asheville.eater.com/"},
+     ]},
+    {id:"avl4",name:"All Souls Pizza",neighborhood:"River Arts District",category:"Pizza",lat:35.5770,lng:-82.5710,
+     note:"Naturally leavened sourdough fermenting for days. Mushrooms foraged specifically for this restaurant. Picnic benches under twinkly lights. A warm Asheville night perfected.",
+     sources:["adventurist","cnt"],
+     endorsements:[
+       {s:"adventurist",q:"The mushroom forager told me he sources for All Souls — sourdough that spends days fermenting. If there's a better warm Asheville night, I haven't found it.",url:"https://www.theadventuristmagazine.com/city-guides/the-south/north-carolina/best-restaurants-in-asheville"},
+       {s:"cnt",q:"All Souls Pizza is one of those rare places that couldn't exist anywhere else — deeply Asheville, deeply excellent.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
+     ]},
+    {id:"avl5",name:"Neng Jr.'s",neighborhood:"Downtown",category:"Filipino-Southern",lat:35.5752,lng:-82.5538,
+     note:"17-seat queer-owned gem. Filipino-Southern fusion. Adobo oyster, pork lumpia, queso ice cream. CNT featured. The soy-washed adobo martini is not optional.",
+     sources:["infat","cnt","ba"],
+     endorsements:[
+       {s:"infat",q:"A queer-owned restaurant that packs in a ton of bright colors and tenderness. The food blurs the lines between Filipinx and Southern cuisine.",url:"https://www.theinfatuation.com/asheville/guides/best-restaurants-asheville-north-carolina"},
+       {s:"cnt",q:"Neng Jr.'s represents a new Asheville — queer-owned, Filipino-Southern, utterly original.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
+       {s:"ba",q:"One of the most exciting small restaurants in the American South — a tiny room with an enormous point of view.",url:"https://www.bonappetit.com/"},
+     ]},
+    {id:"avl6",name:"Sand Hill Kitchen",neighborhood:"West Asheville",category:"Fried Chicken",lat:35.5670,lng:-82.5930,
+     note:"Best fried chicken in town at a gas station. Buttermilk-soaked sandwich, great cheeseburger. A genuine Asheville original.",
+     sources:["infat","eater"],
+     endorsements:[
+       {s:"infat",q:"As spiritual as the crispy, buttermilk-soaked chicken sandwich tastes. Surprisingly homey and spacious for a petrol stop.",url:"https://www.theinfatuation.com/asheville/guides/best-restaurants-asheville-north-carolina"},
+       {s:"eater",q:"Sand Hill Kitchen is Asheville's cult favourite — equal parts roadside stop and pilgrimage destination.",url:"https://asheville.eater.com/"},
+     ]},
+  ]
+},
+
+hendersonville: {
+  label:"Hendersonville", state:"NC",
+  center:{lat:35.318,lng:-82.462}, zoom:15,
+  srcKeys:["uncorked","timeout","cnt"],
+  places:[
+    {id:"hvl1",name:"Umi Sushi",neighborhood:"Downtown",category:"Sushi",lat:35.3213,lng:-82.4607,
+     note:"Voted best restaurant in Hendersonville for 12+ years. No reservations. Worth the drive from Asheville.",
+     sources:["uncorked"],
+     endorsements:[
+       {s:"uncorked",q:"Our all-time favorite sushi restaurant in Hendersonville & WNC. We'll drive in from Asheville just to eat here. Voted best for 12+ years.",url:"https://www.uncorkedasheville.com/restaurants-in-hendersonville-nc/"},
+     ]},
+    {id:"hvl2",name:"Haus Heidelberg",neighborhood:"Hendersonville",category:"German",lat:35.3007,lng:-82.4629,
+     note:"Exceptional German food. Pork schnitzel on a pretzel bun. Also runs one of the best food trucks in the region.",
+     sources:["uncorked"],
+     endorsements:[
+       {s:"uncorked",q:"If we had to pick only two restaurants in Hendersonville, Haus Heidelberg and Umi Sushi would be it.",url:"https://www.uncorkedasheville.com/restaurants-in-hendersonville-nc/"},
+     ]},
+    {id:"hvl3",name:"Shine",neighborhood:"Downtown",category:"Bar & Restaurant",lat:35.3188,lng:-82.4618,
+     note:"Rooftop bar, voted Best of WNC 2022–2024. Tuna tataki to Big Ass Bowl of Mussels. Extensive cocktail list.",
+     sources:["uncorked","cnt"],
+     endorsements:[
+       {s:"uncorked",q:"One of our favourite spots in Hendersonville with a rooftop terrace. Best of WNC three years running.",url:"https://www.uncorkedasheville.com/restaurants-in-hendersonville-nc/"},
+       {s:"cnt",q:"Shine's rooftop is Hendersonville's most atmospheric dining room — and the food matches the view.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
+     ]},
+    {id:"hvl4",name:"Postero",neighborhood:"Downtown",category:"Upscale Casual",lat:35.3195,lng:-82.4611,
+     note:"Upscale but casual, in a beautifully converted old bank building. A locals' favourite.",
+     sources:["timeout"],
+     endorsements:[
+       {s:"timeout",q:"Postero in an old bank building in downtown Hendersonville proved to be one of our favorites during our recent visit.",url:"https://www.timeout.com/usa/restaurants/best-restaurants-in-asheville"},
+     ]},
+    {id:"hvl5",name:"Never Blue",neighborhood:"Downtown",category:"Tapas",lat:35.3192,lng:-82.4610,
+     note:"Funky tapas bar. Great value, great food. Perfect for a first date or a lively group dinner.",
+     sources:["uncorked"],
+     endorsements:[
+       {s:"uncorked",q:"If you need a first-date restaurant, somewhere not too serious but with seriously perfect food, give Never Blue a try.",url:"https://www.uncorkedasheville.com/restaurants-in-hendersonville-nc/"},
+     ]},
+  ]
+},
+
+parkcity: {
+  label:"Park City", state:"UT",
+  center:{lat:40.648,lng:-111.498}, zoom:15,
+  srcKeys:["campfire","cnt","ba","eater"],
+  places:[
+    {id:"pc1",name:"Riverhorse on Main",neighborhood:"Main Street",category:"Fine Dining",lat:40.6481,lng:-111.4984,
+     note:"Forbes Travel Guide Four Star Award for 16 consecutive years. Seasonally rotating dinner menu. The Park City institution.",
+     sources:["campfire","cnt"],
+     endorsements:[
+       {s:"campfire",q:"Riverhorse on Main has received the Forbes Travel Guide Four Star Award for 16 years running, regularly smiled upon by critics and diners alike.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
+       {s:"cnt",q:"Riverhorse on Main appears on Condé Nast Traveler's Park City guide as the city's essential fine dining destination.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
+     ]},
+    {id:"pc2",name:"Yuki Yama Sushi",neighborhood:"Main Street",category:"Sushi",lat:40.6465,lng:-111.4970,
+     note:"OpenTable's 100 Best Restaurants in America 2024. High-quality sushi and inventive Japanese cuisine on Main Street.",
+     sources:["campfire","cnt"],
+     endorsements:[
+       {s:"campfire",q:"Recognized by OpenTable as one of their 100 Best Restaurants in America for 2024. A favourite among locals and visitors alike.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
+       {s:"cnt",q:"Yuki Yama Sushi is among Condé Nast Traveler's Park City recommendations — a hidden gem on Main Street.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
+     ]},
+    {id:"pc3",name:"High West Distillery",neighborhood:"Wanship",category:"Distillery & Brunch",lat:40.5974,lng:-111.4127,
+     note:"Utah's finest craft distillery. Sunday brunch with complimentary distillery tour + all-you-can-eat buffet. CNT endorsed.",
+     sources:["campfire","cnt","ba"],
+     endorsements:[
+       {s:"campfire",q:"Book for Sunday Brunch — includes a complimentary distillery tour. One of Utah's finest craft distilleries.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
+       {s:"cnt",q:"High West is one of Condé Nast Traveler's Park City must-visits — one of the most scenic distillery experiences in the West.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
+       {s:"ba",q:"High West's Sunday brunch has become a Park City institution — great cocktails, great food, stunning setting.",url:"https://www.bonappetit.com/"},
+     ]},
+    {id:"pc4",name:"Five5eeds",neighborhood:"Snow Creek",category:"Brunch",lat:40.6468,lng:-111.5076,
+     note:"Yelp Elite's #1 Top Place to Eat 2024. Best brunch in Park City. Worth seeking out however you pronounce the name.",
+     sources:["campfire","cnt"],
+     endorsements:[
+       {s:"campfire",q:"The pronunciation of this restaurant is a trade secret — we can guarantee a high-quality experience. Yelp Elite's #1 for 2024.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
+       {s:"cnt",q:"Five5eeds appears in Condé Nast Traveler's Park City guide as the city's most exciting daytime dining destination.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
+     ]},
+    {id:"pc5",name:"The Eating Establishment",neighborhood:"Main Street",category:"Classic American",lat:40.6470,lng:-111.4979,
+     note:"Park City breakfast classic. Loaded Baked Potato Omelette, Corned Beef Hash. Owned by Ty Burrell (Phil Dunphy from Modern Family). Expect a weekend wait.",
+     sources:["campfire"],
+     endorsements:[
+       {s:"campfire",q:"Modern Family fans will love that this restaurant is owned by Ty Burrell aka Phil Dunphy. A great classic Park City breakfast.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
+     ]},
+    {id:"pc6",name:"Rime at St. Regis Deer Valley",neighborhood:"Deer Valley",category:"Luxury Hotel Restaurant",lat:40.6149,lng:-111.4947,
+     note:"Award-winning food with views in every direction. The more casual Brasserie 7452 next door has the best lobster rolls in the valley.",
+     sources:["campfire","cnt"],
+     endorsements:[
+       {s:"campfire",q:"A fantastic view in every direction, plus award-winning food. Brasserie 7452 has the best lobster rolls if you're willing to splurge.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
+       {s:"cnt",q:"Rime at the St. Regis is among Condé Nast Traveler's Deer Valley recommendations — mountain luxury at its most refined.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
+     ]},
+  ]
+},
+
+bozeman: {
+  label:"Bozeman", state:"MT",
+  center:{lat:45.679,lng:-111.043}, zoom:15,
+  srcKeys:["joyvance","cnt","ba","eater"],
+  places:[
+    {id:"boz1",name:"Open Range",neighborhood:"Downtown",category:"Steakhouse",lat:45.6796,lng:-111.0388,
+     note:"Bozeman's institution for exceptional steaks. Classic brasserie-inspired with an extensive wine list. CNT endorsed.",
+     sources:["joyvance","cnt"],
+     endorsements:[
+       {s:"joyvance",q:"This Bozeman institution is consistently recognized for its exceptional steaks — classic brasserie-inspired experience with impeccable service.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
+       {s:"cnt",q:"Open Range is on Condé Nast Traveler's Bozeman radar — a genuinely excellent steakhouse in a city that does beef right.",url:"https://www.cntraveler.com/gallery/best-restaurants-bozeman"},
+     ]},
+    {id:"boz2",name:"Blackbird Kitchen",neighborhood:"Downtown",category:"Pizza & Pasta",lat:45.6786,lng:-111.0373,
+     note:"Wood-fired pizzas and house-made pastas. Open kitchen. Focuses on local, organic ingredients. One of Bozeman's most consistent favourites.",
+     sources:["joyvance","ba"],
+     endorsements:[
+       {s:"joyvance",q:"The wood-fired pizzas and house-made pastas are crowd favorites. Consistently praised for innovative menu and warm atmosphere.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
+       {s:"ba",q:"Blackbird Kitchen is exactly what you want after a day in Yellowstone — excellent pizza and pasta in a warm, welcoming room.",url:"https://www.bonappetit.com/"},
+     ]},
+    {id:"boz3",name:"MAP Brewing Co.",neighborhood:"Downtown",category:"Brewery & Restaurant",lat:45.6781,lng:-111.0352,
+     note:"Modern atmosphere, innovative craft beers, wood-fired pizzas. The spot locals take visitors.",
+     sources:["joyvance","cnt"],
+     endorsements:[
+       {s:"joyvance",q:"MAP lures crowds with its modern atmosphere and innovative craft beers. Wood-fired pizzas and a focus on fresh, local ingredients.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
+       {s:"cnt",q:"MAP Brewing is among Condé Nast Traveler's Bozeman picks — a great brewery that also happens to serve excellent food.",url:"https://www.cntraveler.com/gallery/best-restaurants-bozeman"},
+     ]},
+    {id:"boz4",name:"Plonk Wine Bar",neighborhood:"Downtown",category:"Wine Bar",lat:45.6794,lng:-111.0384,
+     note:"Curated global wine list. Small plates, cheese boards. The perfect après-ski or après-hike evening.",
+     sources:["joyvance","eater"],
+     endorsements:[
+       {s:"joyvance",q:"Plonk features a curated wine list with selections from around the world, alongside small plates and cheese boards.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
+       {s:"eater",q:"Plonk is Bozeman's best wine bar — a civilised stop for anyone wanting to explore beyond the brewery scene.",url:"https://www.eater.com/"},
+     ]},
+    {id:"boz5",name:"Jam! Bozeman",neighborhood:"Downtown",category:"Brunch",lat:45.6800,lng:-111.0410,
+     note:"Vibrant brunch. Banana bread French toast, savory breakfast burrito with a mimosa. Go with time to spare.",
+     sources:["joyvance","ba"],
+     endorsements:[
+       {s:"joyvance",q:"Jam! is the place to be for a vibrant, modern dining experience. The breakfast and brunch menu is a hit.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
+       {s:"ba",q:"Jam! Bozeman is a brunch institution — the kind of place you build a morning around.",url:"https://www.bonappetit.com/"},
+     ]},
+    {id:"boz6",name:"Blacksmith Italian",neighborhood:"Downtown",category:"Italian",lat:45.6790,lng:-111.0380,
+     note:"Handcrafted Italian in Montana. Homemade pasta, pizza, all made with fresh and authentic ingredients.",
+     sources:["joyvance"],
+     endorsements:[
+       {s:"joyvance",q:"Blacksmith Italian features a menu of homemade pasta, pizzas, and Italian specialties, all prepared with fresh and authentic ingredients.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
+     ]},
+    {id:"boz7",name:"Western Cafe",neighborhood:"Downtown",category:"Classic Diner",lat:45.6802,lng:-111.0420,
+     note:"A Bozeman institution. Nostalgic diner-style setting with legendary cinnamon rolls. Cash-register charm.",
+     sources:["joyvance","cnt"],
+     endorsements:[
+       {s:"joyvance",q:"The Western Cafe is a Bozeman institution. The diner-style setting takes you back in time — classic American dishes reign supreme.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
+       {s:"cnt",q:"Any Condé Nast Traveler visit to Bozeman includes the Western Cafe — a genuine American original.",url:"https://www.cntraveler.com/gallery/best-restaurants-bozeman"},
+     ]},
+  ]
+},
+
+};
+
+// Remove the duplicate miami entry programmatically
+CITIES.miami.places = CITIES.miami.places.filter(p => p.id !== 'mia4');
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let map, allMarkers=[], userPins=[], savedIds=new Set();
+let activeCity='chicago', activeFilter='all', addMode=false, pendingLatLng=null;
+let currentPlace=null, sheetUp=false;
+
+const city=()=>CITIES[activeCity];
+const src=(k)=>SOURCES[k]||{name:k,short:k,color:'#8a7f72',url:'#'};
+const srcColor=(k)=>src(k).color;
+
+function getFiltered(){
+  const all=[...city().places, ...userPins.filter(p=>p.cityKey===activeCity)];
+  if(activeFilter==='all') return all;
+  if(activeFilter==='user') return userPins.filter(p=>p.cityKey===activeCity);
+  if(activeFilter==='saved') return all.filter(p=>savedIds.has(p.id));
+  return city().places.filter(p=>p.sources&&p.sources.includes(activeFilter));
+}
+
+// ─────────────────────────────────────────────
+// MAP INIT
+// ─────────────────────────────────────────────
+function initMap(){
+  map=new google.maps.Map(document.getElementById('map'),{
+    center:city().center, zoom:city().zoom,
+    disableDefaultUI:true, zoomControl:true,
+    zoomControlOptions:{position:google.maps.ControlPosition.LEFT_BOTTOM},
+    styles:[
+      {featureType:'all',elementType:'geometry',stylers:[{color:'#f5f0e8'}]},
+      {featureType:'road',elementType:'geometry',stylers:[{color:'#ffffff'}]},
+      {featureType:'road.arterial',elementType:'geometry',stylers:[{color:'#e8dfd0'}]},
+      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#ddd3c0'}]},
+      {featureType:'water',elementType:'geometry',stylers:[{color:'#b8d4e8'}]},
+      {featureType:'poi.park',elementType:'geometry',stylers:[{color:'#d4e6c3'}]},
+      {featureType:'poi',elementType:'labels',stylers:[{visibility:'off'}]},
+      {featureType:'transit',stylers:[{visibility:'simplified'}]},
+      {featureType:'administrative',elementType:'labels.text.fill',stylers:[{color:'#8a7f72'}]},
+      {featureType:'road',elementType:'labels.text.fill',stylers:[{color:'#6b6356'}]},
+      {featureType:'landscape.man_made',elementType:'geometry',stylers:[{color:'#ede8de'}]}
+    ]
+  });
+  map.addListener('click',e=>{
+    if(addMode){pendingLatLng=e.latLng;document.getElementById('coordHint').textContent=`${e.latLng.lat().toFixed(5)}, ${e.latLng.lng().toFixed(5)}`;openModal();}
+  });
+  buildCityTabs(); buildFilters(); renderMarkers(); buildMobileList();
+}
+
+// ─────────────────────────────────────────────
+// CITY TABS
+// ─────────────────────────────────────────────
+function buildCityTabs(){
+  document.getElementById('cityRow').innerHTML=Object.entries(CITIES).map(([k,v])=>
+    `<div class="city-tab${k===activeCity?' active':''}" onclick="switchCity('${k}')">${v.label}</div>`
+  ).join('');
+}
+
+function switchCity(k){
+  activeCity=k; activeFilter='all';
+  buildCityTabs(); buildFilters();
+  if(map){map.setCenter(city().center); map.setZoom(city().zoom);}
+  renderMarkers(); 
+  sheetUp=false; // reset so buildMobileList shows collapsed header
+  buildMobileList(); 
+  closePanel();
+}
+
+// ─────────────────────────────────────────────
+// FILTERS
+// ─────────────────────────────────────────────
+function buildFilters(){
+  let html=`<div class="chip on" data-f="all" onclick="setFilter('all')">All</div>`;
+  city().srcKeys.forEach(k=>{
+    const s=src(k);
+    html+=`<div class="chip" data-f="${k}" onclick="setFilter('${k}')"><span class="pip" style="background:${s.color}"></span>${s.short}</div>`;
+  });
+  html+=`<div class="chip" data-f="user" onclick="setFilter('user')"><span class="pip" style="background:var(--gold)"></span>My Pins</div>`;
+  html+=`<div class="chip" data-f="saved" onclick="setFilter('saved')">★ Saved</div>`;
+  document.getElementById('filterRow').innerHTML=html;
+  buildLegend();
+}
+
+function setFilter(f){
+  activeFilter=f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.f===f));
+  renderMarkers(); 
+  sheetUp=false;
+  buildMobileList();
+}
+
+function buildLegend(){
+  const html=city().srcKeys.map(k=>{
+    const s=src(k);
+    return `<div class="leg-row"><span class="leg-dot" style="background:${s.color}"></span>${s.name}</div>`;
+  }).join('')+`<div class="leg-row"><span class="leg-dot" style="background:var(--gold)"></span>My Pins</div>`;
+  document.getElementById('legend').innerHTML=html;
+}
+
+// ─────────────────────────────────────────────
+// MARKERS
+// ─────────────────────────────────────────────
+function markerSVG(color,isUser,count){
+  const inner=isUser
+    ?`<text x="16" y="21" font-size="11" text-anchor="middle" fill="${color}" font-family="sans-serif">★</text>`
+    :`<circle cx="16" cy="16" r="4.5" fill="${color}"/>`;
+  const badge=count>1?`<circle cx="24" cy="8" r="5.5" fill="#1c1917" stroke="white" stroke-width="1.5"/><text x="24" y="12" font-size="7" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">${count}</text>`:'';
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26S32 28 32 16C32 7.163 24.837 0 16 0z" fill="${color}" opacity="0.92"/><circle cx="16" cy="16" r="8" fill="white" opacity="0.95"/>${inner}${badge}</svg>`;
+}
+
+function makeMarker(place,isUser){
+  const color=isUser?'#c9a84c':(place.sources&&place.sources.length?srcColor(place.sources[0]):'#8a7f72');
+  const count=isUser?0:(place.sources?place.sources.length:0);
+  const icon={url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(markerSVG(color,isUser,count)),scaledSize:new google.maps.Size(32,42),anchor:new google.maps.Point(16,42)};
+  const m=new google.maps.Marker({position:{lat:place.lat,lng:place.lng},map,icon,title:place.name});
+  m.addListener('click',()=>openPlace(place,isUser));
+  return m;
+}
+
+function renderMarkers(){
+  allMarkers.forEach(m=>m.setMap(null)); allMarkers=[];
+  getFiltered().forEach(p=>allMarkers.push(makeMarker(p,!p.sources)));
+  document.getElementById('sheetCount').textContent=getFiltered().length+' places';
+}
+
+// ─────────────────────────────────────────────
+// OPEN PLACE
+// ─────────────────────────────────────────────
+function openPlace(place,isUser){
+  currentPlace=place;
+  map.panTo({lat:place.lat,lng:place.lng});
+  if(map.getZoom()<15) map.setZoom(15);
+  const isSaved=savedIds.has(place.id);
+  const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name+', '+city().label)}`;
+  const bodyHtml=buildDetailHtml(place,isUser);
+  const attribHtml=buildAttribution(place);
+  if(window.innerWidth>=700){
+    document.getElementById('pName').textContent=place.name;
+    document.getElementById('pMeta').textContent=(place.neighborhood||'')+(place.category?' · '+place.category:'');
+    document.getElementById('pSaveBtn').textContent=isSaved?'★ Saved':'☆ Save';
+    document.getElementById('pSaveBtn').className='btn-primary'+(isSaved?' saved':'');
+    document.getElementById('pMapsLink').href=mapsUrl;
+    document.getElementById('pBody').innerHTML=bodyHtml;
+    document.getElementById('pActions').style.display='flex';
+    const attrib=document.getElementById('pAttrib');
+    if(attribHtml){attrib.innerHTML=attribHtml;attrib.style.display='block';}
+    else{attrib.style.display='none';}
+    document.getElementById('panel').classList.add('open');
+  } else {
+    openMobileDetail(place,bodyHtml,mapsUrl,attribHtml);
+  }
+}
+
+function buildDetailHtml(place,isUser){
+  let html='';
+  if(place.note) html+=`<div class="panel-note">${place.note}</div>`;
+  if(isUser&&place.userNote) html+=`<div style="background:#fffbf0;border:1px solid #e8d9a0;border-radius:8px;padding:11px 13px;margin-bottom:16px"><div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">Your Note</div><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.5;color:#3a3530">${place.userNote}</p></div>`;
+  if(place.endorsements&&place.endorsements.length){
+    html+=`<div class="section-label">What the experts say</div>`;
+    place.endorsements.forEach(e=>{
+      const s=SOURCES[e.s]||{name:e.s,short:e.s,color:'#8a7f72'};
+      const link=e.url||s.url||'#';
+      html+=`<div class="endorsement"><div class="endo-av" style="background:${s.color}">${s.short}</div><div class="endo-info"><div class="endo-who">${s.name}</div><div class="endo-quote">"${e.q}"</div><a class="endo-link" href="${link}" target="_blank" rel="noopener">Read original article →</a></div></div>`;
+    });
+  }
+  return html;
+}
+
+function buildAttribution(place){
+  if(!place.sources||!place.sources.length) return '';
+  const links=place.sources.map(k=>{
+    const s=SOURCES[k];
+    if(!s||s.url==='#') return null;
+    return `<a href="${s.url}" target="_blank" rel="noopener">${s.name}</a>`;
+  }).filter(Boolean);
+  if(!links.length) return '';
+  return `All quotes are editorial summaries linking to original articles. Sources: ${links.join(', ')}.`;
+}
+
+function closePanel(){document.getElementById('panel').classList.remove('open');currentPlace=null;}
+
+function openMobileDetail(place,bodyHtml,mapsUrl,attribHtml){
+  const isSaved=savedIds.has(place.id);
+  document.getElementById('mobileList').innerHTML=`
+    <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 18px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:3px">${place.name}</div>
+      <div style="font-size:11px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">${place.neighborhood||''} ${place.category?'· '+place.category:''}</div>
+      ${bodyHtml}
+      <div style="display:flex;gap:9px;margin-top:16px">
+        <button class="btn-primary${isSaved?' saved':''}" style="flex:1" onclick="toggleSave()">${isSaved?'★ Saved':'☆ Save'}</button>
+        <a class="btn-secondary" style="flex:1;text-decoration:none" href="${mapsUrl}" target="_blank">↗ Maps</a>
+      </div>
+      <button onclick="closeMobileDetail()" style="width:100%;margin-top:9px;background:none;border:1.5px solid var(--border);border-radius:4px;padding:10px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dust);cursor:pointer">← Back to list</button>
+      ${attribHtml?`<p style="font-size:10px;color:var(--dust);margin-top:12px;line-height:1.6;padding-bottom:24px">${attribHtml}</p>`:''}
+    </div>`;
+  document.getElementById('sheetTitle').textContent=place.name;
+  document.getElementById('sheetCount').textContent=place.category||'';
+  document.getElementById('sheet').classList.add('open'); sheetUp=true;
+}
+
+function closeMobileDetail(){
+  const c=city();
+  document.getElementById('sheetTitle').textContent=`${c.label}, ${c.state}`;
+  document.getElementById('sheetCount').textContent=`${getFiltered().length} places`;
+  buildMobileList();
+  document.getElementById('sheet').classList.remove('open'); sheetUp=false;
+}
+
+// ─────────────────────────────────────────────
+// MOBILE LIST
+// ─────────────────────────────────────────────
+function buildMobileList(){
+  const filtered=getFiltered();
+  const c=city();
+  const rows=filtered.map(p=>{
+    const isUser=!p.sources;
+    const color=isUser?'#c9a84c':(p.sources&&p.sources.length?srcColor(p.sources[0]):'#8a7f72');
+    const tags=isUser?`<span class="source-tag" style="background:#fffbf0;color:var(--gold)">Mine</span>`
+      :(p.sources||[]).slice(0,2).map(k=>{const s=SOURCES[k]||{short:k,color:'#8a7f72'};return`<span class="source-tag" style="background:${s.color}18;color:${s.color}">${s.short}</span>`;}).join('');
+    const star=savedIds.has(p.id)?' ★':'';
+    const safePlace=JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    return `<div class="place-row" onclick="openPlace(JSON.parse(this.dataset.p),${isUser})" data-p="${safePlace}"><span class="place-row-pip" style="background:${color}"></span><div class="place-row-info"><div class="place-row-name">${p.name}${star}</div><div class="place-row-sub">${p.neighborhood||''} · ${p.category||''}</div></div><div style="display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;max-width:80px;justify-content:flex-end">${tags}</div></div>`;
+  }).join('');
+  // Update title and count
+  const titleEl=document.getElementById('sheetTitle');
+  const countEl=document.getElementById('sheetCount');
+  const listEl=document.getElementById('mobileList');
+  if(titleEl) titleEl.textContent=`${c.label}, ${c.state}`;
+  if(countEl) countEl.textContent=`${filtered.length} places`;
+  if(listEl) listEl.innerHTML=rows||'<p style="padding:18px;font-size:13px;color:var(--dust)">No places match this filter.</p>';
+}
+
+function toggleSheet(){const s=document.getElementById('sheet');sheetUp=!sheetUp;s.className=sheetUp?'open':'';}
+
+// ─────────────────────────────────────────────
+// SAVE
+// ─────────────────────────────────────────────
+function toggleSave(){
+  if(!currentPlace) return;
+  const id=currentPlace.id;
+  if(savedIds.has(id)){savedIds.delete(id);showToast('Removed from guide');}
+  else{savedIds.add(id);showToast('Saved to your guide ✓');}
+  const isSaved=savedIds.has(id);
+  const pb=document.getElementById('pSaveBtn');
+  if(pb){pb.textContent=isSaved?'★ Saved':'☆ Save';pb.className='btn-primary'+(isSaved?' saved':'');}
+  buildMobileList();
+}
+
+// ─────────────────────────────────────────────
+// ADD PIN
+// ─────────────────────────────────────────────
+function toggleAddMode(){
+  addMode=!addMode;
+  const btn=document.getElementById('addPinBtn');
+  const banner=document.getElementById('addBanner');
+  if(addMode){btn.textContent='✕ Cancel';btn.classList.add('active');banner.classList.add('show');map.setOptions({draggableCursor:'crosshair'});}
+  else{btn.textContent='＋ Add Pin';btn.classList.remove('active');banner.classList.remove('show');map.setOptions({draggableCursor:''});pendingLatLng=null;}
+}
+function openModal(){document.getElementById('pinModal').classList.add('show');document.getElementById('pinName').focus();}
+function closeModal(){document.getElementById('pinModal').classList.remove('show');document.getElementById('pinName').value='';document.getElementById('pinNote').value='';document.querySelectorAll('.cat-pill').forEach((p,i)=>p.classList.toggle('selected',i===0));}
+function selectCat(el){document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}
+function saveUserPin(){
+  const name=document.getElementById('pinName').value.trim();
+  if(!name){showToast('Please enter a place name');return;}
+  if(!pendingLatLng){showToast('No location selected');return;}
+  const cat=document.querySelector('.cat-pill.selected')?.textContent||'Other';
+  const note=document.getElementById('pinNote').value.trim();
+  const pin={id:'u'+Date.now(),name,category:cat,neighborhood:'My Pin',lat:pendingLatLng.lat(),lng:pendingLatLng.lng(),userNote:note,cityKey:activeCity};
+  userPins.push(pin);
+  renderMarkers();buildMobileList();closeModal();toggleAddMode();
+  showToast(`"${name}" added to your map ✓`);
+  openPlace(pin,true);
+}
+
+// ─────────────────────────────────────────────
+// ITINERARY BUILDER
+// ─────────────────────────────────────────────
+let selectedVibe = 'balanced';
+
+function openItinPanel(){
+  renderItinForm();
+  document.getElementById('itinOverlay').classList.add('show');
+  document.getElementById('itinPanel').classList.add('show');
+}
+
+function closeItinPanel(){
+  document.getElementById('itinOverlay').classList.remove('show');
+  document.getElementById('itinPanel').classList.remove('show');
+}
+
+function renderItinForm(){
+  const c = city();
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const currentTime = `${hh}:${mm}`;
+
+  document.getElementById('itinBody').innerHTML = `
+    <div class="itin-city-badge">📍 ${c.label}, ${c.state}</div>
+    <div class="itin-form">
+      <div class="itin-row">
+        <div class="itin-field">
+          <label>Time Available</label>
+          <select id="itinDuration">
+            <option value="1">1 hour</option>
+            <option value="2" selected>2 hours</option>
+            <option value="3">3 hours</option>
+            <option value="4">4 hours</option>
+            <option value="6">Half day (6h)</option>
+          </select>
+        </div>
+        <div class="itin-field">
+          <label>Starting Now At</label>
+          <input type="time" id="itinTime" value="${currentTime}">
+        </div>
+      </div>
+      <div class="itin-row">
+        <div class="itin-field itin-full">
+          <label>Starting From</label>
+          <input type="text" id="itinStart" placeholder="e.g. Marriott Downtown, convention center…">
+        </div>
+      </div>
+      <div class="itin-row">
+        <div class="itin-field">
+          <label>Getting Around</label>
+          <select id="itinMode">
+            <option value="walking">Walking</option>
+            <option value="rideshare" selected>Rideshare / Uber</option>
+            <option value="driving">Driving</option>
+            <option value="mix">Mix of both</option>
+          </select>
+        </div>
+        <div class="itin-field">
+          <label>Focus On</label>
+          <select id="itinFocus">
+            <option value="food & drink">Food & drink</option>
+            <option value="coffee & cafes">Coffee & cafes</option>
+            <option value="a mix of everything">Mix of everything</option>
+            <option value="bars & nightlife">Bars & nightlife</option>
+            <option value="culture & outdoors">Culture & outdoors</option>
+          </select>
+        </div>
+      </div>
+      <div class="itin-field" style="margin-bottom:14px">
+        <label>Vibe</label>
+        <div class="vibe-row" id="vibeRow">
+          <div class="vibe-pill on" onclick="setVibe(this,'efficient')">⚡ Efficient</div>
+          <div class="vibe-pill" onclick="setVibe(this,'balanced')">✦ Balanced</div>
+          <div class="vibe-pill" onclick="setVibe(this,'leisurely')">☕ Leisurely</div>
+          <div class="vibe-pill" onclick="setVibe(this,'spontaneous')">🎲 Spontaneous</div>
+        </div>
+      </div>
+      <button class="itin-generate-btn" id="itinGenBtn" onclick="generateItinerary()">
+        ✦ Build My Itinerary
+      </button>
+    </div>`;
+  selectedVibe = 'efficient';
+}
+
+function setVibe(el, v){
+  selectedVibe = v;
+  document.querySelectorAll('.vibe-pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+async function generateItinerary(){
+  const duration = document.getElementById('itinDuration').value;
+  const startTime = document.getElementById('itinTime').value;
+  const startFrom = document.getElementById('itinStart').value.trim() || 'my hotel';
+  const mode = document.getElementById('itinMode').value;
+  const focus = document.getElementById('itinFocus').value;
+  const c = city();
+
+  // Show loading state
+  const btn = document.getElementById('itinGenBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="loading-dots"><span></span><span></span><span></span></div> Building your itinerary…`;
+
+  // Build place context for the prompt
+  const placeContext = c.places.map(p =>
+    `- ${p.name} (${p.neighborhood}, ${p.category}): ${p.note||''}`
+  ).join('\n');
+
+  const prompt = `You are CityWindow, a travel planning assistant for professional travelers.
+
+City: ${c.label}, ${c.state}
+Available time: ${duration} hour(s) starting at ${startTime}
+Starting from: ${startFrom}
+Travel mode: ${mode}
+Focus: ${focus}
+Vibe: ${selectedVibe}
+
+Available places (from top editorial sources including Condé Nast Traveler, Bon Appétit, The Infatuation):
+${placeContext}
+
+Create a realistic, timed itinerary using 2-4 of the places above that best fit the time, vibe, and focus. 
+
+Respond ONLY with a JSON object in this exact format (no markdown, no explanation):
+{
+  "summary": "One warm sentence setting the scene for this plan (max 25 words)",
+  "stops": [
+    {
+      "time": "2:15 PM",
+      "name": "Place Name",
+      "duration": "45 min",
+      "why": "One sentence on why this fits right now (max 20 words)",
+      "tags": ["tag1", "tag2"],
+      "transit": "5 min walk from your hotel"
+    }
+  ]
+}
+
+Rules:
+- Only use places from the list above
+- Times must be realistic given travel between stops
+- Transit field describes getting FROM previous stop (omit for first stop)
+- Tags should be 1-3 short descriptors like "great coffee", "lively bar", "quick bite"
+- Match the ${selectedVibe} vibe — efficient = fewer stops, faster pace; leisurely = linger longer`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': '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', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    console.log('API response:', JSON.stringify(data));
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${data.error?.message || JSON.stringify(data)}`);
+    }
+
+    const raw = data.content?.[0]?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+    renderItinerary(result, c, duration, startTime, startFrom);
+
+  } catch(err) {
+    console.error('Itinerary error:', err);
+    document.getElementById('itinBody').innerHTML += `
+      <div style="margin-top:16px;padding:14px;background:#fff3f0;border:1px solid #f5c6bc;border-radius:8px;font-size:13px;color:#8b3a2e">
+        Error: ${err.message}
+      </div>`;
+    btn.disabled = false;
+    btn.innerHTML = '✦ Try Again';
+  }
+}
+
+function renderItinerary(result, c, duration, startTime, startFrom){
+  const stopsHtml = result.stops.map((stop, i) => `
+    ${stop.transit && i > 0 ? `<div class="itin-transit">→ ${stop.transit}</div>` : ''}
+    <div class="itin-stop">
+      <div class="itin-stop-num">${i+1}</div>
+      <div class="itin-stop-content">
+        <div class="itin-stop-time">${stop.time} · ${stop.duration}</div>
+        <div class="itin-stop-name">${stop.name}</div>
+        <div class="itin-stop-desc">${stop.why}</div>
+        <div class="itin-stop-tags">${(stop.tags||[]).map(t=>`<span class="itin-stop-tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('itinBody').innerHTML = `
+    <div class="itin-city-badge">📍 ${c.label}, ${c.state} · ${duration}h from ${startTime}</div>
+    <div class="itin-result">
+      <div class="itin-summary">${result.summary}</div>
+      ${stopsHtml}
+      <div class="itin-actions">
+        <button class="btn-primary" style="flex:1" onclick="renderItinForm()">← Adjust</button>
+        <button class="btn-primary saved" style="flex:1" onclick="saveItinerary(${JSON.stringify(result).replace(/"/g,'&quot;')})">★ Save Plan</button>
+      </div>
+    </div>`;
+}
+
+function saveItinerary(result){
+  showToast('Itinerary saved to your guide ✓');
+  // Future: persist to savedItineraries array
+}
+
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOdQgWrAtIPqUXvmqz5N_JB0rJa5K1s4M&callback=initMap&loading=async"></script>
+<script>
+// Fallback if Maps fails to load
+window.gm_authFailure = function(){
+  document.getElementById('map').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#f2ede3;gap:12px"><div style="font-size:32px">🗺️</div><div style="font-family:Cormorant Garamond,serif;font-size:18px;color:#1c1917">Map unavailable</div><div style="font-size:13px;color:#9c8f80;text-align:center;max-width:260px;line-height:1.6">API key needs updating — use the place list below to browse</div></div>';
+  // Still init the list so mobile sheet works
+  buildCityTabs(); buildFilters(); buildMobileList();
+};
+</script>
+</body>
+</html>
