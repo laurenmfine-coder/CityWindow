@@ -1329,22 +1329,29 @@ Rules:
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': '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', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
+    console.log('API response:', JSON.stringify(data));
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${data.error?.message || JSON.stringify(data)}`);
+    }
+
     const raw = data.content?.[0]?.text || '';
     const clean = raw.replace(/```json|```/g, '').trim();
     const result = JSON.parse(clean);
     renderItinerary(result, c, duration, startTime, startFrom);
 
   } catch(err) {
+    console.error('Itinerary error:', err);
     document.getElementById('itinBody').innerHTML += `
       <div style="margin-top:16px;padding:14px;background:#fff3f0;border:1px solid #f5c6bc;border-radius:8px;font-size:13px;color:#8b3a2e">
-        Something went wrong building your itinerary. Please try again.
+        Error: ${err.message}
       </div>`;
     btn.disabled = false;
     btn.innerHTML = '✦ Try Again';
