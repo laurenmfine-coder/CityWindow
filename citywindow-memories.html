@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CityWindow — Trip Memories</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#1c1917;--cream:#faf8f4;--parchment:#f2ede3;--border:#e2d9cc;
+  --dust:#9c8f80;--terra:#b85c38;--sage:#5c7a5e;--gold:#c9a84c;
+  --indigo:#3d5a80;--blush:#e8d5c4;--shadow:rgba(28,25,23,.12);
+}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--ink)}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--cream);transition:transform .38s cubic-bezier(.32,.72,0,1),opacity .3s;will-change:transform}
+.screen.hidden{transform:translateX(100%);pointer-events:none}
+.screen.slide-left{transform:translateX(-30%);pointer-events:none;opacity:.6}
+
+/* ── AUTH SCREEN ── */
+#authScreen{background:var(--ink);align-items:center;justify-content:center;padding:40px 32px}
+.auth-logo{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:5px;text-transform:uppercase;color:var(--dust);margin-bottom:8px}
+.auth-brand{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:500;color:var(--cream);letter-spacing:-.01em;margin-bottom:4px}
+.auth-brand em{color:var(--terra);font-style:normal}
+.auth-tagline{font-size:13px;color:var(--dust);letter-spacing:.06em;margin-bottom:48px;text-align:center;line-height:1.6}
+.auth-card{background:var(--cream);border-radius:16px;padding:28px 24px;width:100%;max-width:380px}
+.auth-tabs{display:flex;gap:0;margin-bottom:24px;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
+.auth-tab{flex:1;padding:10px;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;text-align:center;cursor:pointer;background:none;border:none;color:var(--dust);transition:all .2s;font-family:'DM Sans',sans-serif}
+.auth-tab.on{background:var(--ink);color:var(--cream)}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);margin-bottom:5px}
+.auth-field input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:white;outline:none;transition:border-color .2s}
+.auth-field input:focus{border-color:var(--terra)}
+.auth-btn{width:100%;background:var(--terra);color:white;border:none;border-radius:8px;padding:14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:4px}
+.auth-btn:hover{background:#a04e2e}
+.auth-or{text-align:center;font-size:12px;color:var(--dust);margin:16px 0}
+.auth-demo{width:100%;background:none;color:var(--dust);border:1.5px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.auth-demo:hover{border-color:var(--ink);color:var(--ink)}
+
+/* ── TOP NAV ── */
+.top-nav{background:var(--cream);border-bottom:1px solid var(--border);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--ink)}
+.nav-logo em{color:var(--terra);font-style:normal}
+.nav-back{background:none;border:none;color:var(--dust);font-size:22px;cursor:pointer;padding:4px 8px 4px 0;line-height:1}
+.nav-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);flex:1}
+.nav-action{background:none;border:none;color:var(--terra);font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0}
+.avatar-sm{width:32px;height:32px;border-radius:50%;background:var(--terra);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
+
+/* ── HOME / TRIPS LIST ── */
+#homeScreen .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.home-hero{padding:24px 20px 16px;background:var(--ink);color:var(--cream)}
+.home-greeting{font-size:12px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.home-name{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:500;line-height:1.1;margin-bottom:16px}
+.home-stats{display:flex;gap:20px}
+.stat{text-align:center}
+.stat-n{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;color:var(--cream)}
+.stat-l{font-size:10px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+.section-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px}
+.section-title{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dust)}
+.section-action{font-size:11px;color:var(--terra);font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
+.trip-card{background:white;border:1px solid var(--border);margin:0 16px 10px;border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.trip-card:active{transform:scale(.98)}
+.trip-card-img{height:140px;background:linear-gradient(135deg,var(--parchment),var(--blush));position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.trip-card-img .trip-emoji{font-size:48px;opacity:.6}
+.trip-card-img .trip-badge{position:absolute;top:10px;right:10px;background:rgba(28,25,23,.7);color:white;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.trip-card-img .trip-members{position:absolute;bottom:10px;left:10px;display:flex;gap:-4px}
+.member-av{width:24px;height:24px;border-radius:50%;border:2px solid white;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:white;margin-right:-6px}
+.trip-card-body{padding:14px 16px}
+.trip-card-city{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);margin-bottom:3px}
+.trip-card-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.trip-card-meta{font-size:12px;color:var(--dust)}
+.new-trip-btn{margin:4px 16px 32px;border:1.5px dashed var(--border);border-radius:12px;padding:18px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:none;width:calc(100% - 32px);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dust);transition:all .2s}
+.new-trip-btn:hover{border-color:var(--terra);color:var(--terra)}
+
+/* ── TRIP DETAIL ── */
+#tripScreen .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.trip-hero{padding:20px;background:var(--ink);color:var(--cream)}
+.trip-hero-city{font-size:11px;color:var(--dust);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.trip-hero-name{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:500;margin-bottom:4px}
+.trip-hero-dates{font-size:12px;color:var(--dust);margin-bottom:16px}
+.trip-members-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.member-chip{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border-radius:20px;padding:4px 10px 4px 4px}
+.member-chip-av{width:22px;height:22px;border-radius:50%;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:white}
+.member-chip-name{font-size:11px;color:var(--cream)}
+.invite-chip{background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.25);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--dust);cursor:pointer}
+.trip-stats-row{display:flex;gap:1px;border-radius:8px;overflow:hidden}
+.trip-stat{flex:1;background:rgba(255,255,255,.08);padding:10px 8px;text-align:center}
+.trip-stat-n{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--cream)}
+.trip-stat-l{font-size:9px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+
+/* VIEW TOGGLE */
+.view-toggle{display:flex;background:var(--cream);border-bottom:1px solid var(--border);flex-shrink:0}
+.view-tab{flex:1;padding:12px 4px;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);cursor:pointer;transition:all .15s}
+.view-tab.on{color:var(--ink);border-bottom-color:var(--terra)}
+
+/* TIMELINE VIEW */
+.timeline{padding:20px}
+.timeline-day{margin-bottom:28px}
+.timeline-date{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.timeline-date::after{content:'';flex:1;height:1px;background:var(--border)}
+.memory-card{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.memory-photo{width:100%;height:200px;object-fit:cover;background:linear-gradient(135deg,var(--parchment),var(--blush));display:flex;align-items:center;justify-content:center;font-size:64px;cursor:pointer;position:relative}
+.memory-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;height:180px}
+.memory-photo-grid .photo-cell{background:linear-gradient(135deg,var(--parchment),var(--blush));display:flex;align-items:center;justify-content:center;font-size:36px;cursor:pointer;overflow:hidden}
+.photo-count-overlay{position:absolute;inset:0;background:rgba(28,25,23,.5);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;color:white}
+.memory-body{padding:14px 16px}
+.memory-place{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);margin-bottom:3px}
+.memory-caption{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--ink);line-height:1.6;margin-bottom:10px}
+.memory-meta{display:flex;align-items:center;justify-content:space-between}
+.memory-who{display:flex;align-items:center;gap:6px}
+.memory-who-av{width:20px;height:20px;border-radius:50%;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;color:white}
+.memory-who-name{font-size:11px;color:var(--dust)}
+.memory-time{font-size:11px;color:var(--dust)}
+.memory-actions{display:flex;gap:0;border-top:1px solid var(--border);margin-top:12px}
+.mem-action{flex:1;padding:10px;background:none;border:none;border-right:1px solid var(--border);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--dust);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s}
+.mem-action:last-child{border-right:none}
+.mem-action:hover{background:var(--parchment)}
+.mem-action.liked{color:var(--terra)}
+
+/* COMMENTS */
+.comments-section{padding:0 16px 16px}
+.comment{display:flex;gap:8px;margin-bottom:10px}
+.comment-av{width:26px;height:26px;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;margin-top:2px}
+.comment-bubble{background:var(--parchment);border-radius:0 10px 10px 10px;padding:9px 12px;flex:1}
+.comment-name{font-size:11px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.comment-text{font-size:13px;color:#3a3530;line-height:1.5}
+.comment-time{font-size:10px;color:var(--dust);margin-top:3px}
+.add-comment{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border);background:var(--cream);flex-shrink:0}
+.comment-input{flex:1;border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:white;outline:none}
+.comment-input:focus{border-color:var(--terra)}
+.comment-send{background:var(--terra);color:white;border:none;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* MAP VIEW */
+.map-view{flex:1;position:relative;overflow:hidden}
+.mock-map{width:100%;height:100%;background:linear-gradient(145deg,#e8e0d0 0%,#f0e8d8 40%,#ddd5c5 100%);position:relative;overflow:hidden}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(180,170,155,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(180,170,155,.3) 1px,transparent 1px);background-size:60px 60px}
+.map-road-h{position:absolute;height:8px;background:#fff;opacity:.8;border-radius:4px}
+.map-road-v{position:absolute;width:8px;background:#fff;opacity:.8;border-radius:4px}
+.map-pin{position:absolute;transform:translate(-50%,-100%);cursor:pointer;transition:transform .2s}
+.map-pin:hover{transform:translate(-50%,-100%) scale(1.15)}
+.map-pin-bubble{background:var(--ink);color:var(--cream);border-radius:20px;padding:5px 10px 5px 8px;font-size:11px;font-weight:500;display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 4px 14px rgba(28,25,23,.3)}
+.map-pin-bubble::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--ink);border-bottom:none}
+.map-pin-photo{width:22px;height:22px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.map-pin.has-photo .map-pin-bubble{background:var(--terra)}
+.map-pin.has-photo .map-pin-bubble::after{border-top-color:var(--terra)}
+.map-fab{position:absolute;bottom:24px;right:16px;background:var(--terra);color:white;border:none;border-radius:28px;padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 4px 20px rgba(184,92,56,.4)}
+
+/* ADD MEMORY MODAL */
+#addMemoryModal{position:fixed;inset:0;background:rgba(28,25,23,.6);z-index:600;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(3px)}
+#addMemoryModal.show{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--cream);border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%;transform:translateY(30px);transition:transform .25s;max-height:90vh;overflow-y:auto}
+#addMemoryModal.show .modal-sheet{transform:translateY(0)}
+.modal-drag{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--dust);font-size:22px;cursor:pointer;line-height:1}
+.photo-upload-zone{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px;background:white}
+.photo-upload-zone:hover{border-color:var(--terra);background:var(--parchment)}
+.photo-upload-icon{font-size:32px;margin-bottom:8px}
+.photo-upload-text{font-size:13px;color:var(--dust)}
+.photo-previews{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.photo-preview{width:72px;height:72px;border-radius:8px;background:linear-gradient(135deg,var(--parchment),var(--blush));display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;cursor:pointer}
+.photo-preview .remove{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:white;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-bottom:5px}
+.modal-field input,.modal-field textarea,.modal-field select{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.modal-field input:focus,.modal-field textarea:focus,.modal-field select:focus{border-color:var(--terra)}
+.modal-field textarea{resize:none;height:80px;line-height:1.5}
+.modal-save{width:100%;background:var(--ink);color:var(--cream);border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:4px}
+.modal-save:hover{background:#2e2925}
+
+/* INVITE MODAL */
+#inviteModal{position:fixed;inset:0;background:rgba(28,25,23,.6);z-index:600;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .25s}
+#inviteModal.show{opacity:1;pointer-events:all}
+.invite-card{background:var(--cream);border-radius:16px;padding:28px 24px;width:100%;max-width:360px;transform:scale(.95);transition:transform .25s}
+#inviteModal.show .invite-card{transform:scale(1)}
+.invite-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;margin-bottom:6px}
+.invite-sub{font-size:13px;color:var(--dust);line-height:1.6;margin-bottom:20px}
+.invite-link-box{background:var(--parchment);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--ink);font-weight:500;margin-bottom:14px;word-break:break-all;letter-spacing:.02em}
+.invite-copy{width:100%;background:var(--terra);color:white;border:none;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-bottom:10px}
+.invite-close{width:100%;background:none;color:var(--dust);border:1.5px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+
+/* NEW TRIP MODAL */
+#newTripModal{position:fixed;inset:0;background:rgba(28,25,23,.6);z-index:600;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+#newTripModal.show{opacity:1;pointer-events:all}
+
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--sage);color:white;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:700;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* PHOTO LIGHTBOX */
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:800;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#lightbox.show{opacity:1;pointer-events:all}
+.lightbox-inner{text-align:center;padding:20px}
+.lightbox-emoji{font-size:120px;margin-bottom:16px}
+.lightbox-caption{font-family:'Cormorant Garamond',serif;font-size:18px;color:white;font-style:italic}
+.lightbox-close{position:absolute;top:20px;right:20px;background:none;border:none;color:white;font-size:28px;cursor:pointer;opacity:.7}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease both}
+</style>
+</head>
+<body>
+
+<!-- ── AUTH SCREEN ── -->
+<div class="screen" id="authScreen">
+  <div class="auth-logo">City Window</div>
+  <div class="auth-brand">City<em>Window</em></div>
+  <div class="auth-tagline">Your travel memories,<br>shared with the people who were there.</div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="authTab(this,'signin')">Sign In</button>
+      <button class="auth-tab" onclick="authTab(this,'signup')">Create Account</button>
+    </div>
+    <div id="signinForm">
+      <div class="auth-field"><label>Email</label><input type="email" placeholder="you@example.com" value="lauren@nsu.edu"></div>
+      <div class="auth-field"><label>Password</label><input type="password" placeholder="••••••••" value="••••••••"></div>
+      <button class="auth-btn" onclick="signIn()">Sign In →</button>
+    </div>
+    <div id="signupForm" style="display:none">
+      <div class="auth-field"><label>Your Name</label><input type="text" placeholder="First Last"></div>
+      <div class="auth-field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+      <div class="auth-field"><label>Password</label><input type="password" placeholder="Create a password"></div>
+      <button class="auth-btn" onclick="signIn()">Create Account →</button>
+    </div>
+    <div class="auth-or">or</div>
+    <button class="auth-demo" onclick="signIn()">Continue as Demo User</button>
+  </div>
+</div>
+
+<!-- ── HOME SCREEN ── -->
+<div class="screen hidden" id="homeScreen">
+  <div class="top-nav">
+    <div class="nav-logo">City<em>Window</em></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="nav-action" onclick="openNewTrip()">+ New Trip</button>
+      <div class="avatar-sm" onclick="showToast('Profile settings coming soon')">LF</div>
+    </div>
+  </div>
+  <div class="scroll">
+    <div class="home-hero">
+      <div class="home-greeting">Welcome back</div>
+      <div class="home-name">Dr. Lauren Fine</div>
+      <div class="home-stats">
+        <div class="stat"><div class="stat-n">4</div><div class="stat-l">Trips</div></div>
+        <div class="stat"><div class="stat-n">127</div><div class="stat-l">Memories</div></div>
+        <div class="stat"><div class="stat-n">3</div><div class="stat-l">Friends</div></div>
+        <div class="stat"><div class="stat-n">9</div><div class="stat-l">Cities</div></div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div class="section-title">Your Trips</div>
+      <button class="section-action">See all</button>
+    </div>
+
+    <div class="trip-card fade-up" onclick="openTrip(0)" style="animation-delay:.05s">
+      <div class="trip-card-img" style="background:linear-gradient(135deg,#2e3a4e,#3d5a80)">
+        <span class="trip-emoji">🏙</span>
+        <div class="trip-badge">Active</div>
+        <div class="trip-members">
+          <div class="member-av" style="background:#b85c38">LF</div>
+          <div class="member-av" style="background:#5c7a5e">DK</div>
+          <div class="member-av" style="background:#c9a84c">SM</div>
+        </div>
+      </div>
+      <div class="trip-card-body">
+        <div class="trip-card-city">Chicago, IL</div>
+        <div class="trip-card-name">ACC Conference 2026</div>
+        <div class="trip-card-meta">Mar 6–9 · 3 members · 12 memories</div>
+      </div>
+    </div>
+
+    <div class="trip-card fade-up" onclick="openTrip(1)" style="animation-delay:.1s">
+      <div class="trip-card-img" style="background:linear-gradient(135deg,#3a2e1e,#b85c38)">
+        <span class="trip-emoji">🌴</span>
+        <div class="trip-badge">Past</div>
+        <div class="trip-members">
+          <div class="member-av" style="background:#b85c38">LF</div>
+          <div class="member-av" style="background:#3d5a80">EP</div>
+        </div>
+      </div>
+      <div class="trip-card-body">
+        <div class="trip-card-city">Miami, FL</div>
+        <div class="trip-card-name">AAAAI Annual Meeting</div>
+        <div class="trip-card-meta">Feb 20–24 · 2 members · 28 memories</div>
+      </div>
+    </div>
+
+    <div class="trip-card fade-up" onclick="openTrip(2)" style="animation-delay:.15s">
+      <div class="trip-card-img" style="background:linear-gradient(135deg,#1e3a2e,#5c7a5e)">
+        <span class="trip-emoji">🏔</span>
+        <div class="trip-badge">Past</div>
+        <div class="trip-members">
+          <div class="member-av" style="background:#b85c38">LF</div>
+          <div class="member-av" style="background:#c9a84c">RB</div>
+          <div class="member-av" style="background:#5c7a5e">JM</div>
+          <div class="member-av" style="background:#3d5a80">PK</div>
+        </div>
+      </div>
+      <div class="trip-card-body">
+        <div class="trip-card-city">Asheville, NC</div>
+        <div class="trip-card-name">Harvard Macy Retreat</div>
+        <div class="trip-card-meta">Jan 15–18 · 4 members · 41 memories</div>
+      </div>
+    </div>
+
+    <button class="new-trip-btn fade-up" onclick="openNewTrip()" style="animation-delay:.2s">
+      <span style="font-size:16px">＋</span> Start a New Trip
+    </button>
+  </div>
+</div>
+
+<!-- ── TRIP DETAIL SCREEN ── -->
+<div class="screen hidden" id="tripScreen">
+  <div class="top-nav">
+    <button class="nav-back" onclick="goHome()">←</button>
+    <div class="nav-title" id="tripNavTitle">Trip</div>
+    <button class="nav-action" onclick="openInvite()">Invite</button>
+  </div>
+
+  <div class="trip-hero" id="tripHero"></div>
+
+  <div class="view-toggle">
+    <button class="view-tab on" onclick="switchView('timeline',this)">Timeline</button>
+    <button class="view-tab" onclick="switchView('map',this)">Map</button>
+    <button class="view-tab" onclick="switchView('members',this)">Group</button>
+  </div>
+
+  <!-- TIMELINE -->
+  <div id="timelineView" class="scroll" style="flex:1;overflow-y:auto">
+    <div class="timeline" id="timelineContent"></div>
+    <div style="height:90px"></div>
+  </div>
+
+  <!-- MAP VIEW -->
+  <div id="mapView" style="flex:1;display:none;position:relative;overflow:hidden">
+    <div class="mock-map">
+      <div class="map-grid"></div>
+      <div class="map-road-h" style="top:38%;left:0;right:0"></div>
+      <div class="map-road-h" style="top:62%;left:0;right:0"></div>
+      <div class="map-road-v" style="left:30%;top:0;bottom:0"></div>
+      <div class="map-road-v" style="left:65%;top:0;bottom:0"></div>
+
+      <div class="map-pin has-photo" style="left:32%;top:35%">
+        <div class="map-pin-bubble"><div class="map-pin-photo">🍷</div>Avec</div>
+      </div>
+      <div class="map-pin has-photo" style="left:58%;top:48%">
+        <div class="map-pin-bubble"><div class="map-pin-photo">🌊</div>Riverwalk</div>
+      </div>
+      <div class="map-pin" style="left:42%;top:22%">
+        <div class="map-pin-bubble"><div class="map-pin-photo">🍜</div>Akahoshi</div>
+      </div>
+      <div class="map-pin has-photo" style="left:70%;top:65%">
+        <div class="map-pin-bubble"><div class="map-pin-photo">🎨</div>Art Institute</div>
+      </div>
+      <div class="map-pin" style="left:22%;top:58%">
+        <div class="map-pin-bubble"><div class="map-pin-photo">☕</div>Spinning J</div>
+      </div>
+
+      <div style="position:absolute;bottom:16px;left:16px;background:white;border-radius:10px;padding:10px 12px;font-size:11px;color:var(--dust);box-shadow:0 2px 10px var(--shadow)">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:var(--terra)"></div>Has photo memories</div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--ink)"></div>Visited place</div>
+      </div>
+    </div>
+    <button class="map-fab" onclick="openAddMemory()">📷 Add Memory</button>
+  </div>
+
+  <!-- GROUP VIEW -->
+  <div id="membersView" style="flex:1;display:none;overflow-y:auto">
+    <div style="padding:20px" id="membersContent"></div>
+  </div>
+
+  <!-- FAB -->
+  <button id="timelineFab" style="position:fixed;bottom:24px;right:16px;background:var(--terra);color:white;border:none;border-radius:28px;padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 4px 20px rgba(184,92,56,.4);z-index:100" onclick="openAddMemory()">
+    📷 Add Memory
+  </button>
+</div>
+
+<!-- ── ADD MEMORY MODAL ── -->
+<div id="addMemoryModal">
+  <div class="modal-sheet">
+    <div class="modal-drag"></div>
+    <div class="modal-title">Add a Memory <button class="modal-close" onclick="closeAddMemory()">✕</button></div>
+
+    <div class="photo-upload-zone" onclick="addPhotoPreview()" id="uploadZone">
+      <div class="photo-upload-icon">📷</div>
+      <div class="photo-upload-text">Tap to add photos</div>
+      <div style="font-size:11px;color:var(--border);margin-top:4px">JPG, PNG up to 10MB each</div>
+    </div>
+    <div class="photo-previews" id="photoPreviews"></div>
+
+    <div class="modal-field">
+      <label>Place</label>
+      <select>
+        <option>Avec — West Loop</option>
+        <option>The Publican — West Loop</option>
+        <option>Akahoshi Ramen — Logan Square</option>
+        <option>Chicago Riverwalk — Downtown</option>
+        <option>Art Institute — Millennium Park</option>
+        <option>Spinning J — Humboldt Park</option>
+        <option>Other / custom place</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Caption</label>
+      <textarea placeholder="What made this moment special?"></textarea>
+    </div>
+    <div class="modal-field" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label>Date</label>
+        <input type="date" value="2026-03-07">
+      </div>
+      <div>
+        <label>Time</label>
+        <input type="time" value="19:30">
+      </div>
+    </div>
+    <button class="modal-save" onclick="saveMemory()">Save Memory ✓</button>
+  </div>
+</div>
+
+<!-- ── INVITE MODAL ── -->
+<div id="inviteModal">
+  <div class="invite-card">
+    <div class="invite-title">Invite to this trip</div>
+    <div class="invite-sub">Share this link with friends. Anyone with the link can join and add memories.</div>
+    <div class="invite-link-box">citywindow.app/trip/acc-chicago-2026/join?code=CW8X2K</div>
+    <button class="invite-copy" onclick="copyInvite()">Copy Invite Link</button>
+    <div style="text-align:center;font-size:12px;color:var(--dust);margin:10px 0">or share via</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="showToast('Opening Messages…')" style="flex:1;padding:10px;background:var(--parchment);border:1px solid var(--border);border-radius:8px;font-size:20px;cursor:pointer">💬</button>
+      <button onclick="showToast('Opening Mail…')" style="flex:1;padding:10px;background:var(--parchment);border:1px solid var(--border);border-radius:8px;font-size:20px;cursor:pointer">✉️</button>
+      <button onclick="showToast('Copied to clipboard')" style="flex:1;padding:10px;background:var(--parchment);border:1px solid var(--border);border-radius:8px;font-size:20px;cursor:pointer">🔗</button>
+      <button onclick="showToast('Opening WhatsApp…')" style="flex:1;padding:10px;background:var(--parchment);border:1px solid var(--border);border-radius:8px;font-size:20px;cursor:pointer">📱</button>
+    </div>
+    <button class="invite-close" onclick="closeInvite()">Done</button>
+  </div>
+</div>
+
+<!-- ── NEW TRIP MODAL ── -->
+<div id="newTripModal">
+  <div class="modal-sheet">
+    <div class="modal-drag"></div>
+    <div class="modal-title">New Trip <button class="modal-close" onclick="closeNewTrip()">✕</button></div>
+    <div class="modal-field"><label>Trip Name</label><input type="text" placeholder="e.g. AHA Conference Nashville"></div>
+    <div class="modal-field"><label>City</label>
+      <select>
+        <option>Chicago, IL</option><option>Miami, FL</option><option>New York, NY</option>
+        <option>Nashville, TN</option><option>Cincinnati, OH</option><option>Asheville, NC</option>
+        <option>Park City, UT</option><option>Bozeman, MT</option><option>Other</option>
+      </select>
+    </div>
+    <div class="modal-field" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label>Start Date</label><input type="date"></div>
+      <div><label>End Date</label><input type="date"></div>
+    </div>
+    <div class="modal-field"><label>Trip Type</label>
+      <select>
+        <option>Conference / CME</option><option>Leisure</option><option>Relocation visit</option>
+        <option>Family</option><option>Research</option>
+      </select>
+    </div>
+    <button class="modal-save" onclick="createTrip()">Create Trip →</button>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close">✕</button>
+  <div class="lightbox-inner">
+    <div class="lightbox-emoji" id="lightboxEmoji"></div>
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+const MEMBERS = {
+  LF: { name:'Lauren Fine',    color:'#b85c38', role:'Trip organizer' },
+  DK: { name:'David Kim',      color:'#5c7a5e', role:'Cardiologist, ACC attendee' },
+  SM: { name:'Sarah Mehta',    color:'#c9a84c', role:'Medical educator' },
+  EP: { name:'Elena Park',     color:'#3d5a80', role:'Allergist' },
+  RB: { name:'Rebecca Brown',  color:'#8a5c2e', role:'Harvard Macy cohort' },
+  JM: { name:'James Mitchell', color:'#2e6b7b', role:'Harvard Macy cohort' },
+  PK: { name:'Priya Kumar',    color:'#6b4a8a', role:'Harvard Macy cohort' },
+};
+
+const TRIPS = [
+  {
+    name:'ACC Conference 2026', city:'Chicago, IL', emoji:'🏙',
+    dates:'Mar 6–9, 2026', status:'Active',
+    members:['LF','DK','SM'],
+    memories:[
+      { id:1, place:'Avec', area:'West Loop', date:'Mar 6', time:'7:30 PM',
+        by:'LF', caption:'The chorizo-stuffed dates are everything they promised. Worth every minute of the wait.',
+        photos:['🍷','🕯️','🍽️'], likes:4, comments:[
+          { by:'DK', text:'Those dates!! I'm already thinking about going back tomorrow night.', time:'8:12 PM' },
+          { by:'SM', text:'Saved to my guide. Non-negotiable for every Chicago trip from now on.', time:'8:45 PM' },
+        ]},
+      { id:2, place:'Chicago Riverwalk', area:'Downtown', date:'Mar 7', time:'6:15 AM',
+        by:'DK', caption:'Best way to start a conference day. The city at 6am before everyone wakes up.',
+        photos:['🌅','🌊'], likes:6, comments:[
+          { by:'LF', text:'I need to wake up earlier. This is stunning.', time:'7:02 AM' },
+        ]},
+      { id:3, place:'Akahoshi Ramen', area:'Logan Square', date:'Mar 7', time:'12:45 PM',
+        by:'SM', caption:'Ramen Lord in the flesh. The miso is extraordinary. Only 30 minute wait at lunch!',
+        photos:['🍜'], likes:3, comments:[]},
+    ]
+  },
+  {
+    name:'AAAAI Annual Meeting', city:'Miami, FL', emoji:'🌴',
+    dates:'Feb 20–24, 2026', status:'Past',
+    members:['LF','EP'],
+    memories:[
+      { id:4, place:'Ariete', area:'Coconut Grove', date:'Feb 21', time:'8:00 PM',
+        by:'LF', caption:'The most serious restaurant in Miami. Rated 9.6 and it earns every point.',
+        photos:['🦞','🍷','🌿'], likes:7, comments:[
+          { by:'EP', text:'The smoked fish dip at the start was the best thing I ate all week.', time:'9:30 PM' },
+        ]},
+      { id:5, place:'Taquiza', area:'North Beach', date:'Feb 22', time:'1:00 PM',
+        by:'EP', caption:'Best tacos in Miami. Ate three. No regrets.',
+        photos:['🌮','🌮'], likes:5, comments:[]},
+    ]
+  },
+  {
+    name:'Harvard Macy Retreat', city:'Asheville, NC', emoji:'🏔',
+    dates:'Jan 15–18, 2026', status:'Past',
+    members:['LF','RB','JM','PK'],
+    memories:[
+      { id:6, place:'Chai Pani', area:'South Slope', date:'Jan 15', time:'7:00 PM',
+        by:'RB', caption:'Okra fries and samosas on the sidewalk. The line was worth it three times over.',
+        photos:['🥘','🧅','🌶️'], likes:8, comments:[
+          { by:'LF', text:'This is everything. Cannot believe I had never been.', time:'7:45 PM' },
+          { by:'JM', text:'Best meal of the entire retreat. Not even close.', time:'8:10 PM' },
+        ]},
+    ]
+  },
+];
+
+let currentTripIdx = 0;
+let currentView = 'timeline';
+let photoEmojis = ['📸','🏙','🌆','🌃','🍽️','🥂','☕','🌿','🎨','🌊'];
+let addedPhotos = [];
+
+// ── AUTH ──────────────────────────────────────────────────────
+function authTab(el, mode) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('signinForm').style.display = mode === 'signin' ? 'block' : 'none';
+  document.getElementById('signupForm').style.display = mode === 'signup' ? 'block' : 'none';
+}
+
+function signIn() {
+  document.getElementById('authScreen').classList.add('slide-left');
+  setTimeout(() => {
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('authScreen').classList.remove('slide-left');
+    document.getElementById('homeScreen').classList.remove('hidden');
+  }, 350);
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────
+function openTrip(idx) {
+  currentTripIdx = idx;
+  const trip = TRIPS[idx];
+  document.getElementById('tripNavTitle').textContent = trip.city;
+  renderTripHero(trip);
+  renderTimeline(trip);
+  renderMembers(trip);
+  switchView('timeline', document.querySelector('.view-tab'));
+  document.getElementById('homeScreen').classList.add('slide-left');
+  setTimeout(() => {
+    document.getElementById('homeScreen').classList.add('hidden');
+    document.getElementById('homeScreen').classList.remove('slide-left');
+    document.getElementById('tripScreen').classList.remove('hidden');
+  }, 350);
+}
+
+function goHome() {
+  document.getElementById('tripScreen').classList.add('hidden');
+  document.getElementById('homeScreen').classList.remove('hidden');
+}
+
+function renderTripHero(trip) {
+  const memberAvatars = trip.members.map(m =>
+    `<div class="member-chip"><div class="member-chip-av" style="background:${MEMBERS[m].color}">${m}</div><div class="member-chip-name">${MEMBERS[m].name.split(' ')[0]}</div></div>`
+  ).join('');
+
+  document.getElementById('tripHero').innerHTML = `
+    <div class="trip-hero-city">${trip.city}</div>
+    <div class="trip-hero-name">${trip.name}</div>
+    <div class="trip-hero-dates">${trip.dates} · ${trip.status}</div>
+    <div class="trip-members-row">
+      ${memberAvatars}
+      <div class="invite-chip" onclick="openInvite()">+ Invite</div>
+    </div>
+    <div class="trip-stats-row">
+      <div class="trip-stat"><div class="trip-stat-n">${trip.members.length}</div><div class="trip-stat-l">Members</div></div>
+      <div class="trip-stat"><div class="trip-stat-n">${trip.memories.length}</div><div class="trip-stat-l">Memories</div></div>
+      <div class="trip-stat"><div class="trip-stat-n">${trip.memories.reduce((a,m)=>a+m.photos.length,0)}</div><div class="trip-stat-l">Photos</div></div>
+      <div class="trip-stat"><div class="trip-stat-n">${trip.memories.reduce((a,m)=>a+m.likes,0)}</div><div class="trip-stat-l">Likes</div></div>
+    </div>`;
+}
+
+function renderTimeline(trip) {
+  // Group memories by date
+  const byDate = {};
+  trip.memories.forEach(m => {
+    if (!byDate[m.date]) byDate[m.date] = [];
+    byDate[m.date].push(m);
+  });
+
+  let html = '';
+  Object.entries(byDate).forEach(([date, mems], di) => {
+    html += `<div class="timeline-day"><div class="timeline-date">${date}</div>`;
+    mems.forEach((mem, mi) => {
+      const member = MEMBERS[mem.by];
+      const photosHtml = renderPhotos(mem);
+      const commentsHtml = mem.comments.map(c => {
+        const cm = MEMBERS[c.by];
+        return `<div class="comment">
+          <div class="comment-av" style="background:${cm.color}">${c.by}</div>
+          <div class="comment-bubble">
+            <div class="comment-name">${cm.name}</div>
+            <div class="comment-text">${c.text}</div>
+            <div class="comment-time">${c.time}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      html += `<div class="memory-card fade-up" style="animation-delay:${(di*3+mi)*.07}s">
+        ${photosHtml}
+        <div class="memory-body">
+          <div class="memory-place">${mem.place} · ${mem.area}</div>
+          <div class="memory-caption">${mem.caption}</div>
+          <div class="memory-meta">
+            <div class="memory-who">
+              <div class="memory-who-av" style="background:${member.color}">${mem.by}</div>
+              <div class="memory-who-name">${member.name.split(' ')[0]}</div>
+            </div>
+            <div class="memory-time">${mem.time}</div>
+          </div>
+          <div class="memory-actions">
+            <button class="mem-action ${mem.liked?'liked':''}" onclick="toggleLike(this,${mem.id})">
+              ${mem.liked?'♥':'♡'} ${mem.likes}
+            </button>
+            <button class="mem-action" onclick="toggleComments(this)">💬 ${mem.comments.length}</button>
+            <button class="mem-action" onclick="showToast('Share link copied!')">↗ Share</button>
+          </div>
+        </div>
+        <div class="comments-section" style="display:none">${commentsHtml}
+          <div class="add-comment" style="margin:0 -16px;padding:10px 16px">
+            <div class="avatar-sm" style="width:28px;height:28px;font-size:9px">LF</div>
+            <input class="comment-input" placeholder="Add a comment…">
+            <button class="comment-send" onclick="sendComment(this)">↑</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  document.getElementById('timelineContent').innerHTML = html;
+}
+
+function renderPhotos(mem) {
+  if (mem.photos.length === 0) return '';
+  if (mem.photos.length === 1) {
+    return `<div class="memory-photo" onclick="openLightbox('${mem.photos[0]}','${mem.caption}')" style="font-size:72px">${mem.photos[0]}</div>`;
+  }
+  if (mem.photos.length === 2) {
+    return `<div class="memory-photo-grid" style="grid-template-columns:1fr 1fr">
+      ${mem.photos.map(p => `<div class="photo-cell" onclick="openLightbox('${p}','')" style="font-size:48px">${p}</div>`).join('')}
+    </div>`;
+  }
+  // 3+
+  const visible = mem.photos.slice(0, 3);
+  const extra = mem.photos.length - 3;
+  return `<div class="memory-photo-grid" style="grid-template-columns:1fr 1fr 1fr">
+    ${visible.map((p, i) => {
+      if (i === 2 && extra > 0) {
+        return `<div class="photo-cell" onclick="openLightbox('${p}','')" style="font-size:36px;position:relative">${p}<div class="photo-count-overlay">+${extra+1}</div></div>`;
+      }
+      return `<div class="photo-cell" onclick="openLightbox('${p}','')" style="font-size:36px">${p}</div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderMembers(trip) {
+  let html = '';
+  trip.members.forEach(m => {
+    const member = MEMBERS[m];
+    const memCount = trip.memories.filter(mem => mem.by === m).length;
+    const photoCount = trip.memories.filter(mem => mem.by === m).reduce((a,mem) => a + mem.photos.length, 0);
+    html += `<div style="display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--border)">
+      <div style="width:48px;height:48px;border-radius:50%;background:${member.color};color:white;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${m}</div>
+      <div style="flex:1">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);margin-bottom:2px">${member.name}</div>
+        <div style="font-size:12px;color:var(--dust);margin-bottom:8px">${member.role}</div>
+        <div style="display:flex;gap:14px">
+          <span style="font-size:12px;color:var(--dust)">${memCount} memories · ${photoCount} photos</span>
+        </div>
+      </div>
+      ${m !== 'LF' ? `<button onclick="showToast('Message sent to ${member.name.split(' ')[0]}')" style="background:none;border:1.5px solid var(--border);border-radius:6px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--dust);cursor:pointer;letter-spacing:.06em;text-transform:uppercase">Message</button>` : ''}
+    </div>`;
+  });
+
+  html += `<div style="margin-top:20px">
+    <button onclick="openInvite()" style="width:100%;border:1.5px dashed var(--border);border-radius:10px;padding:16px;background:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--dust);cursor:pointer;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px">
+      + Invite more people
+    </button>
+  </div>`;
+
+  document.getElementById('membersContent').innerHTML = html;
+}
+
+// ── VIEW SWITCHING ─────────────────────────────────────────────
+function switchView(view, el) {
+  currentView = view;
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.view-tab')[['timeline','map','members'].indexOf(view)].classList.add('on');
+
+  document.getElementById('timelineView').style.display = view === 'timeline' ? 'block' : 'none';
+  document.getElementById('mapView').style.display = view === 'map' ? 'flex' : 'none';
+  document.getElementById('membersView').style.display = view === 'members' ? 'block' : 'none';
+  document.getElementById('timelineFab').style.display = view === 'members' ? 'none' : 'flex';
+
+  if (view === 'timeline') {
+    document.getElementById('timelineView').style.flex = '1';
+    document.getElementById('timelineView').style.overflowY = 'auto';
+  }
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────
+function toggleLike(btn, id) {
+  const trip = TRIPS[currentTripIdx];
+  const mem = trip.memories.find(m => m.id === id);
+  mem.liked = !mem.liked;
+  mem.likes += mem.liked ? 1 : -1;
+  btn.innerHTML = `${mem.liked ? '♥' : '♡'} ${mem.likes}`;
+  btn.classList.toggle('liked', mem.liked);
+}
+
+function toggleComments(btn) {
+  const section = btn.closest('.memory-card').querySelector('.comments-section');
+  const isOpen = section.style.display !== 'none';
+  section.style.display = isOpen ? 'none' : 'block';
+  const count = section.querySelectorAll('.comment').length;
+  btn.innerHTML = `💬 ${count}`;
+}
+
+function sendComment(btn) {
+  const input = btn.previousElementSibling;
+  const text = input.value.trim();
+  if (!text) return;
+  const section = btn.closest('.comments-section');
+  const commentHtml = `<div class="comment">
+    <div class="comment-av" style="background:${MEMBERS.LF.color}">LF</div>
+    <div class="comment-bubble">
+      <div class="comment-name">Lauren Fine</div>
+      <div class="comment-text">${text}</div>
+      <div class="comment-time">Just now</div>
+    </div>
+  </div>`;
+  section.insertAdjacentHTML('beforeend', commentHtml);
+  input.value = '';
+  const actionBtn = btn.closest('.memory-card').querySelector('.mem-action:nth-child(2)');
+  const count = section.querySelectorAll('.comment').length;
+  if (actionBtn) actionBtn.innerHTML = `💬 ${count}`;
+  showToast('Comment added ✓');
+}
+
+// ── ADD MEMORY MODAL ──────────────────────────────────────────
+function openAddMemory() {
+  addedPhotos = [];
+  document.getElementById('photoPreviews').innerHTML = '';
+  document.getElementById('addMemoryModal').classList.add('show');
+}
+function closeAddMemory() { document.getElementById('addMemoryModal').classList.remove('show'); }
+
+function addPhotoPreview() {
+  const emojis = ['🍷','🌊','🎨','☕','🌅','🍜','🏙','🌿','🥂','🎭'];
+  const emoji = emojis[addedPhotos.length % emojis.length];
+  addedPhotos.push(emoji);
+  const previews = document.getElementById('photoPreviews');
+  const div = document.createElement('div');
+  div.className = 'photo-preview';
+  div.innerHTML = `${emoji}<div class="remove" onclick="removePhoto(this)">✕</div>`;
+  previews.appendChild(div);
+  if (addedPhotos.length >= 1) {
+    document.getElementById('uploadZone').style.display = 'none';
+    previews.style.marginBottom = '14px';
+  }
+}
+
+function removePhoto(btn) {
+  btn.parentElement.remove();
+  addedPhotos.pop();
+  if (addedPhotos.length === 0) {
+    document.getElementById('uploadZone').style.display = 'block';
+  }
+}
+
+function saveMemory() {
+  const trip = TRIPS[currentTripIdx];
+  const newMem = {
+    id: Date.now(), place:'Avec', area:'West Loop',
+    date:'Mar 8', time:'Just now',
+    by:'LF', caption:'A new memory just added.',
+    photos: addedPhotos.length > 0 ? addedPhotos : ['📸'],
+    likes:0, comments:[]
+  };
+  trip.memories.push(newMem);
+  renderTripHero(trip);
+  renderTimeline(trip);
+  closeAddMemory();
+  showToast('Memory saved ✓');
+  setTimeout(() => {
+    const tl = document.getElementById('timelineView');
+    tl.scrollTop = tl.scrollHeight;
+  }, 300);
+}
+
+// ── INVITE ────────────────────────────────────────────────────
+function openInvite() { document.getElementById('inviteModal').classList.add('show'); }
+function closeInvite() { document.getElementById('inviteModal').classList.remove('show'); }
+function copyInvite() { showToast('Invite link copied! ✓'); closeInvite(); }
+
+// ── NEW TRIP ──────────────────────────────────────────────────
+function openNewTrip() { document.getElementById('newTripModal').classList.add('show'); }
+function closeNewTrip() { document.getElementById('newTripModal').classList.remove('show'); }
+function createTrip() { showToast('Trip created! ✓'); closeNewTrip(); }
+
+// ── LIGHTBOX ──────────────────────────────────────────────────
+function openLightbox(emoji, caption) {
+  document.getElementById('lightboxEmoji').textContent = emoji;
+  document.getElementById('lightboxCaption').textContent = caption;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
