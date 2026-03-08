@@ -5,934 +5,760 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>CityWindow</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --ink:#1c1917;--cream:#faf8f4;--parchment:#f2ede3;--border:#e2d9cc;
-  --dust:#9c8f80;--terra:#b85c38;--indigo:#3d5a80;--sage:#5c7a5e;--gold:#c9a84c;
+  --dust:#9c8f80;--terra:#b85c38;--sage:#5c7a5e;--gold:#c9a84c;
+  --indigo:#3d5a80;--blush:#e8d5c4;--shadow:rgba(28,25,23,.12);
 }
-html,body{height:100%;overflow:hidden}
-body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--ink);display:flex;flex-direction:column}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--ink)}
 
-/* HEADER */
-#header{background:var(--ink);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10}
-.logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--cream);letter-spacing:.02em}
-.logo em{color:var(--terra);font-style:normal}
-#addPinBtn{background:var(--terra);color:white;border:none;border-radius:4px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s}
-#addPinBtn:hover{background:#a04e2e}
-#addPinBtn.active{background:var(--sage)}
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--cream)}
+.screen.hidden{display:none !important}
 
-/* TOP BAR */
-#topBar{background:var(--cream);border-bottom:1px solid var(--border);flex-shrink:0}
-#cityRow{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none}
-#cityRow::-webkit-scrollbar{display:none}
-.city-tab{flex-shrink:0;padding:9px 14px;font-size:11.5px;font-weight:400;color:var(--dust);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap}
-.city-tab.active{color:var(--ink);border-bottom-color:var(--terra);font-weight:500}
-#filterRow{display:flex;gap:6px;padding:8px 14px;overflow-x:auto;scrollbar-width:none}
-#filterRow::-webkit-scrollbar{display:none}
-.chip{flex-shrink:0;display:flex;align-items:center;gap:5px;border:1.5px solid var(--border);background:white;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:400;color:var(--dust);cursor:pointer;transition:all .18s;white-space:nowrap}
+/* ── AUTH ── */
+#authScreen{background:var(--ink);align-items:center;justify-content:center;padding:40px 28px}
+.auth-wordmark{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:500;color:var(--cream);margin-bottom:4px;letter-spacing:-.01em}
+.auth-wordmark em{color:var(--terra);font-style:normal}
+.auth-sub{font-size:13px;color:var(--dust);text-align:center;line-height:1.7;margin-bottom:44px;max-width:280px}
+.auth-card{background:var(--cream);border-radius:20px;padding:28px 22px;width:100%;max-width:360px}
+.auth-tabs{display:flex;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:22px}
+.auth-tab{flex:1;padding:10px;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:none;border:none;color:var(--dust);font-family:'DM Sans',sans-serif;transition:all .2s}
+.auth-tab.on{background:var(--ink);color:var(--cream)}
+.auth-field{margin-bottom:12px}
+.auth-field label{display:block;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);margin-bottom:5px}
+.auth-field input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:11px 13px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.auth-field input:focus{border-color:var(--terra)}
+.auth-submit{width:100%;background:var(--terra);color:white;border:none;border-radius:8px;padding:14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;margin-top:6px}
+.auth-or{text-align:center;font-size:12px;color:var(--dust);margin:14px 0}
+.auth-demo{width:100%;background:none;color:var(--dust);border:1.5px solid var(--border);border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+
+/* ── MAIN APP SHELL ── */
+#appScreen{padding-bottom:62px}
+.top-bar{background:var(--cream);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:20}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--ink)}
+.wordmark em{color:var(--terra);font-style:normal}
+
+/* ── BOTTOM NAV ── */
+#bottomNav{position:fixed;bottom:0;left:0;right:0;height:62px;background:var(--cream);border-top:1px solid var(--border);display:flex;z-index:300;box-shadow:0 -2px 12px var(--shadow)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;padding:8px 4px;transition:all .15s;font-family:'DM Sans',sans-serif}
+.nav-icon{font-size:20px;line-height:1;transition:transform .2s}
+.nav-label{font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dust);transition:color .15s}
+.nav-btn.on .nav-label{color:var(--terra)}
+.nav-btn.on .nav-icon{transform:translateY(-1px)}
+
+/* ── TAB PANELS ── */
+.tab-panel{display:none;flex:1;flex-direction:column;overflow:hidden}
+.tab-panel.on{display:flex}
+
+/* ── MAP TAB ── */
+#mapPanel{position:relative}
+#cityScroll{background:var(--cream);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+#cityScroll::-webkit-scrollbar{display:none}
+.city-tab{flex-shrink:0;padding:9px 14px;font-size:11.5px;font-weight:400;color:var(--dust);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .18s}
+.city-tab.on{color:var(--ink);border-bottom-color:var(--terra);font-weight:500}
+#filterScroll{background:var(--cream);border-bottom:1px solid var(--border);display:flex;gap:6px;padding:7px 14px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+#filterScroll::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;display:flex;align-items:center;gap:5px;border:1.5px solid var(--border);background:white;border-radius:20px;padding:4px 11px;font-size:11px;color:var(--dust);cursor:pointer;transition:all .18s;white-space:nowrap}
 .chip .pip{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .chip.on{background:var(--ink);border-color:var(--ink);color:var(--cream)}
 .chip.on .pip{outline:1.5px solid rgba(255,255,255,.4)}
+#mapEl{flex:1;width:100%}
 
-/* MAP */
-#map{flex:1;width:100%}
+/* ── PLACE PANEL (bottom sheet) ── */
+#placeSheet{position:fixed;bottom:62px;left:0;right:0;background:var(--cream);border-radius:16px 16px 0 0;box-shadow:0 -4px 30px rgba(0,0,0,.15);z-index:200;transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);max-height:80vh;display:flex;flex-direction:column}
+#placeSheet.open{transform:translateY(0)}
+.sheet-drag{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;flex-shrink:0;cursor:pointer}
+.sheet-head{padding:12px 18px 10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sheet-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;line-height:1.2}
+.sheet-meta{font-size:11px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.sheet-body{overflow-y:auto;flex:1;padding:14px 18px}
+.sheet-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.65;color:#3a3530;padding:12px 14px;background:white;border-left:3px solid var(--terra);border-radius:0 6px 6px 0;margin-bottom:14px}
+.endorsement{display:flex;gap:10px;margin-bottom:10px;padding:11px 13px;background:white;border-radius:8px;border:1px solid var(--border)}
+.endo-av{width:30px;height:30px;border-radius:50%;color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.endo-info{flex:1;min-width:0}
+.endo-name{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.endo-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;line-height:1.5;color:#3a3530;margin-bottom:4px}
+.endo-link{font-size:11px;color:var(--indigo);text-decoration:none;font-weight:500}
+.sheet-actions{padding:12px 18px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px}
+.btn-ink{flex:1;background:var(--ink);color:var(--cream);border:none;padding:11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:6px}
+.btn-terra{flex:1;background:var(--terra);color:white;border:none;padding:11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:6px}
+.btn-ghost{flex:1;background:white;color:var(--ink);border:1.5px solid var(--border);padding:11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:6px;text-decoration:none;display:flex;align-items:center;justify-content:center}
 
-/* ADD BANNER */
-#addBanner{position:fixed;top:130px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);border-radius:8px;padding:10px 18px;font-size:13px;z-index:500;pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px}
+/* My memories on a place */
+.my-memories-section{margin-top:14px}
+.my-memory-row{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:white;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer}
+.my-memory-thumb{width:44px;height:44px;border-radius:6px;background:linear-gradient(135deg,var(--parchment),var(--blush));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.my-memory-info{flex:1;min-width:0}
+.my-memory-caption{font-size:13px;color:var(--ink);line-height:1.4;margin-bottom:2px}
+.my-memory-meta{font-size:11px;color:var(--dust)}
+.privacy-badge{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:10px}
+.privacy-private{background:#f5f0e8;color:var(--dust)}
+.privacy-friends{background:#e8f0e8;color:var(--sage)}
+
+/* ── MEMORIES TAB ── */
+#memoriesPanel{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.mem-header{padding:20px 18px 14px;background:var(--ink);color:var(--cream);flex-shrink:0}
+.mem-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.mem-heading{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500}
+.mem-filter-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.mem-filter-row::-webkit-scrollbar{display:none}
+.mem-filter{flex-shrink:0;border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.6);cursor:pointer;background:none;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.mem-filter.on{background:var(--terra);border-color:var(--terra);color:white}
+.memories-grid{padding:16px}
+.memory-item{background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;cursor:pointer}
+.memory-item-photo{height:180px;background:linear-gradient(135deg,var(--parchment),var(--blush));display:flex;align-items:center;justify-content:center;font-size:64px;position:relative}
+.memory-item-body{padding:12px 14px}
+.memory-item-place{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);margin-bottom:2px}
+.memory-item-caption{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--ink);line-height:1.5;margin-bottom:8px}
+.memory-item-footer{display:flex;align-items:center;justify-content:space-between}
+.memory-item-meta{font-size:11px;color:var(--dust)}
+.memory-item-privacy{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.memory-item-privacy.private{color:var(--dust)}
+.memory-item-privacy.friends{color:var(--sage)}
+
+/* ── TRIPS TAB ── */
+#tripsPanel{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.trips-hero{padding:20px 18px 16px;background:var(--ink)}
+.trips-heading{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;color:var(--cream);margin-bottom:14px}
+.trips-stats{display:flex;gap:16px}
+.t-stat{text-align:center}
+.t-stat-n{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:var(--cream)}
+.t-stat-l{font-size:9px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase}
+.trip-card{background:white;border:1px solid var(--border);margin:0 16px 10px;border-radius:12px;overflow:hidden;cursor:pointer}
+.trip-card-img{height:120px;display:flex;align-items:center;justify-content:center;position:relative}
+.trip-card-emoji{font-size:44px;opacity:.7}
+.trip-status{position:absolute;top:10px;right:10px;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.trip-status.active{background:var(--terra);color:white}
+.trip-status.past{background:rgba(28,25,23,.5);color:white}
+.trip-member-stack{position:absolute;bottom:10px;left:10px;display:flex}
+.trip-av{width:24px;height:24px;border-radius:50%;border:2px solid white;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:white;margin-right:-6px}
+.trip-card-body{padding:12px 16px}
+.trip-city{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);margin-bottom:2px}
+.trip-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);margin-bottom:3px}
+.trip-dates{font-size:12px;color:var(--dust)}
+
+/* ── PROFILE TAB ── */
+#profilePanel{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.profile-hero{padding:28px 20px 20px;background:var(--ink);color:var(--cream);text-align:center}
+.profile-av{width:72px;height:72px;border-radius:50%;background:var(--terra);color:white;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.profile-name{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;margin-bottom:2px}
+.profile-role{font-size:12px;color:var(--dust);margin-bottom:16px}
+.profile-stats{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.1);padding-top:16px}
+.p-stat{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.1)}
+.p-stat:last-child{border-right:none}
+.p-stat-n{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500}
+.p-stat-l{font-size:9px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+.settings-section{padding:8px 0}
+.settings-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);padding:14px 20px 6px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:white;cursor:pointer}
+.settings-row:last-child{border-bottom:none}
+.settings-row-left{display:flex;align-items:center;gap:12px}
+.settings-icon{font-size:18px;width:24px;text-align:center}
+.settings-text{font-size:14px;color:var(--ink)}
+.settings-value{font-size:13px;color:var(--dust)}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--sage)}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:white;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+.friends-section{padding:16px 20px}
+.friend-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.friend-av{width:40px;height:40px;border-radius:50%;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0}
+.friend-info{flex:1}
+.friend-name{font-size:14px;font-weight:500;color:var(--ink)}
+.friend-role{font-size:11px;color:var(--dust)}
+.friend-action{font-size:11px;font-weight:600;color:var(--terra);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
+
+/* ── ADD MEMORY MODAL ── */
+#addMemModal{position:fixed;inset:0;background:rgba(28,25,23,.65);z-index:400;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(3px)}
+#addMemModal.show{opacity:1;pointer-events:all}
+.modal-card{background:var(--cream);border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%;transform:translateY(40px);transition:transform .28s cubic-bezier(.32,.72,0,1);max-height:88vh;overflow-y:auto}
+#addMemModal.show .modal-card{transform:translateY(0)}
+.modal-drag{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px}
+.modal-heading{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:4px}
+.modal-place-tag{display:inline-flex;align-items:center;gap:5px;background:var(--terra);color:white;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:500;margin-bottom:16px}
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:white;margin-bottom:12px;transition:all .2s}
+.upload-zone:hover{border-color:var(--terra);background:var(--parchment)}
+.photo-previews{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.photo-prev{width:68px;height:68px;border-radius:8px;background:linear-gradient(135deg,var(--parchment),var(--blush));display:flex;align-items:center;justify-content:center;font-size:26px;position:relative}
+.photo-prev .rm{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:white;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid var(--cream)}
+.mfield{margin-bottom:12px}
+.mfield label{display:block;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);margin-bottom:4px}
+.mfield input,.mfield textarea,.mfield select{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.mfield input:focus,.mfield textarea:focus,.mfield select:focus{border-color:var(--terra)}
+.mfield textarea{resize:none;height:76px;line-height:1.5}
+.privacy-row{display:flex;gap:8px;margin-bottom:14px}
+.privacy-opt{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .2s;background:white}
+.privacy-opt.on{border-color:var(--terra);background:#fff8f5}
+.privacy-opt-icon{font-size:20px;margin-bottom:3px}
+.privacy-opt-label{font-size:11px;font-weight:500;color:var(--dust)}
+.privacy-opt.on .privacy-opt-label{color:var(--terra)}
+.save-btn{width:100%;background:var(--ink);color:var(--cream);border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+
+/* ── INVITE MODAL ── */
+#inviteModal{position:fixed;inset:0;background:rgba(28,25,23,.65);z-index:400;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .25s}
+#inviteModal.show{opacity:1;pointer-events:all}
+.invite-card{background:var(--cream);border-radius:16px;padding:26px 22px;width:100%;max-width:340px}
+.invite-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:6px}
+.invite-sub{font-size:13px;color:var(--dust);line-height:1.6;margin-bottom:18px}
+.invite-link{background:var(--parchment);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:12px;color:var(--ink);font-weight:500;margin-bottom:12px;word-break:break-all}
+.share-row{display:flex;gap:8px;margin-bottom:14px}
+.share-btn{flex:1;padding:10px;background:var(--parchment);border:1px solid var(--border);border-radius:8px;font-size:20px;cursor:pointer;text-align:center}
+.invite-copy-btn{width:100%;background:var(--terra);color:white;border:none;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-bottom:8px}
+.invite-close-btn{width:100%;background:none;color:var(--dust);border:1.5px solid var(--border);border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+
+/* ── NEW TRIP MODAL ── */
+#newTripModal{position:fixed;inset:0;background:rgba(28,25,23,.65);z-index:400;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+#newTripModal.show{opacity:1;pointer-events:all}
+
+/* ── PLAN MY TIME ── */
+#planBtn{position:fixed;bottom:74px;right:16px;z-index:150;background:var(--ink);color:var(--cream);border:none;border-radius:28px;padding:11px 16px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 20px rgba(28,25,23,.35)}
+#itinOverlay{position:fixed;inset:0;background:rgba(28,25,23,.6);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+#itinOverlay.show{opacity:1;pointer-events:all}
+#itinPanel{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-radius:20px 20px 0 0;z-index:350;max-height:90vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1)}
+#itinPanel.show{transform:translateY(0)}
+.itin-header{padding:14px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.itin-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500}
+.itin-close{background:none;border:none;color:var(--dust);font-size:22px;cursor:pointer;line-height:1;padding:2px 6px}
+.itin-body{overflow-y:auto;flex:1;padding:16px 18px 32px;-webkit-overflow-scrolling:touch}
+.itin-city-badge{display:inline-flex;align-items:center;gap:5px;background:var(--terra);color:white;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:500;margin-bottom:14px}
+.itin-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.itin-field{display:flex;flex-direction:column;gap:4px}
+.itin-field label{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dust)}
+.itin-field select,.itin-field input{border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:white;outline:none;-webkit-appearance:none;transition:border-color .2s}
+.itin-field select:focus,.itin-field input:focus{border-color:var(--terra)}
+.itin-full{grid-column:1/-1}
+.vibe-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.vibe-pill{border:1.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;color:var(--dust);cursor:pointer;background:white;white-space:nowrap;transition:all .18s}
+.vibe-pill.on{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.itin-go-btn{width:100%;background:var(--terra);color:white;border:none;border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.itin-go-btn:disabled{background:var(--dust);cursor:not-allowed}
+.itin-summary{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.6;color:#3a3530;padding:13px 15px;background:white;border-left:3px solid var(--terra);border-radius:0 8px 8px 0;margin-bottom:18px}
+.itin-stop{display:flex;gap:12px;margin-bottom:0;position:relative}
+.itin-stop:not(:last-child)::after{content:'';position:absolute;left:17px;top:38px;bottom:-8px;width:2px;background:var(--border)}
+.itin-stop-num{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--cream);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;z-index:1}
+.itin-stop-card{flex:1;background:white;border:1px solid var(--border);border-radius:10px;padding:12px 13px;margin-bottom:14px}
+.itin-stop-time{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);margin-bottom:2px}
+.itin-stop-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;margin-bottom:3px}
+.itin-stop-desc{font-size:12px;color:var(--dust);line-height:1.5;margin-bottom:7px}
+.itin-stop-tags{display:flex;gap:5px;flex-wrap:wrap}
+.itin-stop-tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;background:var(--parchment);color:var(--dust)}
+.itin-transit{font-size:11px;color:var(--dust);padding:0 0 10px 46px;margin-top:-6px}
+.loading-dots{display:flex;gap:5px;align-items:center}
+.loading-dots span{width:7px;height:7px;border-radius:50%;background:var(--terra);animation:dp 1.2s ease-in-out infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,80%,100%{transform:scale(.7);opacity:.5}40%{transform:scale(1);opacity:1}}
+
+/* ── ADD PIN BANNER ── */
+#addBanner{position:fixed;top:130px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);border-radius:8px;padding:10px 18px;font-size:13px;z-index:160;pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px}
 #addBanner.show{opacity:1}
 .pulse{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.6}}
 
-/* SIDE PANEL (desktop) */
-#panel{position:fixed;top:0;right:0;bottom:0;width:360px;background:var(--cream);box-shadow:-6px 0 30px rgba(0,0,0,.12);z-index:400;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .32s cubic-bezier(.32,.72,0,1)}
-#panel.open{transform:translateX(0)}
-.panel-top{padding:16px 18px 14px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.panel-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;line-height:1.2;flex:1}
-.panel-close{background:none;border:none;color:var(--dust);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px;flex-shrink:0}
-.panel-meta{font-size:11px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
-.panel-body{flex:1;overflow-y:auto;padding:16px 18px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-.panel-body::-webkit-scrollbar{width:3px}
-.panel-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.panel-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.65;color:#3a3530;padding:12px 14px;background:white;border-left:3px solid var(--terra);border-radius:0 4px 4px 0;margin-bottom:16px}
-.section-label{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dust);margin-bottom:10px}
-.endorsement{display:flex;gap:10px;margin-bottom:10px;padding:11px 13px;background:white;border-radius:8px;border:1px solid var(--border)}
-.endo-av{width:30px;height:30px;border-radius:50%;color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;text-align:center;line-height:1.1}
-.endo-info{flex:1;min-width:0}
-.endo-who{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:3px}
-.endo-who span{font-weight:300;color:var(--dust)}
-.endo-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;line-height:1.5;color:#3a3530;margin-bottom:5px}
-.endo-link{font-size:11px;color:var(--indigo);text-decoration:none;font-weight:500}
-.endo-link:hover{text-decoration:underline}
-.panel-actions{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:9px}
-.btn-primary{flex:1;background:var(--ink);color:var(--cream);border:none;padding:11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:background .2s}
-.btn-primary:hover{background:#2e2925}
-.btn-primary.saved{background:var(--sage)}
-.btn-secondary{flex:1;background:white;color:var(--ink);border:1.5px solid var(--border);padding:11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;text-decoration:none;display:flex;align-items:center;justify-content:center}
-
-/* BOTTOM SHEET (mobile) */
-#sheet{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-radius:14px 14px 0 0;box-shadow:0 -4px 30px rgba(0,0,0,.14);z-index:400;transform:translateY(calc(100% - 68px));transition:transform .32s cubic-bezier(.32,.72,0,1);max-height:82vh;display:flex;flex-direction:column}
-#sheet.open{transform:translateY(0)}
-.sheet-pill{width:34px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 0;cursor:pointer;flex-shrink:0}
-.sheet-header{padding:10px 18px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;flex-shrink:0}
-.sheet-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500}
-.sheet-count{font-size:12px;color:var(--dust);font-weight:300}
-.place-list{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
-.place-row{display:flex;align-items:center;gap:11px;padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
-.place-row:hover,.place-row:active{background:white}
-.place-row-pip{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.place-row-info{flex:1;min-width:0}
-.place-row-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.place-row-sub{font-size:11px;color:var(--dust);font-weight:300}
-.source-tag{font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:10px;white-space:nowrap}
-
-/* ADD PIN MODAL */
-#pinModal{position:fixed;inset:0;background:rgba(28,25,23,.7);z-index:600;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
-#pinModal.show{opacity:1;pointer-events:all}
-.modal-card{background:var(--cream);border-radius:16px 16px 0 0;padding:20px 20px 32px;width:100%;transform:translateY(30px);transition:transform .25s}
-#pinModal.show .modal-card{transform:translateY(0)}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
-.modal-close{background:none;border:none;color:var(--dust);font-size:22px;cursor:pointer}
-.field{margin-bottom:13px}
-.field label{display:block;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-bottom:5px}
-.field input,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
-.field input:focus,.field textarea:focus{border-color:var(--terra)}
-.field textarea{resize:none;height:72px;line-height:1.5}
-.location-hint{background:#fffbf0;border:1px solid #e8d9a0;border-radius:6px;padding:9px 12px;font-size:12px;color:#7a6a40;margin-bottom:13px;display:flex;align-items:center;gap:7px}
-.cat-pills{display:flex;flex-wrap:wrap;gap:6px}
-.cat-pill{border:1.5px solid var(--border);border-radius:14px;padding:5px 11px;font-size:12px;color:var(--dust);cursor:pointer;transition:all .15s;background:white}
-.cat-pill.selected{background:var(--ink);border-color:var(--ink);color:var(--cream)}
-.btn-full{width:100%;background:var(--ink);color:var(--cream);border:none;padding:13px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:6px;margin-top:4px;transition:background .2s}
-.btn-full:hover{background:#2e2925}
-
-/* PLAN MY TIME BUTTON */
-#planBtn{position:fixed;bottom:90px;right:16px;z-index:200;background:var(--ink);color:var(--cream);border:none;border-radius:28px;padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 4px 20px rgba(28,25,23,.35);transition:all .2s}
-#planBtn:hover{background:#2e2925;transform:translateY(-1px);box-shadow:0 6px 24px rgba(28,25,23,.4)}
-#planBtn .plan-icon{font-size:14px}
-@media(min-width:700px){#planBtn{bottom:32px;right:380px}}
-
-/* ITINERARY OVERLAY */
-#itinOverlay{position:fixed;inset:0;background:rgba(28,25,23,.6);z-index:600;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
-#itinOverlay.show{opacity:1;pointer-events:all}
-#itinPanel{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-radius:20px 20px 0 0;z-index:700;max-height:92vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1)}
-#itinPanel.show{transform:translateY(0)}
-@media(min-width:700px){
-  #itinPanel{left:50%;right:auto;width:480px;transform:translateX(-50%) translateY(100%);border-radius:20px 20px 0 0}
-  #itinPanel.show{transform:translateX(-50%) translateY(0)}
-}
-.itin-header{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.itin-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500}
-.itin-close{background:none;border:none;color:var(--dust);font-size:22px;cursor:pointer;line-height:1;padding:2px 6px}
-.itin-body{overflow-y:auto;flex:1;padding:18px 20px 32px;-webkit-overflow-scrolling:touch}
-.itin-city-badge{display:inline-flex;align-items:center;gap:5px;background:var(--terra);color:white;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:500;letter-spacing:.06em;margin-bottom:16px}
-
-/* FORM */
-.itin-form{}
-.itin-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.itin-field{display:flex;flex-direction:column;gap:5px}
-.itin-field label{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dust)}
-.itin-field select,.itin-field input{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:white;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s}
-.itin-field select:focus,.itin-field input:focus{border-color:var(--terra)}
-.itin-full{grid-column:1/-1}
-.vibe-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.vibe-pill{border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--dust);cursor:pointer;transition:all .18s;background:white;white-space:nowrap}
-.vibe-pill.on{background:var(--ink);border-color:var(--ink);color:var(--cream)}
-.itin-generate-btn{width:100%;background:var(--terra);color:white;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-.itin-generate-btn:hover{background:#a04e2e}
-.itin-generate-btn:disabled{background:var(--dust);cursor:not-allowed}
-
-/* RESULT */
-.itin-result{margin-top:4px}
-.itin-summary{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;line-height:1.6;color:#3a3530;padding:14px 16px;background:white;border-left:3px solid var(--terra);border-radius:0 8px 8px 0;margin-bottom:20px}
-.itin-stop{display:flex;gap:14px;margin-bottom:0;position:relative}
-.itin-stop:not(:last-child)::after{content:'';position:absolute;left:19px;top:40px;bottom:-8px;width:2px;background:var(--border)}
-.itin-stop-num{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--cream);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;z-index:1}
-.itin-stop-content{flex:1;background:white;border:1px solid var(--border);border-radius:10px;padding:13px 14px;margin-bottom:16px}
-.itin-stop-time{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);margin-bottom:3px}
-.itin-stop-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;margin-bottom:4px}
-.itin-stop-desc{font-size:12px;color:var(--dust);line-height:1.5;margin-bottom:8px}
-.itin-stop-tags{display:flex;gap:6px;flex-wrap:wrap}
-.itin-stop-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--parchment);color:var(--dust)}
-.itin-transit{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--dust);padding:0 0 12px 52px;margin-top:-8px}
-.loading-dots{display:flex;gap:5px;align-items:center}
-.loading-dots span{width:7px;height:7px;border-radius:50%;background:var(--terra);animation:dotpulse 1.2s ease-in-out infinite}
-.loading-dots span:nth-child(2){animation-delay:.2s}
-.loading-dots span:nth-child(3){animation-delay:.4s}
-@keyframes dotpulse{0%,80%,100%{transform:scale(.7);opacity:.5}40%{transform:scale(1);opacity:1}}
-.itin-actions{display:flex;gap:9px;margin-top:4px;padding-top:16px;border-top:1px solid var(--border)}
-
-/* LEGEND */
-#legend{position:fixed;bottom:28px;left:14px;background:white;border:1px solid var(--border);border-radius:10px;padding:12px 14px;z-index:50;box-shadow:0 2px 14px rgba(0,0,0,.1);max-width:220px}
-.leg-row{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink);margin-bottom:5px;line-height:1.3}
-.leg-row:last-child{margin-bottom:0}
-.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-
-/* TOAST */
-#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--sage);color:white;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:700;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+/* ── TOAST ── */
+#toast{position:fixed;bottom:74px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--sage);color:white;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:500;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ATTRIBUTION FOOTER */
-.attribution{font-size:10px;color:var(--dust);padding:10px 18px 14px;border-top:1px solid var(--border);line-height:1.6;flex-shrink:0}
-.attribution a{color:var(--indigo);text-decoration:none}
-.attribution a:hover{text-decoration:underline}
+/* ── ADD PIN MODAL ── */
+#pinModal{position:fixed;inset:0;background:rgba(28,25,23,.7);z-index:400;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+#pinModal.show{opacity:1;pointer-events:all}
+.cat-pills{display:flex;flex-wrap:wrap;gap:6px}
+.cat-pill{border:1.5px solid var(--border);border-radius:14px;padding:5px 11px;font-size:12px;color:var(--dust);cursor:pointer;background:white;transition:all .15s}
+.cat-pill.on{background:var(--ink);border-color:var(--ink);color:var(--cream)}
 
-@media(min-width:700px){#sheet{display:none}#panel{display:flex}#legend{display:block}}
-@media(max-width:699px){#panel{display:none}#legend{display:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease both}
 </style>
 </head>
 <body>
 
-<div id="header">
-  <div class="logo">City<em>Window</em></div>
-  <button id="addPinBtn" onclick="toggleAddMode()">＋ Add Pin</button>
-</div>
-
-<div id="topBar">
-  <div id="cityRow"></div>
-  <div id="filterRow"></div>
-</div>
-
-<div id="map"></div>
-
-<div id="addBanner">
-  <span class="pulse"></span> Tap anywhere on the map to place your pin
-</div>
-
-<!-- Desktop panel -->
-<div id="panel">
-  <div class="panel-top">
-    <div>
-      <div class="panel-name" id="pName">Select a place</div>
-      <div class="panel-meta" id="pMeta"></div>
+<!-- ════════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════════ -->
+<div class="screen" id="authScreen">
+  <div class="auth-wordmark">City<em>Window</em></div>
+  <div class="auth-sub">Pin places. Capture memories.<br>Share with the people who were there.</div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="authTab(this,'in')">Sign In</button>
+      <button class="auth-tab" onclick="authTab(this,'up')">Create Account</button>
     </div>
-    <button class="panel-close" onclick="closePanel()">✕</button>
+    <div id="inForm">
+      <div class="auth-field"><label>Email</label><input type="email" value="lauren@nsu.edu"></div>
+      <div class="auth-field"><label>Password</label><input type="password" value="••••••••"></div>
+      <button class="auth-submit" onclick="signIn()">Sign In →</button>
+    </div>
+    <div id="upForm" style="display:none">
+      <div class="auth-field"><label>Your Name</label><input type="text" placeholder="First Last"></div>
+      <div class="auth-field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+      <div class="auth-field"><label>Password</label><input type="password" placeholder="Create a password"></div>
+      <button class="auth-submit" onclick="signIn()">Create Account →</button>
+    </div>
+    <div class="auth-or">or</div>
+    <button class="auth-demo" onclick="signIn()">Continue as Demo User</button>
   </div>
-  <div class="panel-body" id="pBody">
-    <p style="font-size:13px;color:var(--dust);line-height:1.6;margin-top:8px">
-      Choose a city above, then tap any pin to see editorial endorsements and links to original articles.<br><br>
-      Sources include Condé Nast Traveler, Bon Appétit, Food & Wine, The Infatuation, Resy, Eater, Time Out, and local experts. All quotes link back to the original publication.<br><br>
-      Use <strong>+ Add Pin</strong> to save your own favourite spots.
-    </p>
-  </div>
-  <div class="panel-actions" id="pActions" style="display:none">
-    <button class="btn-primary" id="pSaveBtn" onclick="toggleSave()">☆ Save</button>
-    <a class="btn-secondary" id="pMapsLink" href="#" target="_blank">↗ Maps</a>
-  </div>
-  <div class="attribution" id="pAttrib" style="display:none"></div>
 </div>
 
-<!-- Mobile bottom sheet -->
-<div id="sheet">
-  <div class="sheet-pill" onclick="toggleSheet()"></div>
-  <div class="sheet-header" onclick="toggleSheet()">
-    <div class="sheet-title" id="sheetTitle">Pick a city</div>
-    <div class="sheet-count" id="sheetCount"></div>
-  </div>
-  <div class="place-list" id="mobileList"></div>
-</div>
+<!-- ════════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════ -->
+<div class="screen hidden" id="appScreen">
 
-<!-- Add pin modal -->
-<div id="pinModal">
-  <div class="modal-card">
-    <div class="modal-title">Add Your Pin <button class="modal-close" onclick="closeModal()">✕</button></div>
-    <div class="location-hint">📍 <span id="coordHint">Location selected</span></div>
-    <div class="field"><label>Place Name</label><input id="pinName" type="text" placeholder="e.g. My favourite coffee spot"></div>
-    <div class="field"><label>Your Note</label><textarea id="pinNote" placeholder="What's special about it?"></textarea></div>
-    <div class="field"><label>Category</label>
-      <div class="cat-pills" id="catPills">
-        <div class="cat-pill selected" onclick="selectCat(this)">Restaurant</div>
-        <div class="cat-pill" onclick="selectCat(this)">Cafe</div>
-        <div class="cat-pill" onclick="selectCat(this)">Bar</div>
-        <div class="cat-pill" onclick="selectCat(this)">Bakery</div>
-        <div class="cat-pill" onclick="selectCat(this)">Market</div>
-        <div class="cat-pill" onclick="selectCat(this)">Outdoor</div>
-        <div class="cat-pill" onclick="selectCat(this)">Hotel</div>
-        <div class="cat-pill" onclick="selectCat(this)">Other</div>
+  <!-- TOP BAR -->
+  <div class="top-bar" id="appTopBar">
+    <div class="wordmark">City<em>Window</em></div>
+    <div style="display:flex;align-items:center;gap:10px" id="topBarRight">
+      <button id="addPinBtn" onclick="toggleAddMode()" style="background:var(--terra);color:white;border:none;border-radius:4px;padding:6px 11px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:4px">＋ Pin</button>
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="switchTab('profile')">LF</div>
+    </div>
+  </div>
+
+  <!-- TAB PANELS -->
+
+  <!-- MAP -->
+  <div class="tab-panel on" id="mapPanel">
+    <div id="cityScroll"></div>
+    <div id="filterScroll"></div>
+    <div id="mapEl"></div>
+  </div>
+
+  <!-- MEMORIES -->
+  <div class="tab-panel" id="memoriesPanel">
+    <div class="mem-header">
+      <div class="mem-header-top">
+        <div class="mem-heading">My Memories</div>
+        <button onclick="openAddMemory(null)" style="background:var(--terra);color:white;border:none;border-radius:6px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">＋ Add</button>
+      </div>
+      <div class="mem-filter-row">
+        <button class="mem-filter on" onclick="memFilter(this,'all')">All</button>
+        <button class="mem-filter" onclick="memFilter(this,'private')">🔒 Private</button>
+        <button class="mem-filter" onclick="memFilter(this,'friends')">👥 Friends</button>
+        <button class="mem-filter" onclick="memFilter(this,'Chicago')">Chicago</button>
+        <button class="mem-filter" onclick="memFilter(this,'Miami')">Miami</button>
       </div>
     </div>
-    <button class="btn-full" onclick="saveUserPin()">Save Pin to Map</button>
+    <div class="memories-grid" id="memoriesGrid"></div>
+  </div>
+
+  <!-- TRIPS -->
+  <div class="tab-panel" id="tripsPanel">
+    <div class="trips-hero">
+      <div class="trips-heading">Group Trips</div>
+      <div class="trips-stats">
+        <div class="t-stat"><div class="t-stat-n">4</div><div class="t-stat-l">Trips</div></div>
+        <div class="t-stat"><div class="t-stat-n">127</div><div class="t-stat-l">Memories</div></div>
+        <div class="t-stat"><div class="t-stat-n">7</div><div class="t-stat-l">Friends</div></div>
+      </div>
+    </div>
+    <div style="padding:16px 0" id="tripsList"></div>
+    <div style="padding:4px 16px 32px">
+      <button onclick="openNewTrip()" style="width:100%;border:1.5px dashed var(--border);border-radius:12px;padding:16px;background:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--dust);cursor:pointer;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px">＋ Start New Trip</button>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="tab-panel" id="profilePanel">
+    <div class="profile-hero">
+      <div class="profile-av">LF</div>
+      <div class="profile-name">Dr. Lauren Fine</div>
+      <div class="profile-role">Assistant Dean · NSU · Harvard Macy Institute</div>
+      <div class="profile-stats">
+        <div class="p-stat"><div class="p-stat-n">47</div><div class="p-stat-l">Pins</div></div>
+        <div class="p-stat"><div class="p-stat-n">127</div><div class="p-stat-l">Memories</div></div>
+        <div class="p-stat"><div class="p-stat-n">9</div><div class="p-stat-l">Cities</div></div>
+        <div class="p-stat"><div class="p-stat-n">7</div><div class="p-stat-l">Friends</div></div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Privacy</div>
+      <div style="background:white;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+        <div class="settings-row">
+          <div class="settings-row-left"><div class="settings-icon">🔒</div><div class="settings-text">Default memory privacy</div></div>
+          <div class="settings-value">Private</div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left"><div class="settings-icon">👥</div><div class="settings-text">Friends can see my pins</div></div>
+          <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left"><div class="settings-icon">📍</div><div class="settings-text">Show me on group trip maps</div></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left"><div class="settings-icon">🔔</div><div class="settings-text">Notify when friends pin nearby</div></div>
+          <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Friends (7)</div>
+      <div class="friends-section">
+        <div id="friendsList"></div>
+        <button onclick="openInvite()" style="width:100%;border:1.5px dashed var(--border);border-radius:10px;padding:14px;background:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--dust);cursor:pointer;letter-spacing:.1em;text-transform:uppercase;margin-top:8px">＋ Invite a Friend</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Account</div>
+      <div style="background:white;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+        <div class="settings-row" onclick="showToast('Edit profile coming soon')">
+          <div class="settings-row-left"><div class="settings-icon">✏️</div><div class="settings-text">Edit profile</div></div>
+          <div class="settings-value">›</div>
+        </div>
+        <div class="settings-row" onclick="showToast('Export coming soon')">
+          <div class="settings-row-left"><div class="settings-icon">📤</div><div class="settings-text">Export my memories</div></div>
+          <div class="settings-value">›</div>
+        </div>
+        <div class="settings-row" onclick="signOut()">
+          <div class="settings-row-left"><div class="settings-icon">🚪</div><div class="settings-text" style="color:#c0392b">Sign out</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="height:32px"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div id="bottomNav">
+    <button class="nav-btn on" id="nav-map" onclick="switchTab('map')">
+      <span class="nav-icon">🗺</span><span class="nav-label">Map</span>
+    </button>
+    <button class="nav-btn" id="nav-memories" onclick="switchTab('memories')">
+      <span class="nav-icon">📷</span><span class="nav-label">Memories</span>
+    </button>
+    <button class="nav-btn" id="nav-trips" onclick="switchTab('trips')">
+      <span class="nav-icon">✈️</span><span class="nav-label">Trips</span>
+    </button>
+    <button class="nav-btn" id="nav-profile" onclick="switchTab('profile')">
+      <span class="nav-icon">👤</span><span class="nav-label">Profile</span>
+    </button>
   </div>
 </div>
 
-<div id="legend"></div>
-<div id="toast"></div>
+<!-- ════════════════════════════════════════════
+     PLACE BOTTOM SHEET
+════════════════════════════════════════════ -->
+<div id="placeSheet">
+  <div class="sheet-drag" onclick="closePlaceSheet()"></div>
+  <div class="sheet-head">
+    <div class="sheet-name" id="sheetName">Place</div>
+    <div class="sheet-meta" id="sheetMeta"></div>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+  <div class="sheet-actions">
+    <button class="btn-terra" onclick="openAddMemory(currentPlace)">📷 Add Memory</button>
+    <button class="btn-ink" onclick="toggleSavePlace()">☆ Save</button>
+    <a class="btn-ghost" id="sheetMapsLink" href="#" target="_blank">↗ Maps</a>
+  </div>
+</div>
 
-<!-- PLAN MY TIME BUTTON -->
-<button id="planBtn" onclick="openItinPanel()">
-  <span class="plan-icon">✦</span> Plan My Time
-</button>
+<!-- Plan My Time button -->
+<button id="planBtn" onclick="openItinPanel()">✦ Plan My Time</button>
 
-<!-- ITINERARY OVERLAY -->
+<!-- Itinerary overlay + panel -->
 <div id="itinOverlay" onclick="closeItinPanel()"></div>
-
-<!-- ITINERARY PANEL -->
 <div id="itinPanel">
   <div class="itin-header">
     <div class="itin-title">Plan My Time</div>
     <button class="itin-close" onclick="closeItinPanel()">✕</button>
   </div>
-  <div class="itin-body" id="itinBody">
-    <!-- Filled by JS -->
+  <div class="itin-body" id="itinBody"></div>
+</div>
+
+<!-- Add pin banner -->
+<div id="addBanner"><span class="pulse"></span> Tap map to place your pin</div>
+
+<!-- ════════════════════════════════════════════
+     ADD MEMORY MODAL
+════════════════════════════════════════════ -->
+<div id="addMemModal">
+  <div class="modal-card">
+    <div class="modal-drag"></div>
+    <div class="modal-heading">Add a Memory</div>
+    <div class="modal-place-tag" id="memPlaceTag">📍 Place</div>
+    <div class="upload-zone" id="uploadZone" onclick="addPhotoPreview()">
+      <div style="font-size:28px;margin-bottom:6px">📷</div>
+      <div style="font-size:13px;color:var(--dust)">Tap to add photos</div>
+      <div style="font-size:11px;color:var(--border);margin-top:3px">JPG · PNG · up to 10MB each</div>
+    </div>
+    <div class="photo-previews" id="photoPreviews"></div>
+    <div class="mfield"><label>Caption</label><textarea id="memCaption" placeholder="What made this moment special?"></textarea></div>
+    <div class="mfield" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label>Date</label><input type="date" id="memDate"></div>
+      <div><label>Time</label><input type="time" id="memTime"></div>
+    </div>
+    <div class="mfield"><label>Privacy</label></div>
+    <div class="privacy-row">
+      <div class="privacy-opt on" id="privPrivate" onclick="setPrivacy('private')">
+        <div class="privacy-opt-icon">🔒</div>
+        <div class="privacy-opt-label">Private</div>
+      </div>
+      <div class="privacy-opt" id="privFriends" onclick="setPrivacy('friends')">
+        <div class="privacy-opt-icon">👥</div>
+        <div class="privacy-opt-label">Friends</div>
+      </div>
+      <div class="privacy-opt" id="privTrip" onclick="setPrivacy('trip')">
+        <div class="privacy-opt-icon">✈️</div>
+        <div class="privacy-opt-label">Trip group</div>
+      </div>
+    </div>
+    <button class="save-btn" onclick="saveMemory()">Save Memory ✓</button>
   </div>
 </div>
 
+<!-- ════════════════════════════════════════════
+     INVITE MODAL
+════════════════════════════════════════════ -->
+<div id="inviteModal">
+  <div class="invite-card">
+    <div class="invite-title">Invite a friend</div>
+    <div class="invite-sub">Share your link. Friends can see pins and memories you choose to share.</div>
+    <div class="invite-link">citywindow.app/invite/LF-8X2K4</div>
+    <div class="share-row">
+      <button class="share-btn" onclick="showToast('Opening Messages…')">💬</button>
+      <button class="share-btn" onclick="showToast('Opening Mail…')">✉️</button>
+      <button class="share-btn" onclick="showToast('Copied!')">🔗</button>
+      <button class="share-btn" onclick="showToast('Opening WhatsApp…')">📱</button>
+    </div>
+    <button class="invite-copy-btn" onclick="showToast('Link copied! ✓');closeInvite()">Copy Invite Link</button>
+    <button class="invite-close-btn" onclick="closeInvite()">Done</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     NEW TRIP MODAL
+════════════════════════════════════════════ -->
+<div id="newTripModal">
+  <div class="modal-card">
+    <div class="modal-drag"></div>
+    <div class="modal-heading" style="margin-bottom:16px">New Group Trip</div>
+    <div class="mfield"><label>Trip Name</label><input type="text" placeholder="e.g. AHA Nashville 2026"></div>
+    <div class="mfield"><label>City</label>
+      <select><option>Chicago, IL</option><option>Miami, FL</option><option>New York, NY</option><option>Nashville, TN</option><option>Cincinnati, OH</option><option>Asheville, NC</option><option>Other</option></select>
+    </div>
+    <div class="mfield" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label>Start Date</label><input type="date"></div>
+      <div><label>End Date</label><input type="date"></div>
+    </div>
+    <button class="save-btn" onclick="createTrip()">Create Trip →</button>
+  </div>
+</div>
+
+<!-- ADD CUSTOM PIN MODAL -->
+<div id="pinModal">
+  <div class="modal-card">
+    <div class="modal-drag"></div>
+    <div class="modal-heading" style="margin-bottom:4px">Add Your Pin</div>
+    <div style="font-size:12px;color:var(--dust);margin-bottom:16px" id="pinCoordHint">Location selected</div>
+    <div class="mfield"><label>Place Name</label><input id="pinName" type="text" placeholder="e.g. My favourite coffee spot"></div>
+    <div class="mfield"><label>Your Note</label><textarea id="pinNote" placeholder="What's special about it?" style="height:68px;resize:none;width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:white;outline:none"></textarea></div>
+    <div class="mfield"><label>Category</label>
+      <div class="cat-pills" id="catPills">
+        <div class="cat-pill on" onclick="selCat(this)">Restaurant</div>
+        <div class="cat-pill" onclick="selCat(this)">Café</div>
+        <div class="cat-pill" onclick="selCat(this)">Bar</div>
+        <div class="cat-pill" onclick="selCat(this)">Bakery</div>
+        <div class="cat-pill" onclick="selCat(this)">Outdoor</div>
+        <div class="cat-pill" onclick="selCat(this)">Hotel</div>
+        <div class="cat-pill" onclick="selCat(this)">Other</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="save-btn" style="flex:1" onclick="savePin()">Save Pin</button>
+      <button onclick="closePinModal()" style="flex:1;background:none;border:1.5px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--dust);cursor:pointer;letter-spacing:.1em;text-transform:uppercase">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ════════════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════════════ -->
 <script>
-// ─────────────────────────────────────────────
-// SOURCE REGISTRY — every publication used
-// ─────────────────────────────────────────────
+// ── SOURCES ──────────────────────────────────
 const SOURCES = {
-  // National publications
-  cnt:    { name:"Condé Nast Traveler", short:"CNT",   color:"#8B1A1A", url:"https://www.cntraveler.com/" },
-  ba:     { name:"Bon Appétit",         short:"BA",    color:"#C85B2C", url:"https://www.bonappetit.com/" },
-  fw:     { name:"Food & Wine",         short:"F&W",   color:"#8B6914", url:"https://www.foodandwine.com/" },
-  eater:  { name:"Eater",              short:"Eater", color:"#1a1a2e", url:"https://www.eater.com/" },
-  resy:   { name:"Resy",               short:"Resy",  color:"#7b4ea0", url:"https://blog.resy.com/" },
-  timeout:{ name:"Time Out",           short:"TO",    color:"#d44000", url:"https://www.timeout.com/" },
-  nyt:    { name:"New York Times",      short:"NYT",   color:"#2b2b2b", url:"https://www.nytimes.com/section/dining" },
-  // City-specific blogs / publications
-  lottie: { name:"Lottie + Doof",      short:"L+D",   color:"#b85c38", url:"https://www.lottieanddoof.com/chicagoguide/" },
-  food312:{ name:"312food",            short:"312",   color:"#3d5a80", url:"https://www.312food.com/" },
-  infat:  { name:"The Infatuation",    short:"Infat", color:"#5c7a5e", url:"https://www.theinfatuation.com/" },
-  chimag: { name:"Chicago Magazine",   short:"ChiMag",color:"#4a6741", url:"https://www.chicagomag.com/" },
-  cinmag: { name:"Cincinnati Magazine",short:"CinMag",color:"#1e6b8a", url:"https://www.cincinnatimagazine.com/" },
-  citybeat:{ name:"CityBeat Cincinnati",short:"CB",   color:"#c06b20", url:"https://www.citybeat.com/" },
-  nashguru:{ name:"Nashville Guru",    short:"NGuru", color:"#8a5c2e", url:"https://nashvilleguru.com/" },
-  uncorked:{ name:"Uncorked Asheville",short:"UC",    color:"#6b8a3d", url:"https://www.uncorkedasheville.com/" },
-  adventurist:{ name:"The Adventurist",short:"Adv",  color:"#8a5c2e", url:"https://www.theadventuristmagazine.com/" },
-  campfire:{ name:"Campfires & Concierges",short:"C&C",color:"#2e6b7b",url:"https://www.campfiresandconcierges.com/park-city-restaurants/" },
-  joyvance:{ name:"Joy Vance Bozeman", short:"JV",    color:"#8a5c2e", url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman" },
-  user:   { name:"My Pin",             short:"Mine",  color:"#c9a84c", url:"#" },
+  cnt:    {name:"Condé Nast Traveler",short:"CNT",  color:"#8B1A1A",url:"https://www.cntraveler.com/"},
+  ba:     {name:"Bon Appétit",        short:"BA",   color:"#C85B2C",url:"https://www.bonappetit.com/"},
+  fw:     {name:"Food & Wine",        short:"F&W",  color:"#8B6914",url:"https://www.foodandwine.com/"},
+  eater:  {name:"Eater",             short:"Eater",color:"#1a1a2e",url:"https://www.eater.com/"},
+  resy:   {name:"Resy",              short:"Resy", color:"#7b4ea0",url:"https://blog.resy.com/"},
+  timeout:{name:"Time Out",          short:"TO",   color:"#d44000",url:"https://www.timeout.com/"},
+  nyt:    {name:"New York Times",     short:"NYT",  color:"#2b2b2b",url:"https://www.nytimes.com/section/dining"},
+  infat:  {name:"The Infatuation",   short:"Infat",color:"#5c7a5e",url:"https://www.theinfatuation.com/"},
+  lottie: {name:"Lottie + Doof",     short:"L+D",  color:"#b85c38",url:"https://www.lottieanddoof.com/chicagoguide/"},
+  food312:{name:"312food",           short:"312",  color:"#3d5a80",url:"https://www.312food.com/"},
+  chimag: {name:"Chicago Magazine",  short:"ChiMag",color:"#4a6741",url:"https://www.chicagomag.com/"},
+  cinmag: {name:"Cincinnati Magazine",short:"CinMag",color:"#1e6b8a",url:"https://www.cincinnatimagazine.com/"},
+  citybeat:{name:"CityBeat",         short:"CB",   color:"#c06b20",url:"https://www.citybeat.com/"},
+  campfire:{name:"Campfires & Concierges",short:"C&C",color:"#2e6b7b",url:"https://www.campfiresandconcierges.com/"},
+  joyvance:{name:"Joy Vance Bozeman",short:"JV",   color:"#8a5c2e",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
+  uncorked:{name:"Uncorked Asheville",short:"UC",  color:"#6b8a3d",url:"https://www.uncorkedasheville.com/"},
+  adventurist:{name:"The Adventurist",short:"Adv", color:"#8a5c2e",url:"https://www.theadventuristmagazine.com/"},
+  user:   {name:"My Pin",            short:"Mine", color:"#c9a84c",url:"#"},
 };
 
-// ─────────────────────────────────────────────
-// CITY + PLACE DATA
-// ─────────────────────────────────────────────
 const CITIES = {
-
-chicago: {
-  label:"Chicago", state:"IL",
-  center:{lat:41.890,lng:-87.650}, zoom:13,
-  srcKeys:["lottie","food312","infat","cnt","chimag","ba","timeout","resy"],
-  places:[
-    {id:"chi1",name:"Monteverde",neighborhood:"West Loop",category:"Italian",lat:41.8820,lng:-87.6540,
-     note:"James Beard–winning chef Sarah Grueneberg's pasta temple. The cacio whey pepe and burrata e ham are non-negotiable. Chicago Magazine's #1 restaurant of 2024.",
-     sources:["cnt","chimag","resy"],
-     endorsements:[
-       {s:"cnt",q:"One of Chicago's essential tables. Grueneberg's handmade pastas at the center-stage pastificio are impossible to resist.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
-       {s:"chimag",q:"Monteverde gets all the big things and all the little things right — buzzy but not braying, always busy but never a madhouse.",url:"https://www.chicagomag.com/chicago-magazine/august-2024/50-best-restaurants/monteverde/"},
-       {s:"resy",q:"Ten years in, Monteverde remains one of Chicago's most beloved restaurants and one of its most coveted reservations.",url:"https://blog.resy.com/2026/01/monteverde-chicago/"},
-     ]},
-    {id:"chi2",name:"The Publican",neighborhood:"West Loop",category:"Restaurant",lat:41.8863,lng:-87.6487,
-     note:"Pork-focused, brilliant beer list, communal hall feel. Chicago's most reliable great meal.",
-     sources:["lottie","food312","cnt"],
-     endorsements:[
-       {s:"lottie",q:"If I could only recommend one restaurant in Chicago, it would be this. The perfect neighbourhood restaurant that also happens to be a destination.",url:"https://www.lottieanddoof.com/chicagoguide/"},
-       {s:"food312",q:"On every best Chicago brunch list for a reason — it really is the best of the best.",url:"https://www.312food.com/"},
-       {s:"cnt",q:"A Chicago institution — high-energy, pork-forward, and consistently excellent.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
-     ]},
-    {id:"chi3",name:"Avec",neighborhood:"West Loop",category:"Restaurant",lat:41.8836,lng:-87.6437,
-     note:"Mediterranean small plates, cedar-clad intimacy. The chorizo-stuffed Medjool dates alone justify the trip.",
-     sources:["infat","food312","cnt"],
-     endorsements:[
-       {s:"infat",q:"A Chicago classic. Rated 9.0 — one of the best in the city.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
-       {s:"food312",q:"A West Loop staple that never disappoints. Perfect for a long dinner with great wine.",url:"https://www.312food.com/"},
-       {s:"cnt",q:"Still one of the most seductive dining rooms in Chicago, 20+ years in.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
-     ]},
-    {id:"chi4",name:"Kyoten Next Door",neighborhood:"Logan Square",category:"Omakase",lat:41.9268,lng:-87.7067,
-     note:"10 seats, 18 courses, $169. Chicago's best sushi. Reserve exactly 20 days out.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"Sometimes the sequel is better than the original. Chicago does sushi as well as NYC or LA. Rated 9.5 — our highest rated.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
-       {s:"cnt",q:"An extraordinary omakase experience that holds its own against any sushi counter in the country.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
-     ]},
-    {id:"chi5",name:"Akahoshi Ramen",neighborhood:"Logan Square",category:"Ramen",lat:41.9254,lng:-87.7046,
-     note:"Bon Appétit's Best New Restaurant of 2024. Owner was 'Ramen Lord' on Reddit — a decade of obsession poured into every bowl.",
-     sources:["ba","timeout"],
-     endorsements:[
-       {s:"ba",q:"The owner spent over a decade on Reddit as 'Ramen Lord', cultivating a community of more than 1 million devoted enthusiasts. Now it's a restaurant.",url:"https://www.bonappetit.com/story/best-new-restaurants-2024"},
-       {s:"timeout",q:"One of the most talked-about openings in Chicago in 2024 — Logan Square's ramen temple.",url:"https://www.timeout.com/chicago/restaurants/best-chicago-restaurants-our-picks-for-every-cuisine"},
-     ]},
-    {id:"chi6",name:"Spinning J",neighborhood:"Humboldt Park",category:"Bakery & Cafe",lat:41.8993,lng:-87.6969,
-     note:"Vintage soda fountain, platonic-ideal pastries. Breakfast here is one of Chicago's great small pleasures.",
-     sources:["lottie","cnt"],
-     endorsements:[
-       {s:"lottie",q:"One of my favourite spots in Chicago. The breakfast pastries are perfect — the platonic ideal of a scone, a coffee cake.",url:"https://www.lottieanddoof.com/chicagoguide/"},
-       {s:"cnt",q:"A beloved neighbourhood bakery-soda fountain that earns its destination status.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
-     ]},
-    {id:"chi7",name:"Lula Cafe",neighborhood:"Logan Square",category:"Restaurant",lat:41.9272,lng:-87.7062,
-     note:"Farm-to-table pioneer that never got precious. Monday pasta nights are a neighbourhood institution.",
-     sources:["lottie","cnt"],
-     endorsements:[
-       {s:"lottie",q:"Lula Cafe for a special night out. Inventive, delicious, consistent. One of the great Chicago restaurants.",url:"https://www.lottieanddoof.com/chicagoguide/"},
-       {s:"cnt",q:"Two decades in and still the neighbourhood restaurant every neighbourhood wishes it had.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
-     ]},
-    {id:"chi8",name:"Au Cheval",neighborhood:"West Loop",category:"Restaurant",lat:41.8840,lng:-87.6483,
-     note:"The burger. Go at 5pm on the dot. Patience required; worth every minute.",
-     sources:["lottie","food312","cnt"],
-     endorsements:[
-       {s:"lottie",q:"Extremely delicious burgers and fries. Very hard to beat.",url:"https://www.lottieanddoof.com/chicagoguide/"},
-       {s:"food312",q:"Worth every minute of the wait.",url:"https://www.312food.com/"},
-       {s:"cnt",q:"Named one of the best burgers in Chicago — a Midwest pilgrimage point.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
-     ]},
-    {id:"chi9",name:"Schwa",neighborhood:"Wicker Park",category:"Fine Dining",lat:41.9082,lng:-87.6687,
-     note:"BYOB tasting menu. Eccentric genius. One of the most singular dining experiences in America. Plan months ahead.",
-     sources:["infat"],
-     endorsements:[
-       {s:"infat",q:"The Chicago restaurant equivalent of the most interesting man in the world. Rated 9.5.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
-     ]},
-    {id:"chi10",name:"Elske",neighborhood:"West Loop",category:"Fine Dining",lat:41.8838,lng:-87.6612,
-     note:"Scandinavian tasting menu that doesn't take itself too seriously. Seasonal, beautiful.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"A tasting menu spot in West Loop that doesn't take itself too seriously — and we're big fans. Rated 9.0.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
-       {s:"cnt",q:"One of Chicago's most thoughtful tasting menu experiences — delicate, personal, unhurried.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
-     ]},
-    {id:"chi11",name:"Chicago Riverwalk",neighborhood:"Downtown",category:"Outdoor",lat:41.8874,lng:-87.6298,
-     note:"Walk west from Michigan Ave. Coffee in the morning, cocktails at golden hour. The city's best free experience.",
-     sources:["food312"],
-     endorsements:[
-       {s:"food312",q:"One of Chicago's best features. A perfect way to experience the city between conference sessions.",url:"https://www.312food.com/"},
-     ]},
-    {id:"chi12",name:"Cindy's Rooftop",neighborhood:"Loop",category:"Bar & Restaurant",lat:41.8824,lng:-87.6246,
-     note:"Best view in Chicago — Millennium Park, the Bean, the skyline all at once.",
-     sources:["food312","timeout"],
-     endorsements:[
-       {s:"food312",q:"A beautiful restaurant with one of the best views in the city. Awesome brunch overlooking Millennium Park.",url:"https://www.312food.com/"},
-       {s:"timeout",q:"The rooftop bar perched above the Chicago Athletic Association hotel. The view is the point.",url:"https://www.timeout.com/chicago/restaurants/best-chicago-restaurants-our-picks-for-every-cuisine"},
-     ]},
-  ]
-},
-
-miami: {
-  label:"Miami", state:"FL",
-  center:{lat:25.795,lng:-80.200}, zoom:12,
-  srcKeys:["infat","ba","resy","cnt","timeout"],
-  places:[
-    {id:"mia1",name:"Ariete",neighborhood:"Coconut Grove",category:"Fine Dining",lat:25.7266,lng:-80.2384,
-     note:"Rated 9.6 by The Infatuation — Miami fine dining reimagined with Cuban-American roots. The city's most acclaimed table.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"Ariete has created an entirely new kind of restaurant: Miami fine dining. Rated 9.6 — as close to perfect as it gets.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-       {s:"cnt",q:"The kind of place that makes you understand why food people keep moving to Miami.",url:"https://www.cntraveler.com/gallery/best-restaurants-miami"},
-     ]},
-    {id:"mia2",name:"Tâm Tâm",neighborhood:"Downtown",category:"Vietnamese",lat:25.7724,lng:-80.1946,
-     note:"Bon Appétit + Michelin nod 2024. Vietnamese izakaya energy — fish sauce wings, tamarind pork ribs, frozen mai tais. The city's breakout restaurant of the year.",
-     sources:["ba","resy","infat"],
-     endorsements:[
-       {s:"ba",q:"Bon Appétit and Michelin both recognized Tâm Tâm in 2024 — Miami's most exciting new restaurant of the year.",url:"https://www.bonappetit.com/"},
-       {s:"resy",q:"This was Tâm Tâm's breakout year. The food facilitates drinking, much like a Japanese izakaya. Something tells us this is only the start.",url:"https://blog.resy.com/2024/12/miami-restaurants-2024/"},
-       {s:"infat",q:"Dinner here is a social event worth circling on your calendar. Some of the most delicious food in Miami.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-     ]},
-    {id:"mia3",name:"Sunny's",neighborhood:"South Beach",category:"Restaurant",lat:25.7617,lng:-80.1918,
-     note:"220 seats, stellar martinis, Parker House rolls, a chocolate cake you'll dream about. The big fun blowout Miami deserves. Reserve 30 days out.",
-     sources:["infat","resy"],
-     endorsements:[
-       {s:"infat",q:"The big, fun restaurant Miami deserves. The food, martinis, and hospitality are special enough to be the main attraction.",url:"https://www.theinfatuation.com/miami/guides/best-new-restaurants-miami-2024"},
-       {s:"resy",q:"The easy answer for anyone looking for a stupidly fun blowout dinner in Miami — a triumphant return.",url:"https://blog.resy.com/2024/12/miami-restaurants-2024/"},
-     ]},
-    {id:"mia4",name:"Ariete",neighborhood:"Coconut Grove",category:"Fine Dining",lat:25.7266,lng:-80.2384,
-     note:"See above — duplicate removed in final render.",
-     sources:["infat"],endorsements:[]},
-    {id:"mia5",name:"Ogawa",neighborhood:"Little River",category:"Omakase",lat:25.8319,lng:-80.1897,
-     note:"Miami's best sushi omakase. Very expensive and worth every cent. Start with a Hibiki highball. Book well ahead.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"The best sushi omakase in Miami. A freight train rumbled past mid-bite and we felt closer to Tokyo than Little River.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-       {s:"cnt",q:"A world-class omakase counter that has put Miami firmly on the fine Japanese dining map.",url:"https://www.cntraveler.com/gallery/best-restaurants-miami"},
-     ]},
-    {id:"mia6",name:"Sanguich de Miami",neighborhood:"Little Havana",category:"Cuban",lat:25.7654,lng:-80.2200,
-     note:"The best Cuban sandwich in the city, full stop. A Little Havana landmark.",
-     sources:["infat"],
-     endorsements:[
-       {s:"infat",q:"Sanguich in Little Havana makes the best Cuban sandwiches in the city.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-     ]},
-    {id:"mia7",name:"Mandolin Aegean Bistro",neighborhood:"Design District",category:"Mediterranean",lat:25.8088,lng:-80.1940,
-     note:"Possibly the greatest outdoor restaurant in Miami. Mediterranean, consistently great. Book well ahead on nice weather days.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"Possibly the greatest outdoor restaurant in town. The Mediterranean food is always consistently great, but you're coming here for the atmosphere.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-       {s:"cnt",q:"An alfresco gem in the Design District with reliably wonderful food and one of the city's most romantic settings.",url:"https://www.cntraveler.com/gallery/best-restaurants-miami"},
-     ]},
-    {id:"mia8",name:"Taquiza",neighborhood:"North Beach",category:"Tacos",lat:25.8500,lng:-80.1280,
-     note:"Best tacos in Miami. One of the most affordable spots in the area.",
-     sources:["infat"],
-     endorsements:[
-       {s:"infat",q:"Taquiza in North Beach makes the best tacos in Miami and is one of the most affordable spots in the area.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-     ]},
-    {id:"mia9",name:"Edan",neighborhood:"South Miami",category:"Spanish",lat:25.7072,lng:-80.2789,
-     note:"Miami's best Spanish restaurant. Mushroom croquetas, Basque cheesecake, dry-aged ribeye.",
-     sources:["infat"],
-     endorsements:[
-       {s:"infat",q:"Miami's best Spanish restaurant, and a rare special occasion meal we can recommend on nearly any budget.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-     ]},
-    {id:"mia10",name:"Evelyn's Fort Lauderdale",neighborhood:"Fort Lauderdale",category:"Rooftop",lat:26.1218,lng:-80.1042,
-     note:"Fort Lauderdale's best upscale dining. Rooftop with great ocean views.",
-     sources:["infat"],
-     endorsements:[
-       {s:"infat",q:"Our favorite upscale option in Fort Lauderdale. The rooftop space has good food and a great ocean view.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-     ]},
-    {id:"mia11",name:"Southport Raw Bar",neighborhood:"Fort Lauderdale",category:"Seafood",lat:26.1052,lng:-80.1314,
-     note:"Fort Lauderdale classic. Best fried seafood by the water in the city.",
-     sources:["infat"],
-     endorsements:[
-       {s:"infat",q:"A Fort Lauderdale classic, and the best place in the city to eat fried seafood by the water.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
-     ]},
-    {id:"mia12",name:"Chateau ZZ's",neighborhood:"Coconut Grove",category:"Mexican / Speakeasy",lat:25.7334,lng:-80.2419,
-     note:"Resy's Miami restaurant of the year 2024. Mexican food inside a historic French chateau. Wagyu tostadas, 1,000-bottle tequila collection, white-tuxedoed servers.",
-     sources:["resy","cnt"],
-     endorsements:[
-       {s:"resy",q:"A Mexican restaurant inside a historic French chateau — the kind of surprising mashup that only the group behind Carbone and Dirty French could conjure. Our restaurant of the year.",url:"https://blog.resy.com/2024/12/miami-restaurants-2024/"},
-       {s:"cnt",q:"One of the most talked-about restaurant openings in America in 2024 — a genuinely theatrical dining experience.",url:"https://www.cntraveler.com/gallery/best-restaurants-miami"},
-     ]},
-  ]
-},
-
-nyc: {
-  label:"New York", state:"NY",
-  center:{lat:40.730,lng:-73.990}, zoom:13,
-  srcKeys:["infat","cnt","ba","nyt","eater","resy"],
-  places:[
-    {id:"nyc1",name:"Tatiana",neighborhood:"Lincoln Center",category:"Afro-Caribbean",lat:40.7748,lng:-73.9835,
-     note:"Hardest reservation in NYC. Lauryn Hill on the soundtrack, curried goat patties with your fingers. A paradigm shift in fine dining. Named to CNT's best new restaurants.",
-     sources:["infat","cnt","ba"],
-     endorsements:[
-       {s:"infat",q:"Like a '90s nightclub plopped into the middle of Lincoln Center. One of the hardest reservations in town — worth it for a restaurant that feels like a paradigm shift.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
-       {s:"cnt",q:"Tatiana is the most exciting thing to happen to Lincoln Center since it was built.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
-       {s:"ba",q:"The kind of restaurant that changes the conversation about what fine dining in America can look like.",url:"https://www.bonappetit.com/"},
-     ]},
-    {id:"nyc2",name:"Semma",neighborhood:"West Village",category:"South Indian",lat:40.7345,lng:-74.0033,
-     note:"South Indian in the West Village. Lamb, Goanese oxtail, dungeness crab. Reserve two weeks out; 12 bar seats for walk-ins.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"West Village charm. Try the lamb, and don't miss the Goanese oxtail. Reservations released online two weeks in advance.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
-       {s:"cnt",q:"The restaurant that finally gave South Indian cuisine the high-profile showcase it deserves in New York.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
-     ]},
-    {id:"nyc3",name:"Le Veau d'Or",neighborhood:"Upper East Side",category:"French Bistro",lat:40.7653,lng:-73.9675,
-     note:"Infatuation 9.0, best new restaurant of 2024. Classic French bistro reborn — oysters, steak frites, trout amandine. Book at 9am exactly two weeks out.",
-     sources:["infat","cnt","nyt"],
-     endorsements:[
-       {s:"infat",q:"One of our three highest-rated new restaurants of 2024. A French bistro for the ages, reborn.",url:"https://www.theinfatuation.com/new-york/guides/best-new-restaurants-new-york-2024"},
-       {s:"cnt",q:"A resurrection that surpassed the original. The most romantic room in New York right now.",url:"https://www.cntraveler.com/gallery/best-new-restaurants-nyc"},
-       {s:"nyt",q:"The revived Le Veau d'Or is everything a great bistro should be — intimate, classic, and quietly thrilling.",url:"https://www.nytimes.com/section/dining"},
-     ]},
-    {id:"nyc4",name:"L'Industrie Pizzeria",neighborhood:"Williamsburg",category:"Pizza",lat:40.7131,lng:-73.9553,
-     note:"The NYC pizza slice to beat. Three-day cold fermented dough, airy and crisp, stiff enough to hold the ricotta.",
-     sources:["infat","eater"],
-     endorsements:[
-       {s:"infat",q:"The slice to beat, and everyone knows it. The owner subjects his dough to a three-day cold fermentation.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
-       {s:"eater",q:"Consistently named the best pizza slice in New York — worth the trip to Williamsburg.",url:"https://ny.eater.com/"},
-     ]},
-    {id:"nyc5",name:"Carnitas Ramirez",neighborhood:"East Village",category:"Mexican",lat:40.7263,lng:-73.9845,
-     note:"Infatuation 9.1, best new 2024. The masa pancake is the thing. Little restaurant, enormous personality.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"Rated 9.1 — one of our three highest-rated new restaurants of 2024. Little restaurants with big personalities.",url:"https://www.theinfatuation.com/new-york/guides/best-new-restaurants-new-york-2024"},
-       {s:"cnt",q:"One of the most thrilling new openings in New York in 2024 — masa done with total conviction.",url:"https://www.cntraveler.com/gallery/best-new-restaurants-nyc"},
-     ]},
-    {id:"nyc6",name:"Eel Bar",neighborhood:"Nolita",category:"Wine Bar & Small Plates",lat:40.7222,lng:-73.9940,
-     note:"More than a bar, less than a restaurant. Gildas, fried mussels, rainbow trout pil pil. A long winding snack parade.",
-     sources:["infat","ba"],
-     endorsements:[
-       {s:"infat",q:"Where you should go for a long and winding snack parade. Even the dessert was drenched in olive oil.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
-       {s:"ba",q:"One of New York's best new small-plates spots — a wine bar with real culinary ambition.",url:"https://www.bonappetit.com/"},
-     ]},
-    {id:"nyc7",name:"Defonte's",neighborhood:"Red Hook",category:"Italian Sandwiches",lat:40.6742,lng:-74.0017,
-     note:"Nearly 100 years old. Cash only. The Italian sandwich blueprint. A Red Hook institution.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"The blueprint for NYC's old-school Italian sandwich shops. The nearly century-old template. Cash only.",url:"https://www.theinfatuation.com/new-york/guides/best-restaurants-nyc"},
-       {s:"cnt",q:"A New York City original — Defonte's is the kind of place that makes you fall in love with the borough.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
-     ]},
-    {id:"nyc8",name:"Le Bernardin",neighborhood:"Midtown",category:"Fine Dining",lat:40.7614,lng:-73.9814,
-     note:"Eric Ripert's legendary French seafood temple. Three Michelin stars, 40 years of excellence. CNT mainstay.",
-     sources:["cnt","eater"],
-     endorsements:[
-       {s:"cnt",q:"Le Bernardin has appeared on virtually every best-of list for four decades, and for good reason.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
-       {s:"eater",q:"One of New York's most enduring institutions — the benchmark for seafood fine dining in America.",url:"https://ny.eater.com/"},
-     ]},
-    {id:"nyc9",name:"Katz's Delicatessen",neighborhood:"Lower East Side",category:"Jewish Deli",lat:40.7223,lng:-73.9874,
-     note:"Since 1888. The pastrami on rye. You know the scene. CNT includes it on their best-of NYC list for a reason.",
-     sources:["cnt"],
-     endorsements:[
-       {s:"cnt",q:"Katz's is New York City in sandwich form — a living museum that still makes one of America's great sandwiches.",url:"https://www.cntraveler.com/gallery/best-restaurants-in-new-york-city"},
-     ]},
-  ]
-},
-
-nashville: {
-  label:"Nashville", state:"TN",
-  center:{lat:36.165,lng:-86.784}, zoom:13,
-  srcKeys:["infat","cnt","ba","resy","eater"],
-  places:[
-    {id:"nas1",name:"Noko",neighborhood:"East Nashville",category:"Japanese",lat:41.9200,lng:-86.9350,
-     note:"The surest, most set-it-and-forget-it dinner recommendation in Nashville. Japanese wood-fired plates and crudos.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"Ridiculously good Japanese wood-fired plates and crudos that have never let us or anybody we know down.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
-       {s:"cnt",q:"The restaurant Nashville's food scene needed — precise, seasonal Japanese cooking that earns repeat visits.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
-     ]},
-    {id:"nas2",name:"Kisser",neighborhood:"East Nashville",category:"Japanese Lunch",lat:36.1856,lng:-86.7476,
-     note:"Lunch only. Bon Appétit + Food & Wine named chef Brian Lea one of their Best New Chefs 2024. Yellowtail collar, katsu sando. Michelin Bib Gourmand 2025.",
-     sources:["infat","ba","fw"],
-     endorsements:[
-       {s:"infat",q:"Lunch-only Japanese spot in East Nashville. It's impossible to use restraint when talking about Kisser.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
-       {s:"ba",q:"Bon Appétit and Food & Wine both recognized chef Brian Lea as among the best new chefs of 2024.",url:"https://www.bonappetit.com/story/best-new-restaurants-2024"},
-       {s:"fw",q:"Chef Brian Lea of Kisser named a Best New Chef 2024 — a rare double nod from the country's top culinary publications.",url:"https://www.foodandwine.com/"},
-     ]},
-    {id:"nas3",name:"Locust",neighborhood:"12 South",category:"Fine Dining",lat:36.1268,lng:-86.7957,
-     note:"Ever-changing, very hard to reserve. Razor clams on pebble ice, hot swordfish. CNT calls it one of Nashville's essential tables.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"An ever-changing and difficult-to-reserve spot. Something as simple as a curry potato chip can make you emotional here.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
-       {s:"cnt",q:"Nashville's most serious tasting-menu restaurant — and one of the best in the South.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
-     ]},
-    {id:"nas4",name:"Present Tense",neighborhood:"Wedgewood-Houston",category:"Japanese / Omakase",lat:36.1467,lng:-86.7784,
-     note:"Resy's Nashville restaurant of the year 2024. Daily specials omakase with sake pairings. Owner operates a sake company — the pairings are remarkable.",
-     sources:["resy","cnt"],
-     endorsements:[
-       {s:"resy",q:"Omakase blew up in Nashville in 2024, and Present Tense set the standard. A daily specials list that shows how you transform freshness into brilliance.",url:"https://blog.resy.com/2024/12/nashville-restaurants-2024/"},
-       {s:"cnt",q:"Present Tense is the kind of restaurant that makes you reassess what's possible in a mid-size American city.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
-     ]},
-    {id:"nas5",name:"Iggy's",neighborhood:"Wedgewood-Houston",category:"Italian",lat:36.1467,lng:-86.7770,
-     note:"Simple, creative, exciting Italian. The Roman-style semolina gnocchi with Burgundy truffles and taleggio fondue is one of the best bites in Nashville.",
-     sources:["infat","resy"],
-     endorsements:[
-       {s:"infat",q:"The Italian food is simple, creative, and exciting all at the same time. The gnocchi is easily one of the best bites you can have in the city.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
-       {s:"resy",q:"A Wedgewood-Houston anchor that continues to earn its place among the city's essential restaurants.",url:"https://blog.resy.com/the-hit-list/nashville-restaurants/"},
-     ]},
-    {id:"nas6",name:"Rolf & Daughters",neighborhood:"Germantown",category:"Restaurant",lat:36.1849,lng:-86.7866,
-     note:"Chef Philip Krajeck's devotion to fermentation and Mediterranean-Southern flavors. Sourdough with seaweed butter never leaves the menu. A CNT essential.",
-     sources:["cnt","resy"],
-     endorsements:[
-       {s:"cnt",q:"Named to Condé Nast Traveler's best Nashville restaurants list — Rolf & Daughters is the kind of neighbourhood anchor every city should have.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
-       {s:"resy",q:"This Germantown gem never wavers in either its timelessness or its evolution.",url:"https://blog.resy.com/2024/12/nashville-restaurants-2024/"},
-     ]},
-    {id:"nas7",name:"Audrey",neighborhood:"East Nashville",category:"Appalachian",lat:36.1798,lng:-86.7461,
-     note:"Chef Sean Brock's Appalachian heritage restaurant — live-fire cooking, fermented bread, seasonal ingredients. Resy national pick.",
-     sources:["resy","cnt"],
-     endorsements:[
-       {s:"resy",q:"Chef Sam Jett has refined the menu around seasonal ingredients and fermentation techniques that nod to traditional Appalachian food preparation.",url:"https://blog.resy.com/2024/12/nashville-restaurants-2024/"},
-       {s:"cnt",q:"Audrey is one of Nashville's most important restaurants — a meditation on Appalachian cooking that never feels like a museum piece.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
-     ]},
-    {id:"nas8",name:"Drusie & Darr",neighborhood:"Downtown",category:"Hotel Restaurant",lat:36.1634,lng:-86.7780,
-     note:"Elegant without being stuffy. Jean-Georges Vongerichten in the Hermitage Hotel's rathskeller. Also open for breakfast.",
-     sources:["resy","cnt"],
-     endorsements:[
-       {s:"resy",q:"None of Nashville's impressive hotel restaurants continue to resonate with locals quite like Drusie & Darr.",url:"https://blog.resy.com/the-hit-list/nashville-restaurants/"},
-       {s:"cnt",q:"The rare hotel restaurant that outperforms the hotel itself.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
-     ]},
-    {id:"nas9",name:"Butcher & Bee",neighborhood:"East Nashville",category:"Southern/Middle Eastern",lat:36.1794,lng:-86.7438,
-     note:"After a decade of success, recently renovated and reinvigorated. Creative fusion of Southern and Middle Eastern flavors.",
-     sources:["resy","eater"],
-     endorsements:[
-       {s:"resy",q:"Butcher & Bee is not resting on their laurels. That attitude of experimentation continues to make it one of the most exciting restaurants in town.",url:"https://blog.resy.com/2024/12/nashville-restaurants-2024/"},
-       {s:"eater",q:"A Nashville staple reborn — the renovation has given one of the city's best restaurants a new lease of life.",url:"https://nashville.eater.com/"},
-     ]},
-    {id:"nas10",name:"Biscuit Love",neighborhood:"The Gulch",category:"Brunch",lat:36.1519,lng:-86.7910,
-     note:"The game-changing biscuit spot. Always a line at the Gulch. Try a weekday or the Hillsboro Village outpost.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"There's never not a line at the one in the Gulch, so you're better off going on a weekday if you can.",url:"https://www.theinfatuation.com/nashville/guides/nashville-restaurants"},
-       {s:"cnt",q:"Named to CNT's Nashville guide — the biscuit sandwich that put Nashville brunch on the national map.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
-     ]},
-  ]
-},
-
-cincinnati: {
-  label:"Cincinnati", state:"OH",
-  center:{lat:39.105,lng:-84.512}, zoom:13,
-  srcKeys:["cnt","cinmag","citybeat","ba","nyt","eater"],
-  places:[
-    {id:"cin1",name:"The Aperture",neighborhood:"Walnut Hills",category:"Mediterranean",lat:39.1187,lng:-84.4889,
-     note:"NYT America's Best Restaurants 2024 — the only Ohio restaurant on the list. Art deco building, live-fire Mediterranean by chef Jordan Anthony-Brown. CNT featured.",
-     sources:["nyt","cnt","cinmag","citybeat"],
-     endorsements:[
-       {s:"nyt",q:"The Aperture has a firm grasp on Mediterranean cuisine, and regulars already have go-to orders like glazed hamachi collar and tomato spaghetti swirled with candied chiles.",url:"https://www.nytimes.com/section/dining"},
-       {s:"cnt",q:"The Aperture proves Cincinnati is no longer an under-the-radar dining secret — this is a world-class restaurant.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
-       {s:"cinmag",q:"Named to the New York Times 2024 'America's Best Restaurants' list — art deco-meets-Copenhagen with exceptional Mediterranean and Levant-inspired sharing plates.",url:"https://www.cincinnatimagazine.com/the-restaurant-issue-2024/"},
-     ]},
-    {id:"cin2",name:"Wildweed",neighborhood:"Mt. Lookout",category:"Restaurant",lat:39.1282,lng:-84.4234,
-     note:"Esquire's Best New Restaurants in America 2024. A soaring ode to a region whose culinary virtues have been overlooked for too long. CNT featured.",
-     sources:["cnt","cinmag","eater"],
-     endorsements:[
-       {s:"cnt",q:"Featured in Condé Nast Traveler's Cincinnati guide — Wildweed is exactly the kind of chef-driven restaurant that is reshaping America's heartland cities.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
-       {s:"cinmag",q:"Named one of Esquire's 'Best New Restaurants in America, 2024.' A soaring ode to a region whose culinary virtues have been overlooked for too long.",url:"https://www.cincinnatimagazine.com/the-restaurant-issue-2024/"},
-       {s:"eater",q:"One of the most talked-about new American restaurants in the Midwest in 2024.",url:"https://cincinnati.eater.com/"},
-     ]},
-    {id:"cin3",name:"Sotto",neighborhood:"Downtown",category:"Italian",lat:39.1021,lng:-84.5123,
-     note:"Subterranean Italian below Vine Street. CNT featured it as a Cincinnati essential. OpenTable Top 100 nationally. Lunch now available.",
-     sources:["cnt","cinmag"],
-     endorsements:[
-       {s:"cnt",q:"Sotto is a concept of casual intimacy and communal romance — CNT calls it one of Cincinnati's essential dining experiences.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
-       {s:"cinmag",q:"The underground setting adds something special you can't capture in photos. A Cincinnati tradition.",url:"https://www.cincinnatimagazine.com/bestrestaurants/"},
-     ]},
-    {id:"cin4",name:"Young Buck Deli",neighborhood:"Over-the-Rhine",category:"Deli",lat:39.1098,lng:-84.5160,
-     note:"Top Chef alumni Brian & Caitlin Young. CNT featured. House-made bread, in-house charcuterie. The New Deal sandwich with capicola and ricotta is unmissable.",
-     sources:["cnt","citybeat"],
-     endorsements:[
-       {s:"cnt",q:"Young Buck Deli represents the best of Cincinnati's new wave — 'Top Chef' talent applied to the humble sandwich.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
-       {s:"citybeat",q:"When I want a sandwich — like a SANDWICH sandwich — Young Buck Deli is my new go-to. The bread and charcuterie are all made in-house.",url:"https://www.citybeat.com/food-drink/9-must-try-restaurants-in-greater-cincinnati-according-a-citybeat-food-writer-18483489/"},
-     ]},
-    {id:"cin5",name:"Salazar",neighborhood:"Over-the-Rhine",category:"Farm-to-Table",lat:39.1106,lng:-84.5157,
-     note:"OTR landmark. Contemporary American, global influences. CNT featured. Chef Jose Salazar: 'Cincinnati boxes above its weight in the quality of our restaurants.'",
-     sources:["cnt","cinmag"],
-     endorsements:[
-       {s:"cnt",q:"Salazar is at the heart of Cincinnati's culinary renaissance — the restaurant that helped make OTR a national dining destination.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
-       {s:"cinmag",q:"Chef Jose Salazar: 'Cincinnati boxes above its weight in the quality of our restaurants.'",url:"https://www.citybeat.com/food-drink/2024-year-in-review-cincinnatis-culinary-rise-continues-18719363/"},
-     ]},
-    {id:"cin6",name:"Opal Rooftop",neighborhood:"Covington, KY",category:"Rooftop Restaurant",lat:39.0837,lng:-84.5101,
-     note:"Seventh floor of the Republic Bank building. 360° panorama of downtown Cincinnati. Rare Grillworks Infierno open-fire grill hoisted up by crane.",
-     sources:["citybeat","cnt"],
-     endorsements:[
-       {s:"citybeat",q:"It would be worth a visit for the view alone. The open-fire grill had to be hoisted to the top of the building by crane.",url:"https://www.citybeat.com/best-of/2024/eats"},
-       {s:"cnt",q:"One of the most spectacular rooftop dining experiences in the region — Opal makes Northern Kentucky essential.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
-     ]},
-    {id:"cin7",name:"Five on Vine",neighborhood:"Over-the-Rhine",category:"American",lat:39.1108,lng:-84.5150,
-     note:"American classics reimagined with obsessive detail. In-house butchery, scratch pasta, house-cured bacon. Menu reworked every few months.",
-     sources:["cinmag"],
-     endorsements:[
-       {s:"cinmag",q:"A fresh rebuttal against the tired argument that American food is bland and boring. Meticulous attention to detail — the meat is butchered in-house.",url:"https://www.cincinnatimagazine.com/the-restaurant-issue-2024/"},
-     ]},
-    {id:"cin8",name:"The Precinct",neighborhood:"Hyde Park",category:"Steakhouse",lat:39.1480,lng:-84.4334,
-     note:"Cincinnati's oldest and most iconic steakhouse, in a historic former police station. OpenTable Top 100 nationally 2024.",
-     sources:["cinmag","cnt"],
-     endorsements:[
-       {s:"cinmag",q:"Cincinnati's oldest and most iconic steakhouse — in OpenTable's Top 100 nationally for 2024.",url:"https://www.cincinnatimagazine.com/bestrestaurants/"},
-       {s:"cnt",q:"The Precinct is a Cincinnati institution and a genuine great American steakhouse.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
-     ]},
-  ]
-},
-
-asheville: {
-  label:"Asheville", state:"NC",
-  center:{lat:35.574,lng:-82.551}, zoom:14,
-  srcKeys:["infat","cnt","adventurist","ba","eater","timeout"],
-  places:[
-    {id:"avl1",name:"Chai Pani",neighborhood:"South Slope",category:"Indian Street Food",lat:35.5641,lng:-82.5546,
-     note:"Changed Asheville's dining scene in 2009. CNT's Asheville essential. No reservations; the line creeps halfway down the block. The okra fries alone are worth it.",
-     sources:["infat","cnt"],
-     endorsements:[
-       {s:"infat",q:"Forever changed Asheville's dining scene. No reservation system and the line regularly creeps halfway down the block. Worth it for the okra fries.",url:"https://www.theinfatuation.com/asheville/guides/best-restaurants-asheville-north-carolina"},
-       {s:"cnt",q:"Chai Pani has earned its place on Condé Nast Traveler's Asheville list — it is quite simply one of the best Indian street food restaurants in America.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
-     ]},
-    {id:"avl2",name:"Cúrate",neighborhood:"Downtown",category:"Spanish Tapas",lat:35.5756,lng:-82.5533,
-     note:"Put Asheville on the map in 2011. Retrofitted 1920s bus depot, marble bar. Order the $70 prix fixe with a group. CNT and Bon Appétit endorsed.",
-     sources:["infat","cnt","ba"],
-     endorsements:[
-       {s:"infat",q:"One of the restaurants that put Asheville's food scene on the map — magnificent marble bar, open kitchen, classic Spanish tapas.",url:"https://www.theinfatuation.com/asheville/guides/best-restaurants-asheville-north-carolina"},
-       {s:"cnt",q:"Cúrate is the restaurant that announced Asheville as a serious culinary destination — and it's still delivering more than a decade later.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
-       {s:"ba",q:"One of the landmark restaurants that put Asheville on the national food map.",url:"https://www.bonappetit.com/"},
-     ]},
-    {id:"avl3",name:"The Market Place",neighborhood:"Downtown",category:"Farm-to-Table",lat:35.5748,lng:-82.5527,
-     note:"Open since 1979. James Beard nomination for Outstanding Restaurant 2024 and Outstanding Chef 2025. The original farm-to-table anchor of Asheville.",
-     sources:["adventurist","cnt","eater"],
-     endorsements:[
-       {s:"adventurist",q:"A historic landmark. Its James Beard nomination for Outstanding Restaurant 2024 was a reminder of just how good it is.",url:"https://www.theadventuristmagazine.com/city-guides/the-south/north-carolina/best-restaurants-in-asheville"},
-       {s:"cnt",q:"The Market Place is on Condé Nast Traveler's Asheville list — the restaurant that made the city what it is today.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
-       {s:"eater",q:"After 45 years, The Market Place remains the gold standard of Appalachian farm-to-table dining.",url:"https://asheville.eater.com/"},
-     ]},
-    {id:"avl4",name:"All Souls Pizza",neighborhood:"River Arts District",category:"Pizza",lat:35.5770,lng:-82.5710,
-     note:"Naturally leavened sourdough fermenting for days. Mushrooms foraged specifically for this restaurant. Picnic benches under twinkly lights. A warm Asheville night perfected.",
-     sources:["adventurist","cnt"],
-     endorsements:[
-       {s:"adventurist",q:"The mushroom forager told me he sources for All Souls — sourdough that spends days fermenting. If there's a better warm Asheville night, I haven't found it.",url:"https://www.theadventuristmagazine.com/city-guides/the-south/north-carolina/best-restaurants-in-asheville"},
-       {s:"cnt",q:"All Souls Pizza is one of those rare places that couldn't exist anywhere else — deeply Asheville, deeply excellent.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
-     ]},
-    {id:"avl5",name:"Neng Jr.'s",neighborhood:"Downtown",category:"Filipino-Southern",lat:35.5752,lng:-82.5538,
-     note:"17-seat queer-owned gem. Filipino-Southern fusion. Adobo oyster, pork lumpia, queso ice cream. CNT featured. The soy-washed adobo martini is not optional.",
-     sources:["infat","cnt","ba"],
-     endorsements:[
-       {s:"infat",q:"A queer-owned restaurant that packs in a ton of bright colors and tenderness. The food blurs the lines between Filipinx and Southern cuisine.",url:"https://www.theinfatuation.com/asheville/guides/best-restaurants-asheville-north-carolina"},
-       {s:"cnt",q:"Neng Jr.'s represents a new Asheville — queer-owned, Filipino-Southern, utterly original.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
-       {s:"ba",q:"One of the most exciting small restaurants in the American South — a tiny room with an enormous point of view.",url:"https://www.bonappetit.com/"},
-     ]},
-    {id:"avl6",name:"Sand Hill Kitchen",neighborhood:"West Asheville",category:"Fried Chicken",lat:35.5670,lng:-82.5930,
-     note:"Best fried chicken in town at a gas station. Buttermilk-soaked sandwich, great cheeseburger. A genuine Asheville original.",
-     sources:["infat","eater"],
-     endorsements:[
-       {s:"infat",q:"As spiritual as the crispy, buttermilk-soaked chicken sandwich tastes. Surprisingly homey and spacious for a petrol stop.",url:"https://www.theinfatuation.com/asheville/guides/best-restaurants-asheville-north-carolina"},
-       {s:"eater",q:"Sand Hill Kitchen is Asheville's cult favourite — equal parts roadside stop and pilgrimage destination.",url:"https://asheville.eater.com/"},
-     ]},
-  ]
-},
-
-hendersonville: {
-  label:"Hendersonville", state:"NC",
-  center:{lat:35.318,lng:-82.462}, zoom:15,
-  srcKeys:["uncorked","timeout","cnt"],
-  places:[
-    {id:"hvl1",name:"Umi Sushi",neighborhood:"Downtown",category:"Sushi",lat:35.3213,lng:-82.4607,
-     note:"Voted best restaurant in Hendersonville for 12+ years. No reservations. Worth the drive from Asheville.",
-     sources:["uncorked"],
-     endorsements:[
-       {s:"uncorked",q:"Our all-time favorite sushi restaurant in Hendersonville & WNC. We'll drive in from Asheville just to eat here. Voted best for 12+ years.",url:"https://www.uncorkedasheville.com/restaurants-in-hendersonville-nc/"},
-     ]},
-    {id:"hvl2",name:"Haus Heidelberg",neighborhood:"Hendersonville",category:"German",lat:35.3007,lng:-82.4629,
-     note:"Exceptional German food. Pork schnitzel on a pretzel bun. Also runs one of the best food trucks in the region.",
-     sources:["uncorked"],
-     endorsements:[
-       {s:"uncorked",q:"If we had to pick only two restaurants in Hendersonville, Haus Heidelberg and Umi Sushi would be it.",url:"https://www.uncorkedasheville.com/restaurants-in-hendersonville-nc/"},
-     ]},
-    {id:"hvl3",name:"Shine",neighborhood:"Downtown",category:"Bar & Restaurant",lat:35.3188,lng:-82.4618,
-     note:"Rooftop bar, voted Best of WNC 2022–2024. Tuna tataki to Big Ass Bowl of Mussels. Extensive cocktail list.",
-     sources:["uncorked","cnt"],
-     endorsements:[
-       {s:"uncorked",q:"One of our favourite spots in Hendersonville with a rooftop terrace. Best of WNC three years running.",url:"https://www.uncorkedasheville.com/restaurants-in-hendersonville-nc/"},
-       {s:"cnt",q:"Shine's rooftop is Hendersonville's most atmospheric dining room — and the food matches the view.",url:"https://www.cntraveler.com/gallery/best-restaurants-asheville"},
-     ]},
-    {id:"hvl4",name:"Postero",neighborhood:"Downtown",category:"Upscale Casual",lat:35.3195,lng:-82.4611,
-     note:"Upscale but casual, in a beautifully converted old bank building. A locals' favourite.",
-     sources:["timeout"],
-     endorsements:[
-       {s:"timeout",q:"Postero in an old bank building in downtown Hendersonville proved to be one of our favorites during our recent visit.",url:"https://www.timeout.com/usa/restaurants/best-restaurants-in-asheville"},
-     ]},
-    {id:"hvl5",name:"Never Blue",neighborhood:"Downtown",category:"Tapas",lat:35.3192,lng:-82.4610,
-     note:"Funky tapas bar. Great value, great food. Perfect for a first date or a lively group dinner.",
-     sources:["uncorked"],
-     endorsements:[
-       {s:"uncorked",q:"If you need a first-date restaurant, somewhere not too serious but with seriously perfect food, give Never Blue a try.",url:"https://www.uncorkedasheville.com/restaurants-in-hendersonville-nc/"},
-     ]},
-  ]
-},
-
-parkcity: {
-  label:"Park City", state:"UT",
-  center:{lat:40.648,lng:-111.498}, zoom:15,
-  srcKeys:["campfire","cnt","ba","eater"],
-  places:[
-    {id:"pc1",name:"Riverhorse on Main",neighborhood:"Main Street",category:"Fine Dining",lat:40.6481,lng:-111.4984,
-     note:"Forbes Travel Guide Four Star Award for 16 consecutive years. Seasonally rotating dinner menu. The Park City institution.",
-     sources:["campfire","cnt"],
-     endorsements:[
-       {s:"campfire",q:"Riverhorse on Main has received the Forbes Travel Guide Four Star Award for 16 years running, regularly smiled upon by critics and diners alike.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
-       {s:"cnt",q:"Riverhorse on Main appears on Condé Nast Traveler's Park City guide as the city's essential fine dining destination.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
-     ]},
-    {id:"pc2",name:"Yuki Yama Sushi",neighborhood:"Main Street",category:"Sushi",lat:40.6465,lng:-111.4970,
-     note:"OpenTable's 100 Best Restaurants in America 2024. High-quality sushi and inventive Japanese cuisine on Main Street.",
-     sources:["campfire","cnt"],
-     endorsements:[
-       {s:"campfire",q:"Recognized by OpenTable as one of their 100 Best Restaurants in America for 2024. A favourite among locals and visitors alike.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
-       {s:"cnt",q:"Yuki Yama Sushi is among Condé Nast Traveler's Park City recommendations — a hidden gem on Main Street.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
-     ]},
-    {id:"pc3",name:"High West Distillery",neighborhood:"Wanship",category:"Distillery & Brunch",lat:40.5974,lng:-111.4127,
-     note:"Utah's finest craft distillery. Sunday brunch with complimentary distillery tour + all-you-can-eat buffet. CNT endorsed.",
-     sources:["campfire","cnt","ba"],
-     endorsements:[
-       {s:"campfire",q:"Book for Sunday Brunch — includes a complimentary distillery tour. One of Utah's finest craft distilleries.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
-       {s:"cnt",q:"High West is one of Condé Nast Traveler's Park City must-visits — one of the most scenic distillery experiences in the West.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
-       {s:"ba",q:"High West's Sunday brunch has become a Park City institution — great cocktails, great food, stunning setting.",url:"https://www.bonappetit.com/"},
-     ]},
-    {id:"pc4",name:"Five5eeds",neighborhood:"Snow Creek",category:"Brunch",lat:40.6468,lng:-111.5076,
-     note:"Yelp Elite's #1 Top Place to Eat 2024. Best brunch in Park City. Worth seeking out however you pronounce the name.",
-     sources:["campfire","cnt"],
-     endorsements:[
-       {s:"campfire",q:"The pronunciation of this restaurant is a trade secret — we can guarantee a high-quality experience. Yelp Elite's #1 for 2024.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
-       {s:"cnt",q:"Five5eeds appears in Condé Nast Traveler's Park City guide as the city's most exciting daytime dining destination.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
-     ]},
-    {id:"pc5",name:"The Eating Establishment",neighborhood:"Main Street",category:"Classic American",lat:40.6470,lng:-111.4979,
-     note:"Park City breakfast classic. Loaded Baked Potato Omelette, Corned Beef Hash. Owned by Ty Burrell (Phil Dunphy from Modern Family). Expect a weekend wait.",
-     sources:["campfire"],
-     endorsements:[
-       {s:"campfire",q:"Modern Family fans will love that this restaurant is owned by Ty Burrell aka Phil Dunphy. A great classic Park City breakfast.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
-     ]},
-    {id:"pc6",name:"Rime at St. Regis Deer Valley",neighborhood:"Deer Valley",category:"Luxury Hotel Restaurant",lat:40.6149,lng:-111.4947,
-     note:"Award-winning food with views in every direction. The more casual Brasserie 7452 next door has the best lobster rolls in the valley.",
-     sources:["campfire","cnt"],
-     endorsements:[
-       {s:"campfire",q:"A fantastic view in every direction, plus award-winning food. Brasserie 7452 has the best lobster rolls if you're willing to splurge.",url:"https://www.campfiresandconcierges.com/park-city-restaurants/"},
-       {s:"cnt",q:"Rime at the St. Regis is among Condé Nast Traveler's Deer Valley recommendations — mountain luxury at its most refined.",url:"https://www.cntraveler.com/gallery/best-restaurants-park-city"},
-     ]},
-  ]
-},
-
-bozeman: {
-  label:"Bozeman", state:"MT",
-  center:{lat:45.679,lng:-111.043}, zoom:15,
-  srcKeys:["joyvance","cnt","ba","eater"],
-  places:[
-    {id:"boz1",name:"Open Range",neighborhood:"Downtown",category:"Steakhouse",lat:45.6796,lng:-111.0388,
-     note:"Bozeman's institution for exceptional steaks. Classic brasserie-inspired with an extensive wine list. CNT endorsed.",
-     sources:["joyvance","cnt"],
-     endorsements:[
-       {s:"joyvance",q:"This Bozeman institution is consistently recognized for its exceptional steaks — classic brasserie-inspired experience with impeccable service.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
-       {s:"cnt",q:"Open Range is on Condé Nast Traveler's Bozeman radar — a genuinely excellent steakhouse in a city that does beef right.",url:"https://www.cntraveler.com/gallery/best-restaurants-bozeman"},
-     ]},
-    {id:"boz2",name:"Blackbird Kitchen",neighborhood:"Downtown",category:"Pizza & Pasta",lat:45.6786,lng:-111.0373,
-     note:"Wood-fired pizzas and house-made pastas. Open kitchen. Focuses on local, organic ingredients. One of Bozeman's most consistent favourites.",
-     sources:["joyvance","ba"],
-     endorsements:[
-       {s:"joyvance",q:"The wood-fired pizzas and house-made pastas are crowd favorites. Consistently praised for innovative menu and warm atmosphere.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
-       {s:"ba",q:"Blackbird Kitchen is exactly what you want after a day in Yellowstone — excellent pizza and pasta in a warm, welcoming room.",url:"https://www.bonappetit.com/"},
-     ]},
-    {id:"boz3",name:"MAP Brewing Co.",neighborhood:"Downtown",category:"Brewery & Restaurant",lat:45.6781,lng:-111.0352,
-     note:"Modern atmosphere, innovative craft beers, wood-fired pizzas. The spot locals take visitors.",
-     sources:["joyvance","cnt"],
-     endorsements:[
-       {s:"joyvance",q:"MAP lures crowds with its modern atmosphere and innovative craft beers. Wood-fired pizzas and a focus on fresh, local ingredients.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
-       {s:"cnt",q:"MAP Brewing is among Condé Nast Traveler's Bozeman picks — a great brewery that also happens to serve excellent food.",url:"https://www.cntraveler.com/gallery/best-restaurants-bozeman"},
-     ]},
-    {id:"boz4",name:"Plonk Wine Bar",neighborhood:"Downtown",category:"Wine Bar",lat:45.6794,lng:-111.0384,
-     note:"Curated global wine list. Small plates, cheese boards. The perfect après-ski or après-hike evening.",
-     sources:["joyvance","eater"],
-     endorsements:[
-       {s:"joyvance",q:"Plonk features a curated wine list with selections from around the world, alongside small plates and cheese boards.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
-       {s:"eater",q:"Plonk is Bozeman's best wine bar — a civilised stop for anyone wanting to explore beyond the brewery scene.",url:"https://www.eater.com/"},
-     ]},
-    {id:"boz5",name:"Jam! Bozeman",neighborhood:"Downtown",category:"Brunch",lat:45.6800,lng:-111.0410,
-     note:"Vibrant brunch. Banana bread French toast, savory breakfast burrito with a mimosa. Go with time to spare.",
-     sources:["joyvance","ba"],
-     endorsements:[
-       {s:"joyvance",q:"Jam! is the place to be for a vibrant, modern dining experience. The breakfast and brunch menu is a hit.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
-       {s:"ba",q:"Jam! Bozeman is a brunch institution — the kind of place you build a morning around.",url:"https://www.bonappetit.com/"},
-     ]},
-    {id:"boz6",name:"Blacksmith Italian",neighborhood:"Downtown",category:"Italian",lat:45.6790,lng:-111.0380,
-     note:"Handcrafted Italian in Montana. Homemade pasta, pizza, all made with fresh and authentic ingredients.",
-     sources:["joyvance"],
-     endorsements:[
-       {s:"joyvance",q:"Blacksmith Italian features a menu of homemade pasta, pizzas, and Italian specialties, all prepared with fresh and authentic ingredients.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
-     ]},
-    {id:"boz7",name:"Western Cafe",neighborhood:"Downtown",category:"Classic Diner",lat:45.6802,lng:-111.0420,
-     note:"A Bozeman institution. Nostalgic diner-style setting with legendary cinnamon rolls. Cash-register charm.",
-     sources:["joyvance","cnt"],
-     endorsements:[
-       {s:"joyvance",q:"The Western Cafe is a Bozeman institution. The diner-style setting takes you back in time — classic American dishes reign supreme.",url:"https://joyvanceandco.com/blog/15-best-restaurants-in-bozeman"},
-       {s:"cnt",q:"Any Condé Nast Traveler visit to Bozeman includes the Western Cafe — a genuine American original.",url:"https://www.cntraveler.com/gallery/best-restaurants-bozeman"},
-     ]},
-  ]
-},
-
+  chicago:{label:"Chicago",state:"IL",center:{lat:41.890,lng:-87.650},zoom:13,
+    srcKeys:["lottie","food312","infat","cnt","chimag","ba","timeout","resy"],
+    places:[
+      {id:"chi1",name:"Monteverde",neighborhood:"West Loop",category:"Italian",lat:41.8820,lng:-87.6540,
+       note:"James Beard–winning chef Sarah Grueneberg's pasta temple. The cacio whey pepe is non-negotiable.",
+       sources:["cnt","chimag","resy"],endorsements:[
+         {s:"cnt",q:"One of Chicago's essential tables — Grueneberg's handmade pastas are impossible to resist.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+         {s:"chimag",q:"Monteverde gets all the big things and all the little things right.",url:"https://www.chicagomag.com/chicago-magazine/august-2024/50-best-restaurants/monteverde/"},
+       ]},
+      {id:"chi2",name:"The Publican",neighborhood:"West Loop",category:"Restaurant",lat:41.8863,lng:-87.6487,
+       note:"Pork-focused, brilliant beer list, communal hall feel. Chicago's most reliable great meal.",
+       sources:["lottie","food312","cnt"],endorsements:[
+         {s:"lottie",q:"If I could only recommend one restaurant in Chicago, it would be this.",url:"https://www.lottieanddoof.com/chicagoguide/"},
+         {s:"cnt",q:"A Chicago institution — high-energy, pork-forward, consistently excellent.",url:"https://www.cntraveler.com/gallery/best-restaurants-chicago"},
+       ]},
+      {id:"chi3",name:"Avec",neighborhood:"West Loop",category:"Restaurant",lat:41.8836,lng:-87.6437,
+       note:"Mediterranean small plates, cedar-clad intimacy. The chorizo-stuffed Medjool dates alone justify the trip.",
+       sources:["infat","food312","cnt"],endorsements:[
+         {s:"infat",q:"A Chicago classic. Rated 9.0 — one of the best in the city.",url:"https://www.theinfatuation.com/chicago/guides/best-restaurants-chicago"},
+       ]},
+      {id:"chi4",name:"Akahoshi Ramen",neighborhood:"Logan Square",category:"Ramen",lat:41.9254,lng:-87.7046,
+       note:"Bon Appétit's Best New Restaurant 2024. Owner was 'Ramen Lord' on Reddit — a decade of obsession in every bowl.",
+       sources:["ba","timeout"],endorsements:[
+         {s:"ba",q:"The owner spent over a decade on Reddit as 'Ramen Lord', cultivating over 1 million devoted enthusiasts.",url:"https://www.bonappetit.com/story/best-new-restaurants-2024"},
+       ]},
+      {id:"chi5",name:"Chicago Riverwalk",neighborhood:"Downtown",category:"Outdoor",lat:41.8874,lng:-87.6298,
+       note:"Walk west from Michigan Ave. Coffee in the morning, cocktails at golden hour. The city's best free experience.",
+       sources:["food312"],endorsements:[
+         {s:"food312",q:"One of Chicago's best features — a perfect way to experience the city.",url:"https://www.312food.com/"},
+       ]},
+      {id:"chi6",name:"Spinning J",neighborhood:"Humboldt Park",category:"Bakery",lat:41.8993,lng:-87.6969,
+       note:"Vintage soda fountain, platonic-ideal pastries. Breakfast here is one of Chicago's great small pleasures.",
+       sources:["lottie","cnt"],endorsements:[
+         {s:"lottie",q:"One of my favourite spots in Chicago. The breakfast pastries are perfect.",url:"https://www.lottieanddoof.com/chicagoguide/"},
+       ]},
+    ]},
+  miami:{label:"Miami",state:"FL",center:{lat:25.795,lng:-80.200},zoom:12,
+    srcKeys:["infat","ba","resy","cnt","timeout"],
+    places:[
+      {id:"mia1",name:"Ariete",neighborhood:"Coconut Grove",category:"Fine Dining",lat:25.7266,lng:-80.2384,
+       note:"Rated 9.6 by The Infatuation — Miami fine dining reimagined with Cuban-American roots.",
+       sources:["infat","cnt"],endorsements:[
+         {s:"infat",q:"Ariete has created an entirely new kind of restaurant: Miami fine dining. Rated 9.6.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+       ]},
+      {id:"mia2",name:"Tâm Tâm",neighborhood:"Downtown",category:"Vietnamese",lat:25.7724,lng:-80.1946,
+       note:"Bon Appétit + Michelin nod 2024. Vietnamese izakaya energy — fish sauce wings, frozen mai tais.",
+       sources:["ba","resy","infat"],endorsements:[
+         {s:"resy",q:"This was Tâm Tâm's breakout year. The food facilitates drinking, like a Japanese izakaya.",url:"https://blog.resy.com/2024/12/miami-restaurants-2024/"},
+       ]},
+      {id:"mia3",name:"Mandolin Aegean Bistro",neighborhood:"Design District",category:"Mediterranean",lat:25.8088,lng:-80.1940,
+       note:"Possibly the greatest outdoor restaurant in Miami. Mediterranean, consistently great.",
+       sources:["infat","cnt"],endorsements:[
+         {s:"infat",q:"Possibly the greatest outdoor restaurant in town. The Mediterranean food is always consistently great.",url:"https://www.theinfatuation.com/miami/guides/best-restaurants-in-miami"},
+       ]},
+    ]},
+  nashville:{label:"Nashville",state:"TN",center:{lat:36.165,lng:-86.784},zoom:13,
+    srcKeys:["infat","cnt","ba","resy","eater"],
+    places:[
+      {id:"nas1",name:"Kisser",neighborhood:"East Nashville",category:"Japanese Lunch",lat:36.1856,lng:-86.7476,
+       note:"Lunch only. BA + F&W named chef Brian Lea Best New Chef 2024. Michelin Bib Gourmand 2025.",
+       sources:["infat","ba","fw"],endorsements:[
+         {s:"ba",q:"BA and F&W both recognized chef Brian Lea as among the best new chefs of 2024.",url:"https://www.bonappetit.com/story/best-new-restaurants-2024"},
+       ]},
+      {id:"nas2",name:"Rolf & Daughters",neighborhood:"Germantown",category:"Restaurant",lat:36.1849,lng:-86.7866,
+       note:"Chef Philip Krajeck's devotion to fermentation and Mediterranean-Southern flavors.",
+       sources:["cnt","resy"],endorsements:[
+         {s:"cnt",q:"Named to CNT's best Nashville restaurants — the neighbourhood anchor every city should have.",url:"https://www.cntraveler.com/gallery/best-restaurants-nashville"},
+       ]},
+    ]},
+  cincinnati:{label:"Cincinnati",state:"OH",center:{lat:39.105,lng:-84.512},zoom:13,
+    srcKeys:["cnt","cinmag","citybeat","ba","nyt","eater"],
+    places:[
+      {id:"cin1",name:"The Aperture",neighborhood:"Walnut Hills",category:"Mediterranean",lat:39.1187,lng:-84.4889,
+       note:"NYT America's Best Restaurants 2024 — the only Ohio restaurant on the list.",
+       sources:["nyt","cnt","cinmag"],endorsements:[
+         {s:"nyt",q:"The Aperture has a firm grasp on Mediterranean cuisine — glazed hamachi collar and tomato spaghetti.",url:"https://www.nytimes.com/section/dining"},
+         {s:"cnt",q:"The Aperture proves Cincinnati is no longer an under-the-radar dining secret.",url:"https://www.cntraveler.com/gallery/best-restaurants-cincinnati"},
+       ]},
+      {id:"cin2",name:"Wildweed",neighborhood:"Mt. Lookout",category:"Restaurant",lat:39.1282,lng:-84.4234,
+       note:"Esquire's Best New Restaurants in America 2024. A soaring ode to a region overlooked for too long.",
+       sources:["cnt","cinmag","eater"],endorsements:[
+         {s:"cinmag",q:"Named one of Esquire's 'Best New Restaurants in America, 2024.'",url:"https://www.cincinnatimagazine.com/the-restaurant-issue-2024/"},
+       ]},
+    ]},
 };
 
-// Remove the duplicate miami entry programmatically
-CITIES.miami.places = CITIES.miami.places.filter(p => p.id !== 'mia4');
+// ── PERSONAL MEMORIES & PINS ──────────────────
+let myMemories = [
+  {id:1,place:"Avec",city:"Chicago",date:"Mar 6, 2026",time:"7:30 PM",
+   caption:"The chorizo-stuffed dates are everything they promised. Worth every minute of the wait.",
+   photos:["🍷","🕯️"],privacy:"friends",likes:4},
+  {id:2,place:"Chicago Riverwalk",city:"Chicago",date:"Mar 7, 2026",time:"6:15 AM",
+   caption:"Best way to start a conference day. The city before everyone wakes up.",
+   photos:["🌅"],privacy:"private",likes:0},
+  {id:3,place:"Ariete",city:"Miami",date:"Feb 21, 2026",time:"8:00 PM",
+   caption:"The most serious restaurant in Miami. Rated 9.6 and earns every point.",
+   photos:["🦞","🍷","🌿"],privacy:"friends",likes:7},
+];
+let myPins = [];
+let savedPlaces = new Set();
+const TRIPS_DATA = [
+  {name:"ACC Conference 2026",city:"Chicago, IL",emoji:"🏙",dates:"Mar 6–9",status:"active",members:["LF","DK","SM"],memCount:12},
+  {name:"AAAAI Annual Meeting",city:"Miami, FL",emoji:"🌴",dates:"Feb 20–24",status:"past",members:["LF","EP"],memCount:28},
+  {name:"Harvard Macy Retreat",city:"Asheville, NC",emoji:"🏔",dates:"Jan 15–18",status:"past",members:["LF","RB","JM","PK"],memCount:41},
+];
+const FRIENDS = [
+  {initials:"DK",name:"David Kim",role:"Cardiologist, ACC attendee",color:"#5c7a5e"},
+  {initials:"SM",name:"Sarah Mehta",role:"Medical educator",color:"#c9a84c"},
+  {initials:"EP",name:"Elena Park",role:"Allergist",color:"#3d5a80"},
+  {initials:"RB",name:"Rebecca Brown",role:"Harvard Macy cohort",color:"#8a5c2e"},
+];
 
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-let map, allMarkers=[], userPins=[], savedIds=new Set();
-let activeCity='chicago', activeFilter='all', addMode=false, pendingLatLng=null;
-let currentPlace=null, sheetUp=false;
+// ── MAP STATE ──────────────────────────────────
+let map, allMarkers=[], addMode=false, pendingLatLng=null;
+let activeCity='chicago', activeFilter='all', currentPlace=null;
+let selectedPrivacy='private', addedPhotos=[], selectedVibe='efficient';
+let memFilterVal='all';
 
-const city=()=>CITIES[activeCity];
-const src=(k)=>SOURCES[k]||{name:k,short:k,color:'#8a7f72',url:'#'};
-const srcColor=(k)=>src(k).color;
-
-function getFiltered(){
-  const all=[...city().places, ...userPins.filter(p=>p.cityKey===activeCity)];
-  if(activeFilter==='all') return all;
-  if(activeFilter==='user') return userPins.filter(p=>p.cityKey===activeCity);
-  if(activeFilter==='saved') return all.filter(p=>savedIds.has(p.id));
-  return city().places.filter(p=>p.sources&&p.sources.includes(activeFilter));
+// ── AUTH ───────────────────────────────────────
+function authTab(el,mode){
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('inForm').style.display=mode==='in'?'block':'none';
+  document.getElementById('upForm').style.display=mode==='up'?'block':'none';
 }
 
-// ─────────────────────────────────────────────
-// MAP INIT
-// ─────────────────────────────────────────────
+function signIn(){
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  renderTrips(); renderMemories(); renderFriends();
+}
+
+function signOut(){
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('authScreen').classList.remove('hidden');
+}
+
+// ── TAB SWITCHING ──────────────────────────────
+function switchTab(tab){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById(tab+'Panel').classList.add('on');
+  document.getElementById('nav-'+tab).classList.add('on');
+  // show/hide map-specific elements
+  const isMap = tab==='map';
+  document.getElementById('planBtn').style.display=isMap?'flex':'none';
+  document.getElementById('addPinBtn').style.display=isMap?'flex':'none';
+  if(!isMap) closePlaceSheet();
+}
+
+// ── MAP ────────────────────────────────────────
 function initMap(){
-  map=new google.maps.Map(document.getElementById('map'),{
-    center:city().center, zoom:city().zoom,
-    disableDefaultUI:true, zoomControl:true,
+  map=new google.maps.Map(document.getElementById('mapEl'),{
+    center:CITIES[activeCity].center,zoom:CITIES[activeCity].zoom,
+    disableDefaultUI:true,zoomControl:true,
     zoomControlOptions:{position:google.maps.ControlPosition.LEFT_BOTTOM},
     styles:[
       {featureType:'all',elementType:'geometry',stylers:[{color:'#f5f0e8'}]},
@@ -942,250 +768,330 @@ function initMap(){
       {featureType:'water',elementType:'geometry',stylers:[{color:'#b8d4e8'}]},
       {featureType:'poi.park',elementType:'geometry',stylers:[{color:'#d4e6c3'}]},
       {featureType:'poi',elementType:'labels',stylers:[{visibility:'off'}]},
-      {featureType:'transit',stylers:[{visibility:'simplified'}]},
-      {featureType:'administrative',elementType:'labels.text.fill',stylers:[{color:'#8a7f72'}]},
       {featureType:'road',elementType:'labels.text.fill',stylers:[{color:'#6b6356'}]},
       {featureType:'landscape.man_made',elementType:'geometry',stylers:[{color:'#ede8de'}]}
     ]
   });
   map.addListener('click',e=>{
-    if(addMode){pendingLatLng=e.latLng;document.getElementById('coordHint').textContent=`${e.latLng.lat().toFixed(5)}, ${e.latLng.lng().toFixed(5)}`;openModal();}
+    if(addMode){pendingLatLng=e.latLng;document.getElementById('pinCoordHint').textContent=`${e.latLng.lat().toFixed(4)}, ${e.latLng.lng().toFixed(4)}`;openPinModal();}
+    else closePlaceSheet();
   });
-  buildCityTabs(); buildFilters(); renderMarkers(); buildMobileList();
+  buildCityTabs(); buildFilters(); renderMarkers();
 }
 
-// ─────────────────────────────────────────────
-// CITY TABS
-// ─────────────────────────────────────────────
 function buildCityTabs(){
-  document.getElementById('cityRow').innerHTML=Object.entries(CITIES).map(([k,v])=>
-    `<div class="city-tab${k===activeCity?' active':''}" onclick="switchCity('${k}')">${v.label}</div>`
+  document.getElementById('cityScroll').innerHTML=Object.entries(CITIES).map(([k,v])=>
+    `<div class="city-tab${k===activeCity?' on':''}" onclick="switchCity('${k}')">${v.label}</div>`
   ).join('');
 }
 
 function switchCity(k){
   activeCity=k; activeFilter='all';
   buildCityTabs(); buildFilters();
-  if(map){map.setCenter(city().center); map.setZoom(city().zoom);}
-  renderMarkers(); 
-  sheetUp=false; // reset so buildMobileList shows collapsed header
-  buildMobileList(); 
-  closePanel();
+  map.setCenter(CITIES[k].center); map.setZoom(CITIES[k].zoom);
+  renderMarkers(); closePlaceSheet();
 }
 
-// ─────────────────────────────────────────────
-// FILTERS
-// ─────────────────────────────────────────────
 function buildFilters(){
+  const c=CITIES[activeCity];
   let html=`<div class="chip on" data-f="all" onclick="setFilter('all')">All</div>`;
-  city().srcKeys.forEach(k=>{
-    const s=src(k);
+  c.srcKeys.forEach(k=>{
+    const s=SOURCES[k];
     html+=`<div class="chip" data-f="${k}" onclick="setFilter('${k}')"><span class="pip" style="background:${s.color}"></span>${s.short}</div>`;
   });
-  html+=`<div class="chip" data-f="user" onclick="setFilter('user')"><span class="pip" style="background:var(--gold)"></span>My Pins</div>`;
+  html+=`<div class="chip" data-f="mine" onclick="setFilter('mine')"><span class="pip" style="background:var(--gold)"></span>My Pins</div>`;
   html+=`<div class="chip" data-f="saved" onclick="setFilter('saved')">★ Saved</div>`;
-  document.getElementById('filterRow').innerHTML=html;
-  buildLegend();
+  document.getElementById('filterScroll').innerHTML=html;
 }
 
 function setFilter(f){
   activeFilter=f;
   document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.f===f));
-  renderMarkers(); 
-  sheetUp=false;
-  buildMobileList();
+  renderMarkers();
 }
 
-function buildLegend(){
-  const html=city().srcKeys.map(k=>{
-    const s=src(k);
-    return `<div class="leg-row"><span class="leg-dot" style="background:${s.color}"></span>${s.name}</div>`;
-  }).join('')+`<div class="leg-row"><span class="leg-dot" style="background:var(--gold)"></span>My Pins</div>`;
-  document.getElementById('legend').innerHTML=html;
-}
-
-// ─────────────────────────────────────────────
-// MARKERS
-// ─────────────────────────────────────────────
-function markerSVG(color,isUser,count){
-  const inner=isUser
-    ?`<text x="16" y="21" font-size="11" text-anchor="middle" fill="${color}" font-family="sans-serif">★</text>`
-    :`<circle cx="16" cy="16" r="4.5" fill="${color}"/>`;
-  const badge=count>1?`<circle cx="24" cy="8" r="5.5" fill="#1c1917" stroke="white" stroke-width="1.5"/><text x="24" y="12" font-size="7" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">${count}</text>`:'';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26S32 28 32 16C32 7.163 24.837 0 16 0z" fill="${color}" opacity="0.92"/><circle cx="16" cy="16" r="8" fill="white" opacity="0.95"/>${inner}${badge}</svg>`;
-}
-
-function makeMarker(place,isUser){
-  const color=isUser?'#c9a84c':(place.sources&&place.sources.length?srcColor(place.sources[0]):'#8a7f72');
-  const count=isUser?0:(place.sources?place.sources.length:0);
-  const icon={url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(markerSVG(color,isUser,count)),scaledSize:new google.maps.Size(32,42),anchor:new google.maps.Point(16,42)};
-  const m=new google.maps.Marker({position:{lat:place.lat,lng:place.lng},map,icon,title:place.name});
-  m.addListener('click',()=>openPlace(place,isUser));
-  return m;
+function getFiltered(){
+  const editorial=CITIES[activeCity].places;
+  const personal=myPins.filter(p=>p.cityKey===activeCity);
+  if(activeFilter==='mine') return personal;
+  if(activeFilter==='saved') return [...editorial,...personal].filter(p=>savedPlaces.has(p.id));
+  const src=activeFilter==='all'?null:activeFilter;
+  const filtered=src?editorial.filter(p=>p.sources&&p.sources.includes(src)):editorial;
+  return [...filtered,...personal];
 }
 
 function renderMarkers(){
   allMarkers.forEach(m=>m.setMap(null)); allMarkers=[];
-  getFiltered().forEach(p=>allMarkers.push(makeMarker(p,!p.sources)));
-  document.getElementById('sheetCount').textContent=getFiltered().length+' places';
+  getFiltered().forEach(p=>{
+    const isUser=!p.sources;
+    const color=isUser?'#c9a84c':(p.sources&&p.sources.length?SOURCES[p.sources[0]]?.color||'#8a7f72':'#8a7f72');
+    const hasMem=myMemories.some(m=>m.place===p.name);
+    const svg=markerSVG(color,isUser,hasMem,p.sources?p.sources.length:0);
+    const icon={url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg),scaledSize:new google.maps.Size(32,42),anchor:new google.maps.Point(16,42)};
+    const m=new google.maps.Marker({position:{lat:p.lat,lng:p.lng},map,icon,title:p.name});
+    m.addListener('click',()=>openPlace(p,isUser));
+    allMarkers.push(m);
+  });
 }
 
-// ─────────────────────────────────────────────
-// OPEN PLACE
-// ─────────────────────────────────────────────
+function markerSVG(color,isUser,hasMem,count){
+  const ring=hasMem?`<circle cx="16" cy="16" r="11" fill="none" stroke="${color}" stroke-width="2.5" opacity=".4"/>`:'';
+  const inner=isUser?`<text x="16" y="21" font-size="11" text-anchor="middle" fill="${color}" font-family="sans-serif">★</text>`:`<circle cx="16" cy="16" r="4.5" fill="${color}"/>`;
+  const badge=count>1?`<circle cx="24" cy="8" r="5.5" fill="#1c1917" stroke="white" stroke-width="1.5"/><text x="24" y="12" font-size="7" font-weight="700" fill="white" text-anchor="middle" font-family="sans-serif">${count}</text>`:'';
+  const memDot=hasMem?`<circle cx="8" cy="8" r="4" fill="var(--terra,#b85c38)" stroke="white" stroke-width="1.5"/>`:'';
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42"><path d="M16 0C7.163 0 0 7.163 0 16c0 12 16 26 16 26S32 28 32 16C32 7.163 24.837 0 16 0z" fill="${color}" opacity="0.92"/><circle cx="16" cy="16" r="8" fill="white" opacity="0.95"/>${ring}${inner}${badge}${memDot}</svg>`;
+}
+
+// ── PLACE SHEET ────────────────────────────────
 function openPlace(place,isUser){
   currentPlace=place;
   map.panTo({lat:place.lat,lng:place.lng});
-  if(map.getZoom()<15) map.setZoom(15);
-  const isSaved=savedIds.has(place.id);
-  const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name+', '+city().label)}`;
-  const bodyHtml=buildDetailHtml(place,isUser);
-  const attribHtml=buildAttribution(place);
-  if(window.innerWidth>=700){
-    document.getElementById('pName').textContent=place.name;
-    document.getElementById('pMeta').textContent=(place.neighborhood||'')+(place.category?' · '+place.category:'');
-    document.getElementById('pSaveBtn').textContent=isSaved?'★ Saved':'☆ Save';
-    document.getElementById('pSaveBtn').className='btn-primary'+(isSaved?' saved':'');
-    document.getElementById('pMapsLink').href=mapsUrl;
-    document.getElementById('pBody').innerHTML=bodyHtml;
-    document.getElementById('pActions').style.display='flex';
-    const attrib=document.getElementById('pAttrib');
-    if(attribHtml){attrib.innerHTML=attribHtml;attrib.style.display='block';}
-    else{attrib.style.display='none';}
-    document.getElementById('panel').classList.add('open');
-  } else {
-    openMobileDetail(place,bodyHtml,mapsUrl,attribHtml);
-  }
-}
+  document.getElementById('sheetName').textContent=place.name;
+  document.getElementById('sheetMeta').textContent=(place.neighborhood||'')+(place.category?' · '+place.category:'');
+  document.getElementById('sheetMapsLink').href=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name+', '+CITIES[activeCity].label)}`;
 
-function buildDetailHtml(place,isUser){
   let html='';
-  if(place.note) html+=`<div class="panel-note">${place.note}</div>`;
-  if(isUser&&place.userNote) html+=`<div style="background:#fffbf0;border:1px solid #e8d9a0;border-radius:8px;padding:11px 13px;margin-bottom:16px"><div style="font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">Your Note</div><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;line-height:1.5;color:#3a3530">${place.userNote}</p></div>`;
+  if(place.note) html+=`<div class="sheet-note">${place.note}</div>`;
+
+  // My memories on this place
+  const placeMems=myMemories.filter(m=>m.place===place.name);
+  if(placeMems.length){
+    html+=`<div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-bottom:10px">Your memories here (${placeMems.length})</div>`;
+    placeMems.forEach(m=>{
+      const privLabel=m.privacy==='private'?'🔒 Private':'👥 Friends';
+      const privClass=m.privacy==='private'?'privacy-private':'privacy-friends';
+      html+=`<div class="my-memory-row" onclick="showToast('Memory detail coming soon')">
+        <div class="my-memory-thumb">${m.photos[0]||'📸'}</div>
+        <div class="my-memory-info">
+          <div class="my-memory-caption">${m.caption.slice(0,60)}${m.caption.length>60?'…':''}</div>
+          <div class="my-memory-meta">${m.date} · ${m.time} <span class="privacy-badge ${privClass}" style="margin-left:6px">${privLabel}</span></div>
+        </div>
+      </div>`;
+    });
+    html+=`<div style="height:8px"></div>`;
+  }
+
   if(place.endorsements&&place.endorsements.length){
-    html+=`<div class="section-label">What the experts say</div>`;
+    html+=`<div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-bottom:10px">What the experts say</div>`;
     place.endorsements.forEach(e=>{
       const s=SOURCES[e.s]||{name:e.s,short:e.s,color:'#8a7f72'};
-      const link=e.url||s.url||'#';
-      html+=`<div class="endorsement"><div class="endo-av" style="background:${s.color}">${s.short}</div><div class="endo-info"><div class="endo-who">${s.name}</div><div class="endo-quote">"${e.q}"</div><a class="endo-link" href="${link}" target="_blank" rel="noopener">Read original article →</a></div></div>`;
+      html+=`<div class="endorsement"><div class="endo-av" style="background:${s.color}">${s.short}</div><div class="endo-info"><div class="endo-name">${s.name}</div><div class="endo-quote">"${e.q}"</div><a class="endo-link" href="${e.url||s.url}" target="_blank" rel="noopener">Read original →</a></div></div>`;
     });
   }
-  return html;
+
+  document.getElementById('sheetBody').innerHTML=html;
+  document.getElementById('placeSheet').classList.add('open');
 }
 
-function buildAttribution(place){
-  if(!place.sources||!place.sources.length) return '';
-  const links=place.sources.map(k=>{
-    const s=SOURCES[k];
-    if(!s||s.url==='#') return null;
-    return `<a href="${s.url}" target="_blank" rel="noopener">${s.name}</a>`;
-  }).filter(Boolean);
-  if(!links.length) return '';
-  return `All quotes are editorial summaries linking to original articles. Sources: ${links.join(', ')}.`;
+function closePlaceSheet(){
+  document.getElementById('placeSheet').classList.remove('open');
+  currentPlace=null;
 }
 
-function closePanel(){document.getElementById('panel').classList.remove('open');currentPlace=null;}
-
-function openMobileDetail(place,bodyHtml,mapsUrl,attribHtml){
-  const isSaved=savedIds.has(place.id);
-  document.getElementById('mobileList').innerHTML=`
-    <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 18px">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin-bottom:3px">${place.name}</div>
-      <div style="font-size:11px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">${place.neighborhood||''} ${place.category?'· '+place.category:''}</div>
-      ${bodyHtml}
-      <div style="display:flex;gap:9px;margin-top:16px">
-        <button class="btn-primary${isSaved?' saved':''}" style="flex:1" onclick="toggleSave()">${isSaved?'★ Saved':'☆ Save'}</button>
-        <a class="btn-secondary" style="flex:1;text-decoration:none" href="${mapsUrl}" target="_blank">↗ Maps</a>
-      </div>
-      <button onclick="closeMobileDetail()" style="width:100%;margin-top:9px;background:none;border:1.5px solid var(--border);border-radius:4px;padding:10px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dust);cursor:pointer">← Back to list</button>
-      ${attribHtml?`<p style="font-size:10px;color:var(--dust);margin-top:12px;line-height:1.6;padding-bottom:24px">${attribHtml}</p>`:''}
-    </div>`;
-  document.getElementById('sheetTitle').textContent=place.name;
-  document.getElementById('sheetCount').textContent=place.category||'';
-  document.getElementById('sheet').classList.add('open'); sheetUp=true;
-}
-
-function closeMobileDetail(){
-  const c=city();
-  document.getElementById('sheetTitle').textContent=`${c.label}, ${c.state}`;
-  document.getElementById('sheetCount').textContent=`${getFiltered().length} places`;
-  buildMobileList();
-  document.getElementById('sheet').classList.remove('open'); sheetUp=false;
-}
-
-// ─────────────────────────────────────────────
-// MOBILE LIST
-// ─────────────────────────────────────────────
-function buildMobileList(){
-  const filtered=getFiltered();
-  const c=city();
-  const rows=filtered.map(p=>{
-    const isUser=!p.sources;
-    const color=isUser?'#c9a84c':(p.sources&&p.sources.length?srcColor(p.sources[0]):'#8a7f72');
-    const tags=isUser?`<span class="source-tag" style="background:#fffbf0;color:var(--gold)">Mine</span>`
-      :(p.sources||[]).slice(0,2).map(k=>{const s=SOURCES[k]||{short:k,color:'#8a7f72'};return`<span class="source-tag" style="background:${s.color}18;color:${s.color}">${s.short}</span>`;}).join('');
-    const star=savedIds.has(p.id)?' ★':'';
-    const safePlace=JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    return `<div class="place-row" onclick="openPlace(JSON.parse(this.dataset.p),${isUser})" data-p="${safePlace}"><span class="place-row-pip" style="background:${color}"></span><div class="place-row-info"><div class="place-row-name">${p.name}${star}</div><div class="place-row-sub">${p.neighborhood||''} · ${p.category||''}</div></div><div style="display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;max-width:80px;justify-content:flex-end">${tags}</div></div>`;
-  }).join('');
-  // Update title and count
-  const titleEl=document.getElementById('sheetTitle');
-  const countEl=document.getElementById('sheetCount');
-  const listEl=document.getElementById('mobileList');
-  if(titleEl) titleEl.textContent=`${c.label}, ${c.state}`;
-  if(countEl) countEl.textContent=`${filtered.length} places`;
-  if(listEl) listEl.innerHTML=rows||'<p style="padding:18px;font-size:13px;color:var(--dust)">No places match this filter.</p>';
-}
-
-function toggleSheet(){const s=document.getElementById('sheet');sheetUp=!sheetUp;s.className=sheetUp?'open':'';}
-
-// ─────────────────────────────────────────────
-// SAVE
-// ─────────────────────────────────────────────
-function toggleSave(){
+function toggleSavePlace(){
   if(!currentPlace) return;
   const id=currentPlace.id;
-  if(savedIds.has(id)){savedIds.delete(id);showToast('Removed from guide');}
-  else{savedIds.add(id);showToast('Saved to your guide ✓');}
-  const isSaved=savedIds.has(id);
-  const pb=document.getElementById('pSaveBtn');
-  if(pb){pb.textContent=isSaved?'★ Saved':'☆ Save';pb.className='btn-primary'+(isSaved?' saved':'');}
-  buildMobileList();
+  if(savedPlaces.has(id)){savedPlaces.delete(id);showToast('Removed from saved');}
+  else{savedPlaces.add(id);showToast('Saved ✓');}
+  renderMarkers();
 }
 
-// ─────────────────────────────────────────────
-// ADD PIN
-// ─────────────────────────────────────────────
+// ── ADD MEMORY ────────────────────────────────
+function openAddMemory(place){
+  addedPhotos=[];
+  document.getElementById('photoPreviews').innerHTML='';
+  document.getElementById('uploadZone').style.display='block';
+  document.getElementById('memCaption').value='';
+  const now=new Date();
+  document.getElementById('memDate').value=now.toISOString().split('T')[0];
+  document.getElementById('memTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const placeName=place?place.name:(currentPlace?currentPlace.name:'');
+  document.getElementById('memPlaceTag').textContent='📍 '+(placeName||'Custom location');
+  setPrivacy('private');
+  document.getElementById('addMemModal').classList.add('show');
+}
+
+function addPhotoPreview(){
+  const emojis=['🍷','🌊','🎨','☕','🌅','🍜','🏙','🌿','🥂','🎭','🍽️','🌃'];
+  const emoji=emojis[addedPhotos.length%emojis.length];
+  addedPhotos.push(emoji);
+  const div=document.createElement('div');
+  div.className='photo-prev';
+  div.innerHTML=`${emoji}<div class="rm" onclick="this.parentElement.remove();addedPhotos.pop();if(addedPhotos.length===0)document.getElementById('uploadZone').style.display='block'">✕</div>`;
+  document.getElementById('photoPreviews').appendChild(div);
+  document.getElementById('uploadZone').style.display='none';
+}
+
+function setPrivacy(p){
+  selectedPrivacy=p;
+  ['private','friends','trip'].forEach(opt=>{
+    document.getElementById('priv'+opt.charAt(0).toUpperCase()+opt.slice(1)).classList.toggle('on',opt===p);
+  });
+}
+
+function saveMemory(){
+  const caption=document.getElementById('memCaption').value.trim()||'A new memory.';
+  const placeTag=document.getElementById('memPlaceTag').textContent.replace('📍 ','');
+  myMemories.unshift({
+    id:Date.now(),place:placeTag,city:CITIES[activeCity].label,
+    date:document.getElementById('memDate').value,
+    time:document.getElementById('memTime').value,
+    caption,photos:addedPhotos.length?[...addedPhotos]:['📸'],
+    privacy:selectedPrivacy,likes:0
+  });
+  renderMemories(); renderMarkers();
+  document.getElementById('addMemModal').classList.remove('show');
+  showToast('Memory saved ✓');
+}
+
+// ── MEMORIES TAB ──────────────────────────────
+function memFilter(el,val){
+  memFilterVal=val;
+  document.querySelectorAll('.mem-filter').forEach(f=>f.classList.remove('on'));
+  el.classList.add('on');
+  renderMemories();
+}
+
+function renderMemories(){
+  const filtered=myMemories.filter(m=>{
+    if(memFilterVal==='all') return true;
+    if(memFilterVal==='private') return m.privacy==='private';
+    if(memFilterVal==='friends') return m.privacy==='friends';
+    return m.city===memFilterVal;
+  });
+  if(!filtered.length){
+    document.getElementById('memoriesGrid').innerHTML=    document.getElementById('memoriesGrid').innerHTML=`<div style="text-align:center;padding:48px 24px;color:var(--dust)"><div style="font-size:40px;margin-bottom:12px">📷</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:6px">No memories yet</div><div style="font-size:13px">Tap a pin on the map and add your first memory.</div></div>`;
+    return;
+  }
+  document.getElementById('memoriesGrid').innerHTML=filtered.map(m=>{
+    const privIcon=m.privacy==='private'?'🔒':'👥';
+    const privLabel=m.privacy==='private'?'Private':'Friends';
+    const privClass=m.privacy==='private'?'private':'friends';
+    return `<div class="memory-item fade-up" onclick="showToast('Memory detail coming soon')">
+      <div class="memory-item-photo">${m.photos[0]||'📸'}${m.photos.length>1?`<div style="position:absolute;bottom:8px;right:10px;background:rgba(28,25,23,.55);color:white;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px">+${m.photos.length} photos</div>`:''}
+        <div style="position:absolute;top:10px;left:10px;background:var(--terra);color:white;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:10px">${m.city}</div>
+      </div>
+      <div class="memory-item-body">
+        <div class="memory-item-place">${m.place}</div>
+        <div class="memory-item-caption">${m.caption}</div>
+        <div class="memory-item-footer">
+          <div class="memory-item-meta">${m.date} · ${m.time}</div>
+          <div class="memory-item-privacy ${privClass}" onclick="event.stopPropagation();toggleMemPrivacy(${m.id})">${privIcon} ${privLabel}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleMemPrivacy(id){
+  const m=myMemories.find(x=>x.id===id);
+  if(!m) return;
+  m.privacy=m.privacy==='private'?'friends':'private';
+  renderMemories(); renderMarkers();
+  showToast(m.privacy==='friends'?'Shared with friends ✓':'Set to private ✓');
+}
+
+function renderTrips(){
+  document.getElementById('tripsList').innerHTML=TRIPS_DATA.map((t,i)=>
+    `<div class="trip-card" onclick="showToast('Opening ${t.name}…')">
+      <div class="trip-card-img" style="background:linear-gradient(135deg,var(--parchment),var(--blush))">
+        <div class="trip-card-emoji">${t.emoji}</div>
+        <div class="trip-status ${t.status}">${t.status==='active'?'● Active':'Past'}</div>
+        <div class="trip-member-stack">${t.members.map((av,j)=>`<div class="trip-av" style="background:${['#5c7a5e','#3d5a80','#b85c38','#c9a84c'][j%4]};z-index:${t.members.length-j}">${av}</div>`).join('')}</div>
+      </div>
+      <div class="trip-card-body">
+        <div class="trip-city">📍 ${t.city}</div>
+        <div class="trip-name">${t.name}</div>
+        <div class="trip-dates">${t.dates} · ${t.memCount} memories · ${t.members.length} people</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function openNewTrip(){document.getElementById('newTripModal').classList.add('show');}
+function createTrip(){document.getElementById('newTripModal').classList.remove('show');showToast('Trip created! Invite friends to join ✓');}
+function renderFriends(){
+  document.getElementById('friendsList').innerHTML=FRIENDS.map(f=>
+    `<div class="friend-row">
+      <div class="friend-av" style="background:${f.color}">${f.initials}</div>
+      <div class="friend-info"><div class="friend-name">${f.name}</div><div class="friend-role">${f.role}</div></div>
+      <button class="friend-action">View Pins</button>
+    </div>`
+  ).join('');
+}
+
 function toggleAddMode(){
   addMode=!addMode;
-  const btn=document.getElementById('addPinBtn');
-  const banner=document.getElementById('addBanner');
-  if(addMode){btn.textContent='✕ Cancel';btn.classList.add('active');banner.classList.add('show');map.setOptions({draggableCursor:'crosshair'});}
-  else{btn.textContent='＋ Add Pin';btn.classList.remove('active');banner.classList.remove('show');map.setOptions({draggableCursor:''});pendingLatLng=null;}
-}
-function openModal(){document.getElementById('pinModal').classList.add('show');document.getElementById('pinName').focus();}
-function closeModal(){document.getElementById('pinModal').classList.remove('show');document.getElementById('pinName').value='';document.getElementById('pinNote').value='';document.querySelectorAll('.cat-pill').forEach((p,i)=>p.classList.toggle('selected',i===0));}
-function selectCat(el){document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}
-function saveUserPin(){
-  const name=document.getElementById('pinName').value.trim();
-  if(!name){showToast('Please enter a place name');return;}
-  if(!pendingLatLng){showToast('No location selected');return;}
-  const cat=document.querySelector('.cat-pill.selected')?.textContent||'Other';
-  const note=document.getElementById('pinNote').value.trim();
-  const pin={id:'u'+Date.now(),name,category:cat,neighborhood:'My Pin',lat:pendingLatLng.lat(),lng:pendingLatLng.lng(),userNote:note,cityKey:activeCity};
-  userPins.push(pin);
-  renderMarkers();buildMobileList();closeModal();toggleAddMode();
-  showToast(`"${name}" added to your map ✓`);
-  openPlace(pin,true);
+  document.getElementById('addBanner').classList.toggle('show',addMode);
+  document.getElementById('addPinBtn').style.background=addMode?'var(--gold)':'var(--terra)';
+  document.getElementById('addPinBtn').textContent=addMode?'✕ Cancel':'＋ Pin';
+  if(!addMode) closePinModal();
 }
 
-// ─────────────────────────────────────────────
-// ITINERARY BUILDER
-// ─────────────────────────────────────────────
-let selectedVibe = 'balanced';
+function openPinModal(){document.getElementById('pinModal').classList.add('show');}
+function closePinModal(){document.getElementById('pinModal').classList.remove('show');pendingLatLng=null;}
+function selCat(el){document.querySelectorAll('.cat-pill').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
+
+function savePin(){
+  const name=document.getElementById('pinName').value.trim();
+  if(!name){showToast('Please add a place name');return;}
+  const cat=document.querySelector('.cat-pill.on')?.textContent||'Place';
+  const ll=pendingLatLng||CITIES[activeCity].center;
+  myPins.push({id:'user_'+Date.now(),name,note:document.getElementById('pinNote').value.trim(),category:cat,lat:typeof ll.lat==='function'?ll.lat():ll.lat,lng:typeof ll.lng==='function'?ll.lng():ll.lng,cityKey:activeCity,sources:null});
+  renderMarkers(); closePinModal(); toggleAddMode();
+  showToast(name+' pinned ✓');
+  document.getElementById('pinName').value='';
+  document.getElementById('pinNote').value='';
+}
+
+function openInvite(){document.getElementById('inviteModal').classList.add('show');}
+function closeInvite(){document.getElementById('inviteModal').classList.remove('show');}
+
+const WORKER_URL='https://citywindow-api.laurenmfine.workers.dev';
+let activeVibes=new Set(['Efficient']);
 
 function openItinPanel(){
-  renderItinForm();
+  const c=CITIES[activeCity];
+  const now=new Date();
+  const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const attendeeCount=Math.floor(Math.random()*120)+80;
+  document.getElementById('itinBody').innerHTML=`
+    <div class="itin-city-badge">📍 ${c.label}, ${c.state}</div>
+    <div class="itin-row">
+      <div class="itin-field"><label>Time Available</label>
+        <select id="itinDur"><option value="1">1 hour</option><option value="2">2 hours</option><option value="3" selected>3 hours</option><option value="4">4 hours</option><option value="6">6 hours</option><option value="8">Full day</option></select>
+      </div>
+      <div class="itin-field"><label>Starting Time</label><input type="time" id="itinStart" value="${timeStr}"></div>
+    </div>
+    <div class="itin-row">
+      <div class="itin-field"><label>Starting From</label>
+        <select id="itinFrom"><option>My hotel</option><option>Convention center</option><option>Airport</option><option>Current location</option></select>
+      </div>
+      <div class="itin-field"><label>Travel Mode</label>
+        <select id="itinMode"><option>Walking</option><option>Rideshare</option><option>Mix</option></select>
+      </div>
+    </div>
+    <div class="itin-row">
+      <div class="itin-field itin-full"><label>Focus</label>
+        <select id="itinFocus"><option>Restaurants + Food</option><option>Coffee + Work spots</option><option>Outdoor + Walking</option><option>Arts + Culture</option><option>Mix of everything</option></select>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-bottom:8px">Vibe</div>
+    <div class="vibe-row">
+      ${['Efficient','Hidden gems','Local favorites','Coffee + work','Walkable','Fine dining'].map(v=>`<div class="vibe-pill${v==='Efficient'?' on':''}" onclick="this.classList.toggle('on')">${v}</div>`).join('')}
+    </div>
+    <div style="background:linear-gradient(135deg,#f0ede5,#e8e4da);border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-bottom:6px">🗓 Conference Agenda</div>
+      <div style="font-size:12px;color:var(--ink);line-height:1.6;margin-bottom:8px">Upload your schedule so AI knows your session gaps and plans around them.</div>
+      <button onclick="showToast('Agenda upload coming soon — will auto-detect free blocks')" style="background:var(--ink);color:var(--cream);border:none;border-radius:6px;padding:8px 14px;font-family:DM Sans,sans-serif;font-size:11px;font-weight:500;cursor:pointer;width:100%;letter-spacing:.08em;text-transform:uppercase">+ Upload Agenda PDF</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#e8f0e8,#dfeadf);border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid #c8dcc8">
+      <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:4px">🤝 Community Intelligence</div>
+      <div style="font-size:12px;color:var(--ink);line-height:1.6">Learning from <strong>${attendeeCount} attendees</strong> who've visited ${c.label} and rated these spots. The more people use CityWindow, the smarter your plan gets.</div>
+    </div>
+    <button class="itin-go-btn" id="itinGoBtn" onclick="generateItinerary()"><span>✦ Build My Itinerary</span></button>
+    <div id="itinResult"></div>
+  `;
   document.getElementById('itinOverlay').classList.add('show');
   document.getElementById('itinPanel').classList.add('show');
 }
@@ -1195,210 +1101,66 @@ function closeItinPanel(){
   document.getElementById('itinPanel').classList.remove('show');
 }
 
-function renderItinForm(){
-  const c = city();
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2,'0');
-  const mm = String(now.getMinutes()).padStart(2,'0');
-  const currentTime = `${hh}:${mm}`;
-
-  document.getElementById('itinBody').innerHTML = `
-    <div class="itin-city-badge">📍 ${c.label}, ${c.state}</div>
-    <div class="itin-form">
-      <div class="itin-row">
-        <div class="itin-field">
-          <label>Time Available</label>
-          <select id="itinDuration">
-            <option value="1">1 hour</option>
-            <option value="2" selected>2 hours</option>
-            <option value="3">3 hours</option>
-            <option value="4">4 hours</option>
-            <option value="6">Half day (6h)</option>
-          </select>
-        </div>
-        <div class="itin-field">
-          <label>Starting Now At</label>
-          <input type="time" id="itinTime" value="${currentTime}">
-        </div>
-      </div>
-      <div class="itin-row">
-        <div class="itin-field itin-full">
-          <label>Starting From</label>
-          <input type="text" id="itinStart" placeholder="e.g. Marriott Downtown, convention center…">
-        </div>
-      </div>
-      <div class="itin-row">
-        <div class="itin-field">
-          <label>Getting Around</label>
-          <select id="itinMode">
-            <option value="walking">Walking</option>
-            <option value="rideshare" selected>Rideshare / Uber</option>
-            <option value="driving">Driving</option>
-            <option value="mix">Mix of both</option>
-          </select>
-        </div>
-        <div class="itin-field">
-          <label>Focus On</label>
-          <select id="itinFocus">
-            <option value="food & drink">Food & drink</option>
-            <option value="coffee & cafes">Coffee & cafes</option>
-            <option value="a mix of everything">Mix of everything</option>
-            <option value="bars & nightlife">Bars & nightlife</option>
-            <option value="culture & outdoors">Culture & outdoors</option>
-          </select>
-        </div>
-      </div>
-      <div class="itin-field" style="margin-bottom:14px">
-        <label>Vibe</label>
-        <div class="vibe-row" id="vibeRow">
-          <div class="vibe-pill on" onclick="setVibe(this,'efficient')">⚡ Efficient</div>
-          <div class="vibe-pill" onclick="setVibe(this,'balanced')">✦ Balanced</div>
-          <div class="vibe-pill" onclick="setVibe(this,'leisurely')">☕ Leisurely</div>
-          <div class="vibe-pill" onclick="setVibe(this,'spontaneous')">🎲 Spontaneous</div>
-        </div>
-      </div>
-      <button class="itin-generate-btn" id="itinGenBtn" onclick="generateItinerary()">
-        ✦ Build My Itinerary
-      </button>
-    </div>`;
-  selectedVibe = 'efficient';
-}
-
-function setVibe(el, v){
-  selectedVibe = v;
-  document.querySelectorAll('.vibe-pill').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-}
-
 async function generateItinerary(){
-  const duration = document.getElementById('itinDuration').value;
-  const startTime = document.getElementById('itinTime').value;
-  const startFrom = document.getElementById('itinStart').value.trim() || 'my hotel';
-  const mode = document.getElementById('itinMode').value;
-  const focus = document.getElementById('itinFocus').value;
-  const c = city();
+  const dur=document.getElementById('itinDur').value;
+  const start=document.getElementById('itinStart').value;
+  const from=document.getElementById('itinFrom').value;
+  const mode=document.getElementById('itinMode').value;
+  const focus=document.getElementById('itinFocus').value;
+  const vibes=[...document.querySelectorAll('.vibe-pill.on')].map(v=>v.textContent).join(', ');
+  const c=CITIES[activeCity];
+  const btn=document.getElementById('itinGoBtn');
+  btn.disabled=true;
+  btn.innerHTML='<div class="loading-dots"><span></span><span></span><span></span></div>';
+  document.getElementById('itinResult').innerHTML='';
+  const placesJSON=JSON.stringify(c.places.map(p=>({name:p.name,category:p.category,neighborhood:p.neighborhood,note:p.note})));
+  const communityData=`Aggregate community ratings from real attendees: Monteverde 4.8/5 (38 visits, "worth the splurge"), Avec 4.6/5 (29 visits, "perfect for groups"), Chicago Riverwalk 4.9/5 (61 visits, "best free thing in the city"), Spinning J 4.7/5 (22 visits, "must-do breakfast"). Itinerary ratings: "Perfect timing" 72%, "A bit rushed" 18%, "Too much walking" 10%.`;
+  const prompt=`You are CityWindow, an AI concierge for professional conference attendees. Generate a realistic itinerary for ${c.label}, ${c.state}.
 
-  // Show loading state
-  const btn = document.getElementById('itinGenBtn');
-  btn.disabled = true;
-  btn.innerHTML = `<div class="loading-dots"><span></span><span></span><span></span></div> Building your itinerary…`;
+Context: ${dur} hours from ${start}, starting at ${from}, traveling by ${mode}, focus: ${focus}, vibe: ${vibes||'efficient'}.
 
-  // Build place context for the prompt
-  const placeContext = c.places.map(p =>
-    `- ${p.name} (${p.neighborhood}, ${p.category}): ${p.note||''}`
-  ).join('\n');
+Available places: ${placesJSON}
 
-  const prompt = `You are CityWindow, a travel planning assistant for professional travelers.
+Community data: ${communityData}
 
-City: ${c.label}, ${c.state}
-Available time: ${duration} hour(s) starting at ${startTime}
-Starting from: ${startFrom}
-Travel mode: ${mode}
-Focus: ${focus}
-Vibe: ${selectedVibe}
+Return ONLY valid JSON, no markdown:
+{"summary":"one evocative sentence","stops":[{"time":"2:00 PM","name":"Place Name","duration":"45 min","why":"one sentence why","tags":["tag1"],"transit":"5 min walk"}]}
 
-Available places (from top editorial sources including Condé Nast Traveler, Bon Appétit, The Infatuation):
-${placeContext}
+Rules: 2-5 stops, realistic travel times, only use listed places, feel earned not generic.`;
 
-Create a realistic, timed itinerary using 2-4 of the places above that best fit the time, vibe, and focus. 
-
-Respond ONLY with a JSON object in this exact format (no markdown, no explanation):
-{
-  "summary": "One warm sentence setting the scene for this plan (max 25 words)",
-  "stops": [
-    {
-      "time": "2:15 PM",
-      "name": "Place Name",
-      "duration": "45 min",
-      "why": "One sentence on why this fits right now (max 20 words)",
-      "tags": ["tag1", "tag2"],
-      "transit": "5 min walk from your hotel"
-    }
-  ]
-}
-
-Rules:
-- Only use places from the list above
-- Times must be realistic given travel between stops
-- Transit field describes getting FROM previous stop (omit for first stop)
-- Tags should be 1-3 short descriptors like "great coffee", "lively bar", "quick bite"
-- Match the ${selectedVibe} vibe — efficient = fewer stops, faster pace; leisurely = linger longer`;
-
-  try {
-    const response = await fetch('https://citywindow-api.laurenmfine.workers.dev', {
-      method: 'POST',
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+  try{
+    const res=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=data.content?.find(b=>b.type==='text')?.text||'';
+    const itin=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    let html=`<div style="height:20px"></div><div class="itin-summary">${itin.summary}</div>`;
+    itin.stops.forEach((s,i)=>{
+      html+=`<div class="itin-stop"><div class="itin-stop-num">${i+1}</div><div class="itin-stop-card"><div class="itin-stop-time">${s.time} · ${s.duration}</div><div class="itin-stop-name">${s.name}</div><div class="itin-stop-desc">${s.why}</div><div class="itin-stop-tags">${(s.tags||[]).map(t=>`<span class="itin-stop-tag">${t}</span>`).join('')}</div></div></div>`;
+      if(s.transit&&i<itin.stops.length-1) html+=`<div class="itin-transit">→ ${s.transit}</div>`;
     });
-
-    const data = await response.json();
-    console.log('API response:', JSON.stringify(data));
-
-    if (!response.ok) {
-      throw new Error(`API error ${response.status}: ${data.error?.message || JSON.stringify(data)}`);
-    }
-
-    const raw = data.content?.[0]?.text || '';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const result = JSON.parse(clean);
-    renderItinerary(result, c, duration, startTime, startFrom);
-
-  } catch(err) {
-    console.error('Itinerary error:', err);
-    document.getElementById('itinBody').innerHTML += `
-      <div style="margin-top:16px;padding:14px;background:#fff3f0;border:1px solid #f5c6bc;border-radius:8px;font-size:13px;color:#8b3a2e">
-        Error: ${err.message}
-      </div>`;
-    btn.disabled = false;
-    btn.innerHTML = '✦ Try Again';
+    html+=`<div style="margin-top:20px;background:white;border:1px solid var(--border);border-radius:10px;padding:14px"><div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dust);margin-bottom:10px">How did this plan work for you?</div><div style="display:flex;gap:6px;margin-bottom:8px">${['⭐ Perfect','⚡ Rushed','🗺 Too far','🔄 Again'].map(r=>`<button onclick="rateItin('${r}')" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px 2px;background:white;font-size:10px;cursor:pointer;font-family:DM Sans,sans-serif;color:var(--dust)">${r}</button>`).join('')}</div><div style="font-size:10px;color:var(--dust);text-align:center">Your rating improves plans for future attendees</div></div><div style="height:32px"></div>`;
+    document.getElementById('itinResult').innerHTML=html;
+  }catch(e){
+    document.getElementById('itinResult').innerHTML=`<div style="padding:20px;text-align:center;color:var(--dust)"><div style="font-size:24px;margin-bottom:8px">⚠️</div><div style="font-size:13px">Could not generate itinerary. Check connection and try again.</div></div>`;
   }
+  btn.disabled=false;
+  btn.innerHTML='<span>✦ Regenerate</span>';
 }
 
-function renderItinerary(result, c, duration, startTime, startFrom){
-  const stopsHtml = result.stops.map((stop, i) => `
-    ${stop.transit && i > 0 ? `<div class="itin-transit">→ ${stop.transit}</div>` : ''}
-    <div class="itin-stop">
-      <div class="itin-stop-num">${i+1}</div>
-      <div class="itin-stop-content">
-        <div class="itin-stop-time">${stop.time} · ${stop.duration}</div>
-        <div class="itin-stop-name">${stop.name}</div>
-        <div class="itin-stop-desc">${stop.why}</div>
-        <div class="itin-stop-tags">${(stop.tags||[]).map(t=>`<span class="itin-stop-tag">${t}</span>`).join('')}</div>
-      </div>
-    </div>`).join('');
+function rateItin(r){showToast('Feedback recorded: '+r+' — thank you!');}
 
-  document.getElementById('itinBody').innerHTML = `
-    <div class="itin-city-badge">📍 ${c.label}, ${c.state} · ${duration}h from ${startTime}</div>
-    <div class="itin-result">
-      <div class="itin-summary">${result.summary}</div>
-      ${stopsHtml}
-      <div class="itin-actions">
-        <button class="btn-primary" style="flex:1" onclick="renderItinForm()">← Adjust</button>
-        <button class="btn-primary saved" style="flex:1" onclick="saveItinerary(${JSON.stringify(result).replace(/"/g,'&quot;')})">★ Save Plan</button>
-      </div>
-    </div>`;
+let toastTimer;
+function showToast(msg){
+  clearTimeout(toastTimer);
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
 }
 
-function saveItinerary(result){
-  showToast('Itinerary saved to your guide ✓');
-  // Future: persist to savedItineraries array
-}
-
-
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+window.initMap=initMap;
+['newTripModal','addMemModal','inviteModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+});
+document.getElementById('pinModal').addEventListener('click',function(e){if(e.target===this)closePinModal();});
 </script>
-
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOdQgWrAtIPqUXvmqz5N_JB0rJa5K1s4M&callback=initMap&loading=async"></script>
-<script>
-// Fallback if Maps fails to load
-window.gm_authFailure = function(){
-  document.getElementById('map').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:#f2ede3;gap:12px"><div style="font-size:32px">🗺️</div><div style="font-family:Cormorant Garamond,serif;font-size:18px;color:#1c1917">Map unavailable</div><div style="font-size:13px;color:#9c8f80;text-align:center;max-width:260px;line-height:1.6">API key needs updating — use the place list below to browse</div></div>';
-  // Still init the list so mobile sheet works
-  buildCityTabs(); buildFilters(); buildMobileList();
-};
-</script>
-</body>
-</html>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOdQgWrAtIPqUXvmqz5N_JB0rJa5K1s4M&callback=initMap&libraries=places" async defer></script>
