@@ -732,13 +732,7 @@ footer {
 </head>
 <body>
 
-<!-- ── DEMO MODAL ── -->
-<div class="modal-overlay" id="demoModal" onclick="if(event.target===this)closeDemo()">
-  <div class="modal-frame">
-    <button class="modal-close" onclick="closeDemo()">✕</button>
-    <iframe class="modal-iframe" id="demoFrame" src="" title="Ciao Posto app demo"></iframe>
-  </div>
-</div>
+<!-- app opens in new tab via openDemo() -->
 
 <!-- ── NAV ── -->
 <nav id="mainNav">
@@ -747,7 +741,7 @@ footer {
     <a class="nav-link" href="#how">How it works</a>
     <a class="nav-link" href="#cities">Cities</a>
     <a class="nav-link" href="#pricing">Pricing</a>
-    <button class="nav-link" onclick="openDemo()">Try the app ↗</button>
+    <button class="nav-link" onclick="openDemo()">Try the app →</button>
     <button class="nav-cta" onclick="scrollToCapture()">Join waitlist</button>
   </div>
   <button class="nav-burger" id="burger" onclick="toggleMenu()" aria-label="Menu">
@@ -1228,20 +1222,9 @@ function scrollToCapture() {
 
 // ── Demo modal ───────────────────────────────────────
 function openDemo() {
-  const modal = document.getElementById('demoModal');
-  const frame = document.getElementById('demoFrame');
-  // Points to the Ciao Posto app — update path as needed
-  frame.src = 'ciaoposto.html';
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  window.open('ciaoposto.html', '_blank');
 }
-function closeDemo() {
-  const modal = document.getElementById('demoModal');
-  modal.classList.remove('open');
-  document.body.style.overflow = '';
-  setTimeout(() => { document.getElementById('demoFrame').src = ''; }, 400);
-}
-document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDemo(); });
+function closeDemo() {}
 
 // ── Mobile menu ──────────────────────────────────────
 function toggleMenu() {
