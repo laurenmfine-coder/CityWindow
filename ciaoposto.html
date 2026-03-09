@@ -57,7 +57,19 @@ document.currentScript.parentNode.appendChild(manifestLink);
   --shadow:rgba(35,26,16,.14);
   --white:#faf7f2;
 }
-html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--cream)}
+html{
+  height:100%;
+  background:#1a120a;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+}
+body{
+  height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  max-width:430px;
+  margin:0 auto;
+  position:relative;
+  box-shadow:0 0 80px rgba(0,0,0,.45);
+}
 
 
 /* ══════════════════════════════════════
@@ -402,7 +414,7 @@ body.dark .meetup-card{background:#1a120a;border-color:rgba(35,26,16,.15)}
   background:linear-gradient(135deg,#231a10,#3d2010);color:white;
   border:none;border-radius:14px;padding:9px 14px;
   font-size:12px;font-weight:700;cursor:pointer;
-  box-shadow:0 4px 18px rgba(40,116,166,.5);
+  box-shadow:0 4px 18px rgba(184,92,56,0.5);
   display:none;align-items:center;gap:6px;
   font-family:'DM Sans',sans-serif;transition:transform .15s;
 }
@@ -962,7 +974,7 @@ body.dark .meetup-card{background:#1a120a;border-color:rgba(35,26,16,.15)}
   background:linear-gradient(135deg,#231a10,#3d2010);color:white;
   border:none;border-radius:14px;padding:9px 14px;
   font-size:12px;font-weight:700;cursor:pointer;
-  box-shadow:0 4px 18px rgba(40,116,166,.5);
+  box-shadow:0 4px 18px rgba(184,92,56,0.5);
   display:none;align-items:center;gap:6px;
   font-family:'DM Sans',sans-serif;transition:transform .15s;
 }
@@ -1368,14 +1380,13 @@ body.dark .trip-card,body.dark .mem-card{background:#1a120a;border-color:rgba(35
 }
 /* fake map streets — visible on warm parchment */
 .land-map-preview::before{
-  content:'';position:absolute;inset:0;
+  content:'';position:absolute;inset:0;z-index:1;
   background-image:
-    linear-gradient(rgba(150,120,80,.25) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(150,120,80,.25) 1px, transparent 1px),
-    linear-gradient(rgba(150,120,80,.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(150,120,80,.12) 1px, transparent 1px);
-  background-size:60px 60px, 60px 60px, 20px 20px, 20px 20px;
-  background-position:-1px -1px, -1px -1px, -1px -1px, -1px -1px;
+    linear-gradient(rgba(120,90,50,.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,90,50,.35) 1px, transparent 1px),
+    linear-gradient(rgba(120,90,50,.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,90,50,.18) 1px, transparent 1px);
+  background-size:64px 64px, 64px 64px, 22px 22px, 22px 22px;
 }
 .land-map-preview::after{
   content:'';position:absolute;bottom:0;left:0;right:0;height:50%;
@@ -1482,7 +1493,7 @@ body.dark .trip-card,body.dark .mem-card{background:#1a120a;border-color:rgba(35
 .import-sub{font-size:13px;color:var(--dust);text-align:center;margin-bottom:40px;line-height:1.6}
 .import-progress-track{
   width:100%;max-width:300px;height:2px;
-  background:rgba(40,116,166,.12);border-radius:2px;
+  background:rgba(184,92,56,0.12);border-radius:2px;
   margin-bottom:16px;overflow:hidden;
 }
 .import-progress-fill{
@@ -1498,10 +1509,10 @@ body.dark .trip-card,body.dark .mem-card{background:#1a120a;border-color:rgba(35
 .import-thumb{
   width:52px;height:52px;border-radius:8px;
   display:flex;align-items:center;justify-content:center;
-  font-size:24px;border:1.5px solid rgba(40,116,166,.08);
+  font-size:24px;border:1.5px solid rgba(184,92,56,0.08);
   opacity:0;transform:scale(.8);
   transition:all .4s cubic-bezier(.32,.72,0,1);
-  background:rgba(40,116,166,.05);
+  background:rgba(184,92,56,0.05);
 }
 .import-thumb.show{opacity:1;transform:scale(1)}
 
@@ -1596,14 +1607,14 @@ body.dark .trip-card,body.dark .mem-card{background:#1a120a;border-color:rgba(35
 .wow-sub{font-size:11px;color:var(--dust)}
 .wow-close{background:none;border:none;color:var(--dust);font-size:18px;cursor:pointer;padding:2px 6px}
 .wow-progress{margin-top:10px}
-.wow-prog-track{height:2px;background:rgba(40,116,166,.08);border-radius:2px;overflow:hidden}
+.wow-prog-track{height:2px;background:rgba(184,92,56,0.08);border-radius:2px;overflow:hidden}
 .wow-prog-fill{height:100%;background:linear-gradient(90deg,#833ab4,#fcb045);border-radius:2px;transition:width .8s ease}
 .wow-pins-row{display:flex;gap:6px;margin-top:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .wow-pins-row::-webkit-scrollbar{display:none}
 .wow-pin-chip{
   flex-shrink:0;display:flex;align-items:center;gap:5px;
-  background:rgba(40,116,166,.06);border:1px solid rgba(40,116,166,.08);
-  border-radius:20px;padding:4px 10px;font-size:11px;color:rgba(45,55,72,.7);
+  background:rgba(184,92,56,0.06);border:1px solid rgba(184,92,56,0.08);
+  border-radius:20px;padding:4px 10px;font-size:11px;color:rgba(35,26,16,0.7);
   animation:chipFade .3s ease both;
 }
 @keyframes chipFade{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
@@ -1685,10 +1696,10 @@ body.dark .trip-card,body.dark .mem-card{background:#1a120a;border-color:rgba(35
   box-shadow:0 -8px 40px rgba(0,0,0,.4);
 }
 #captureSheet.open{transform:translateY(0)}
-.cap-drag{width:36px;height:4px;background:rgba(40,116,166,.12);border-radius:2px;margin:0 auto 16px}
+.cap-drag{width:36px;height:4px;background:rgba(184,92,56,0.12);border-radius:2px;margin:0 auto 16px}
 .cap-location{
   display:flex;align-items:center;gap:8px;
-  background:rgba(40,116,166,.06);border:1px solid rgba(40,116,166,.08);
+  background:rgba(184,92,56,0.06);border:1px solid rgba(184,92,56,0.08);
   border-radius:10px;padding:10px 13px;margin-bottom:14px;cursor:pointer;
 }
 .cap-location-dot{width:8px;height:8px;border-radius:50%;background:var(--terra);flex-shrink:0;animation:locPulse 1.5s ease-in-out infinite}
@@ -1703,40 +1714,40 @@ body.dark .trip-card,body.dark .mem-card{background:#1a120a;border-color:rgba(35
   cursor:pointer;background:rgba(255,255,255,.04);gap:3px;
   transition:all .15s;
 }
-.cap-photo-add:hover{border-color:rgba(255,255,255,.4);background:rgba(40,116,166,.07)}
+.cap-photo-add:hover{border-color:rgba(255,255,255,.4);background:rgba(184,92,56,0.07)}
 .cap-photo-add span:first-child{font-size:22px}
 .cap-photo-add span:last-child{font-size:9px;color:var(--dust);letter-spacing:.08em;text-transform:uppercase}
 .cap-photo-thumb{
   width:72px;height:72px;border-radius:10px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:32px;
-  background:linear-gradient(135deg,rgba(40,116,166,.07),rgba(40,116,166,.03));
-  border:1px solid rgba(40,116,166,.08);position:relative;
+  background:linear-gradient(135deg,rgba(184,92,56,0.07),rgba(184,92,56,0.03));
+  border:1px solid rgba(184,92,56,0.08);position:relative;
 }
 .cap-photo-rm{
   position:absolute;top:-6px;right:-6px;width:18px;height:18px;
-  border-radius:50%;background:rgba(40,116,166,.12);color:white;
+  border-radius:50%;background:rgba(184,92,56,0.12);color:white;
   font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;
   border:1px solid rgba(255,255,255,.2);
 }
 .cap-caption{
   width:100%;background:rgba(255,255,255,.06);
-  border:1px solid rgba(40,116,166,.08);border-radius:10px;
+  border:1px solid rgba(184,92,56,0.08);border-radius:10px;
   padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:15px;
   color:var(--cream);outline:none;resize:none;height:64px;line-height:1.5;
   margin-bottom:14px;
 }
-.cap-caption::placeholder{color:rgba(45,55,72,.3)}
+.cap-caption::placeholder{color:rgba(35,26,16,0.3)}
 .cap-caption:focus{border-color:rgba(184,92,56,.5)}
 .cap-privacy-row{display:flex;gap:8px;margin-bottom:16px}
 .cap-priv{
-  flex:1;border:1px solid rgba(40,116,166,.08);border-radius:8px;
+  flex:1;border:1px solid rgba(184,92,56,0.08);border-radius:8px;
   padding:9px 6px;text-align:center;cursor:pointer;
   background:rgba(255,255,255,.04);transition:all .15s;
 }
 .cap-priv.on{border-color:var(--terra);background:rgba(184,92,56,.15)}
 .cap-priv-icon{font-size:16px;margin-bottom:2px}
-.cap-priv-label{font-size:10px;color:rgba(45,55,72,.4);letter-spacing:.06em;text-transform:uppercase}
-.cap-priv.on .cap-priv-label{color:rgba(45,55,72,.8)}
+.cap-priv-label{font-size:10px;color:rgba(35,26,16,0.4);letter-spacing:.06em;text-transform:uppercase}
+.cap-priv.on .cap-priv-label{color:rgba(35,26,16,0.8)}
 .cap-save-btn{
   width:100%;background:var(--terra);color:white;border:none;
   border-radius:12px;padding:15px;font-family:'DM Sans',sans-serif;
@@ -1754,8 +1765,8 @@ body.dark .trip-card,body.dark .mem-card{background:#1a120a;border-color:rgba(35
 .mem-heading{font-family:'Playfair Display',serif;font-size:30px;font-weight:400;color:var(--cream)}
 .mem-ig-badge{
   display:flex;align-items:center;gap:5px;
-  background:rgba(40,116,166,.07);border:1px solid rgba(40,116,166,.08);
-  border-radius:20px;padding:5px 10px;font-size:11px;color:rgba(45,55,72,.6);cursor:pointer;
+  background:rgba(184,92,56,0.07);border:1px solid rgba(184,92,56,0.08);
+  border-radius:20px;padding:5px 10px;font-size:11px;color:rgba(35,26,16,0.6);cursor:pointer;
 }
 .mem-ig-badge .ig-dot{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,#833ab4,#fcb045)}
 .mem-stats-row{display:flex;gap:20px;margin-bottom:14px}
@@ -1765,8 +1776,8 @@ body.dark .trip-card,body.dark .mem-card{background:#1a120a;border-color:rgba(35
 .mem-filter-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .mem-filter-row::-webkit-scrollbar{display:none}
 .mem-filter{
-  flex-shrink:0;border:1px solid rgba(40,116,166,.1);border-radius:16px;
-  padding:5px 13px;font-size:11px;color:rgba(45,55,72,.45);
+  flex-shrink:0;border:1px solid rgba(184,92,56,0.1);border-radius:16px;
+  padding:5px 13px;font-size:11px;color:rgba(35,26,16,0.45);
   cursor:pointer;background:none;font-family:'DM Sans',sans-serif;
   transition:all .15s;white-space:nowrap;
 }
@@ -2155,7 +2166,7 @@ body.dark .meetup-card{background:#1a120a;border-color:rgba(35,26,16,.15)}
   background:linear-gradient(135deg,#231a10,#3d2010);color:white;
   border:none;border-radius:14px;padding:9px 14px;
   font-size:12px;font-weight:700;cursor:pointer;
-  box-shadow:0 4px 18px rgba(40,116,166,.5);
+  box-shadow:0 4px 18px rgba(184,92,56,0.5);
   display:none;align-items:center;gap:6px;
   font-family:'DM Sans',sans-serif;transition:transform .15s;
 }
@@ -2715,7 +2726,7 @@ body.dark .meetup-card{background:#1a120a;border-color:rgba(35,26,16,.15)}
   background:linear-gradient(135deg,#231a10,#3d2010);color:white;
   border:none;border-radius:14px;padding:9px 14px;
   font-size:12px;font-weight:700;cursor:pointer;
-  box-shadow:0 4px 18px rgba(40,116,166,.5);
+  box-shadow:0 4px 18px rgba(184,92,56,0.5);
   display:none;align-items:center;gap:6px;
   font-family:'DM Sans',sans-serif;transition:transform .15s;
 }
@@ -3043,7 +3054,7 @@ body.dark #installBanner{background:#232838;border-color:rgba(35,26,16,.15)}
   width:100%;padding:16px;background:var(--terra);color:white;
   border:none;border-radius:14px;font-size:15px;font-weight:700;
   font-family:'DM Sans',sans-serif;cursor:pointer;
-  box-shadow:0 4px 20px rgba(40,116,166,.4);
+  box-shadow:0 4px 20px rgba(184,92,56,0.4);
 }
 .pro-terms{text-align:center;font-size:11px;color:var(--dust);margin-top:10px}
 
@@ -3227,7 +3238,7 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
   position:fixed;bottom:20px;right:20px;z-index:660;
   background:var(--terra);color:white;border:none;border-radius:50%;
   width:54px;height:54px;font-size:22px;cursor:pointer;
-  box-shadow:0 4px 20px rgba(40,116,166,.5);
+  box-shadow:0 4px 20px rgba(184,92,56,0.5);
   display:none;align-items:center;justify-content:center;
 }
 #itinView.open .itin-view-fab{display:flex}
@@ -3278,14 +3289,14 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
 }
 .profile-ig-connected{
   display:inline-flex;align-items:center;gap:5px;
-  background:rgba(40,116,166,.07);border:1px solid rgba(40,116,166,.1);
+  background:rgba(184,92,56,0.07);border:1px solid rgba(184,92,56,0.1);
   border-radius:20px;padding:4px 12px;font-size:11px;
-  color:rgba(45,55,72,.6);margin-bottom:12px;
+  color:rgba(35,26,16,0.6);margin-bottom:12px;
 }
 .profile-name{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;color:var(--cream);margin-bottom:3px}
 .profile-role{font-size:12px;color:var(--dust);margin-bottom:16px}
-.profile-stats{display:flex;gap:0;border-top:1px solid rgba(40,116,166,.07);padding-top:16px}
-.p-stat{flex:1;text-align:center;border-right:1px solid rgba(40,116,166,.07)}
+.profile-stats{display:flex;gap:0;border-top:1px solid rgba(184,92,56,0.07);padding-top:16px}
+.p-stat{flex:1;text-align:center;border-right:1px solid rgba(184,92,56,0.07)}
 .p-stat:last-child{border-right:none}
 .p-stat-n{font-family:'Playfair Display',serif;font-size:24px;font-weight:400;color:var(--ink)}
 .p-stat-l{font-size:9px;color:var(--dust);letter-spacing:.1em;text-transform:uppercase}
@@ -3324,6 +3335,30 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
   transition:opacity .25s;backdrop-filter:blur(2px);
 }
 #overlay.show{opacity:1;pointer-events:all}
+
+/* ── DESKTOP PHONE FRAME ─────────────────────────────
+   On desktop, constrain fixed elements to phone width
+   so the app always looks like a mobile app
+──────────────────────────────────────────────────── */
+@media (min-width:431px){
+  body > *[style*="position:fixed"],
+  #bottomNav,#mapContainer,#searchBar,#moodBar,
+  #rightNowBtn,#surpriseMeBtn,#installBanner,
+  #mapTapHint,#filterToggleBtn,
+  .sheet,#placeSheet,#tripsPanel,#profilePanel,
+  #settingsPanel,#proModal,#rightNowPanel,
+  #surpriseOverlay,#togetherNameModal,#onboardOverlay,
+  #landingScreen,#importScreen,#wowScreen,
+  #filterModal,#offlinePanel,#localFindsSheet,
+  #captureSheet,#contribConfirm,#reqCityModal,
+  #discoverSheet,#togetherCentroidSheet,
+  #searchPanel,#citySelector{
+    max-width:430px !important;
+    left:50% !important;
+    transform:translateX(-50%) !important;
+    right:auto !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -3913,7 +3948,7 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
 <!-- INSTAGRAM SAVES MODAL -->
 <div id="igSavesModal" style="position:fixed;inset:0;background:rgba(28,25,23,.75);z-index:500;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .28s;backdrop-filter:blur(3px)">
   <div style="background:var(--ink);border-radius:20px 20px 0 0;padding:20px 20px 48px;width:100%;max-width:600px;margin:0 auto;max-height:90vh;overflow-y:auto">
-    <div style="width:36px;height:4px;background:rgba(40,116,166,.12);border-radius:2px;margin:0 auto 18px"></div>
+    <div style="width:36px;height:4px;background:rgba(184,92,56,0.12);border-radius:2px;margin:0 auto 18px"></div>
     <div id="igStep1">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
         <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📁</div>
@@ -3922,18 +3957,18 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
           <div style="font-size:11px;color:var(--dust)">Turn your saved posts into a travel wishlist</div>
         </div>
       </div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(40,116,166,.07);border-radius:10px;padding:14px;margin:16px 0">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(184,92,56,0.07);border-radius:10px;padding:14px;margin:16px 0">
         <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dust);margin-bottom:10px">How to get your file</div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div><div style="font-size:12px;color:rgba(45,55,72,.65);line-height:1.5">Open Instagram → Profile → ☰ Menu → <strong style="color:var(--cream)">Your Activity</strong></div></div>
-          <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div><div style="font-size:12px;color:rgba(45,55,72,.65);line-height:1.5">Tap <strong style="color:var(--cream)">Download Your Information</strong> → Request Download</div></div>
-          <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div><div style="font-size:12px;color:rgba(45,55,72,.65);line-height:1.5">Instagram emails you a ZIP. Open it, find <strong style="color:var(--cream)">saved_posts.json</strong> inside the <code style="color:var(--gold);font-size:11px">your_instagram_activity</code> folder</div></div>
-          <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">4</div><div style="font-size:12px;color:rgba(45,55,72,.65);line-height:1.5">Drop that file below ↓</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div><div style="font-size:12px;color:rgba(35,26,16,0.65);line-height:1.5">Open Instagram → Profile → ☰ Menu → <strong style="color:var(--cream)">Your Activity</strong></div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div><div style="font-size:12px;color:rgba(35,26,16,0.65);line-height:1.5">Tap <strong style="color:var(--cream)">Download Your Information</strong> → Request Download</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div><div style="font-size:12px;color:rgba(35,26,16,0.65);line-height:1.5">Instagram emails you a ZIP. Open it, find <strong style="color:var(--cream)">saved_posts.json</strong> inside the <code style="color:var(--gold);font-size:11px">your_instagram_activity</code> folder</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;border-radius:50%;background:var(--terra);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">4</div><div style="font-size:12px;color:rgba(35,26,16,0.65);line-height:1.5">Drop that file below ↓</div></div>
         </div>
       </div>
       <div id="igDropZone" style="border:2px dashed rgba(255,255,255,.2);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px" onclick="document.getElementById('igFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--terra)'" ondragleave="this.style.borderColor='rgba(255,255,255,.2)'" ondrop="event.preventDefault();this.style.borderColor='rgba(255,255,255,.2)';handleIgFile(event.dataTransfer.files[0])">
         <div style="font-size:32px;margin-bottom:8px">📄</div>
-        <div style="font-size:14px;color:rgba(45,55,72,.7);margin-bottom:4px">Drop <strong>saved_posts.json</strong> here</div>
+        <div style="font-size:14px;color:rgba(35,26,16,0.7);margin-bottom:4px">Drop <strong>saved_posts.json</strong> here</div>
         <div style="font-size:11px;color:var(--dust)">or tap to browse files</div>
         <input id="igFileInput" type="file" accept=".json" style="display:none" onchange="handleIgFile(this.files[0])">
       </div>
@@ -3941,13 +3976,13 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
         <span style="font-size:11px;color:var(--dust)">Dont have the file yet? </span>
         <button onclick="runIgDemo()" style="background:none;border:none;color:var(--terra);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline">Try with demo data</button>
       </div>
-      <button onclick="closeIgSaves()" style="width:100%;background:rgba(255,255,255,.06);color:rgba(45,55,72,.4);border:none;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;margin-top:10px">Maybe later</button>
+      <button onclick="closeIgSaves()" style="width:100%;background:rgba(255,255,255,.06);color:rgba(35,26,16,0.4);border:none;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;margin-top:10px">Maybe later</button>
     </div>
     <div id="igStep2" style="display:none;text-align:center;padding:20px 0">
       <div style="font-size:40px;margin-bottom:16px;animation:importPulse 1.5s ease-in-out infinite">🔍</div>
       <div style="font-family:'Playfair Display',serif;font-size:24px;color:var(--cream);margin-bottom:6px">Reading your saves...</div>
       <div style="font-size:13px;color:var(--dust);margin-bottom:28px" id="igProcessStatus">Parsing saved posts...</div>
-      <div style="width:100%;height:2px;background:rgba(40,116,166,.07);border-radius:2px;overflow:hidden;margin-bottom:20px"><div id="igProcessFill" style="height:100%;background:linear-gradient(90deg,#833ab4,#fcb045);border-radius:2px;width:0%;transition:width .5s ease"></div></div>
+      <div style="width:100%;height:2px;background:rgba(184,92,56,0.07);border-radius:2px;overflow:hidden;margin-bottom:20px"><div id="igProcessFill" style="height:100%;background:linear-gradient(90deg,#833ab4,#fcb045);border-radius:2px;width:0%;transition:width .5s ease"></div></div>
       <div id="igFoundSoFar" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:40px"></div>
     </div>
     <div id="igStep3" style="display:none">
@@ -3960,7 +3995,7 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
       </div>
       <div id="igResultsList" style="max-height:300px;overflow-y:auto;margin-bottom:14px"></div>
       <button onclick="addIgPinsToMap()" style="width:100%;background:var(--terra);color:white;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:8px">⭐ Add All to Wishlist Map</button>
-      <button onclick="closeIgSaves()" style="width:100%;background:rgba(255,255,255,.06);color:rgba(45,55,72,.4);border:none;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">Done</button>
+      <button onclick="closeIgSaves()" style="width:100%;background:rgba(255,255,255,.06);color:rgba(35,26,16,0.4);border:none;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">Done</button>
     </div>
   </div>
 </div>
@@ -3968,27 +4003,27 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
 <!-- REQUEST CITY MODAL -->
 <div id="requestCityModal" style="position:fixed;inset:0;background:rgba(28,25,23,.7);z-index:400;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s">
   <div style="background:var(--ink);border-radius:20px 20px 0 0;padding:20px 20px 48px;width:100%;max-width:600px;margin:0 auto">
-    <div style="width:36px;height:4px;background:rgba(40,116,166,.12);border-radius:2px;margin:0 auto 18px"></div>
+    <div style="width:36px;height:4px;background:rgba(184,92,56,0.12);border-radius:2px;margin:0 auto 18px"></div>
     <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:4px">Add a City</div>
     <div style="font-size:13px;color:var(--dust);margin-bottom:20px;line-height:1.6">Type any city in the world. Our AI will generate a curated guide in seconds using current editorial sources.</div>
     <input id="requestCityInput" type="text" placeholder="e.g. Tokyo, Barcelona, Cape Town…"
-      style="width:100%;background:rgba(40,116,166,.06);border:1px solid rgba(40,116,166,.12);border-radius:10px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--cream);outline:none;margin-bottom:12px;-webkit-appearance:none"
+      style="width:100%;background:rgba(184,92,56,0.06);border:1px solid rgba(184,92,56,0.12);border-radius:10px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--cream);outline:none;margin-bottom:12px;-webkit-appearance:none"
       onkeydown="if(event.key==='Enter')generateCity()">
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap" id="cityQuickBtns">
-      <div style="border:1px solid rgba(40,116,166,.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(45,55,72,.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Tokyo</div>
-      <div style="border:1px solid rgba(40,116,166,.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(45,55,72,.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Barcelona</div>
-      <div style="border:1px solid rgba(40,116,166,.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(45,55,72,.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Copenhagen</div>
-      <div style="border:1px solid rgba(40,116,166,.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(45,55,72,.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Mexico City</div>
-      <div style="border:1px solid rgba(40,116,166,.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(45,55,72,.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Buenos Aires</div>
-      <div style="border:1px solid rgba(40,116,166,.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(45,55,72,.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Osaka</div>
+      <div style="border:1px solid rgba(184,92,56,0.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(35,26,16,0.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Tokyo</div>
+      <div style="border:1px solid rgba(184,92,56,0.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(35,26,16,0.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Barcelona</div>
+      <div style="border:1px solid rgba(184,92,56,0.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(35,26,16,0.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Copenhagen</div>
+      <div style="border:1px solid rgba(184,92,56,0.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(35,26,16,0.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Mexico City</div>
+      <div style="border:1px solid rgba(184,92,56,0.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(35,26,16,0.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Buenos Aires</div>
+      <div style="border:1px solid rgba(184,92,56,0.1);border-radius:16px;padding:6px 13px;font-size:12px;color:rgba(35,26,16,0.5);cursor:pointer" onclick="document.getElementById('requestCityInput').value=this.textContent">Osaka</div>
     </div>
     <div id="reqCityStatus" style="min-height:18px;font-size:12px;color:var(--dust);text-align:center;margin-bottom:12px"></div>
-    <div id="reqCityPreview" style="display:none;background:rgba(40,116,166,.04);border:1px solid rgba(40,116,166,.08);border-radius:10px;padding:14px;margin-bottom:14px;max-height:220px;overflow-y:auto"></div>
+    <div id="reqCityPreview" style="display:none;background:rgba(184,92,56,0.04);border:1px solid rgba(184,92,56,0.08);border-radius:10px;padding:14px;margin-bottom:14px;max-height:220px;overflow-y:auto"></div>
     <div style="display:flex;gap:8px">
       <button onclick="generateCity()" id="reqCityBtn" style="flex:1;background:var(--terra);color:white;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
         <span id="reqCityBtnText">✦ Generate City Guide</span>
       </button>
-      <button onclick="closeRequestCity()" style="background:rgba(40,116,166,.07);color:rgba(45,55,72,.5);border:none;border-radius:10px;padding:14px 18px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Cancel</button>
+      <button onclick="closeRequestCity()" style="background:rgba(184,92,56,0.07);color:rgba(35,26,16,0.5);border:none;border-radius:10px;padding:14px 18px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Cancel</button>
     </div>
   </div>
 </div>
@@ -6358,7 +6393,7 @@ Rules:
       places.forEach(p => {
         if(p.confidence !== 'low'){
           const chip = document.createElement('div');
-          chip.style.cssText = 'background:rgba(40,116,166,.08);border-radius:20px;padding:5px 10px;font-size:11px;color:var(--terra);animation:fadeIn .4s ease';
+          chip.style.cssText = 'background:rgba(184,92,56,0.08);border-radius:20px;padding:5px 10px;font-size:11px;color:var(--terra);animation:fadeIn .4s ease';
           chip.textContent = p.flag + ' ' + p.name;
           document.getElementById('igFoundSoFar').appendChild(chip);
         }
@@ -6440,14 +6475,14 @@ function showResults(places){
 
   list.innerHTML = Object.entries(byCityMap).map(([city, ps]) => `
     <div style="margin-bottom:14px">
-      <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);padding:6px 0 8px;border-bottom:1px solid rgba(40,116,166,.06);margin-bottom:8px">${city}</div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);padding:6px 0 8px;border-bottom:1px solid rgba(184,92,56,0.06);margin-bottom:8px">${city}</div>
       ${ps.map((p,i) => `
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(40,116,166,.04)">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(184,92,56,0.04)">
           <div style="width:32px;height:32px;border-radius:8px;background:rgba(253,216,53,.1);border:1px solid rgba(253,216,53,.3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">⭐</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:13px;font-weight:500;color:#2d3748;margin-bottom:2px">${p.verified_name || p.name}</div>
             <div style="font-size:11px;color:var(--dust);margin-bottom:3px">${p.category}${p.address ? ' · ' + p.address.split(',').slice(0,2).join(',') : ''}</div>
-            <div style="font-size:11px;color:rgba(45,55,72,.45);font-style:italic">"${p.caption_hint}"</div>
+            <div style="font-size:11px;color:rgba(35,26,16,0.45);font-style:italic">"${p.caption_hint}"</div>
           </div>
           <div style="width:8px;height:8px;border-radius:50%;background:${p.confidence==='high'?'#4caf50':'#ff9800'};flex-shrink:0;margin-top:6px" title="${p.confidence} confidence"></div>
         </div>`).join('')}
@@ -6637,7 +6672,7 @@ Rules:
       <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dust);margin-bottom:10px">${cityData.flag} ${cityData.label}, ${cityData.state} — ${cityData.places.length} places found</div>
       ${cityData.places.map(p=>`
         <div style="display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">
-          <div style="width:30px;height:30px;border-radius:6px;background:rgba(40,116,166,.07);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">📍</div>
+          <div style="width:30px;height:30px;border-radius:6px;background:rgba(184,92,56,0.07);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">📍</div>
           <div>
             <div style="font-size:13px;font-weight:500;color:var(--cream)">${p.name}</div>
             <div style="font-size:11px;color:var(--dust)">${p.neighborhood} · ${p.category}</div>
