@@ -6816,9 +6816,7 @@ async function processIgData(data){
 Given these Instagram post captions, identify any specific restaurants, cafes, bars, markets, or notable food/travel spots that are mentioned. For each, determine the city and country from context clues (hashtags, mentions, text).
 
 Captions:
-${batch.map((c,idx) => `[${idx+1}] ${c}`).join('
-
-')}
+${batch.map((c,idx) => `[${idx+1}] ${c}`).join('\n')}
 
 Return ONLY valid JSON array, no markdown:
 [
@@ -7840,7 +7838,7 @@ function joinTripRoom(){
     return;
   }
   pendingRoomCode = code;
-  document.getElementById('tnameTitle').textContent = 'What's your name?';
+  document.getElementById('tnameTitle').textContent = "What's your name?";
   document.getElementById('tnameConfirmBtn').textContent = 'Join room →';
   document.getElementById('tnameInput').value = '';
   openNameSheet();
