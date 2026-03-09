@@ -7354,6 +7354,7 @@ renderMarkers = function(){
     });
     allMarkers.push(m);
   });
+  renderCommunityMarkers();
 };
 
 // ══════════════════════════════════════════════════
@@ -8934,7 +8935,7 @@ Return only the description. No preamble, no quotation marks around the whole th
     saveLocalFinds();
     renderDiscoveries();
     renderCommunityMarkers();
-    showToast(\`"\${find.name}" is now a verified Local Find ✓\`);
+    showToast(`"${find.name}" is now a verified Local Find ✓`);
   } catch(e){
     // Fallback: pick the longest clean-ish description
     const clean = find.descriptions
@@ -8997,7 +8998,7 @@ function seedDemoFinds(){
     {
       id:'lf_demo2', city:'paris', name:'Passage Brady',
       neighborhood:'10th arr.', category:'Market',
-      description:'A covered 19th-century passage in the 10th that\'s become Paris\'s Indian and Sri Lankan food corridor. The light through the glass roof, the smell of curry from six competing restaurants, the hardware shops and tailors that haven't changed in decades. This is not a tourist attraction — it's a living neighborhood institution.',
+      description:"A covered 19th-century passage in the 10th that\'s become Paris\'s Indian and Sri Lankan food corridor. The light through the glass roof, the smell of curry from six competing restaurants, the hardware shops and tailors that haven\'t changed in decades. This is not a tourist attraction - it\'s a living neighborhood institution.",
       bestTime:'Lunchtime on weekdays', tip:'Saravanaa Bhavan at No. 170 — the dosas are the best in Paris',
       lat:48.8694, lng:2.3516, cred:'local',
       submissions:['user_a','user_b','user_c','user_d','user_e'],
@@ -9184,9 +9185,7 @@ async function synthesizeLocalFind(find){
   const prompt = `You are writing a pin description for a travel app called Ciao Posto. 
 The following are ${find.submissions.length} independent descriptions of the same hidden gem submitted by locals:
 
-${find.descriptions.map((d,i)=>`Submission ${i+1}: "${d}"`).join('
-
-')}
+${find.descriptions.map((d,i)=>`Submission ${i+1}: "${d}"`).join('\n\n')}
 
 Write a single authoritative description of this place — synthesized from all submissions — in the style of a trusted travel editor. 
 Requirements:
@@ -9450,12 +9449,7 @@ function openLocalFindDetail(id){
 
 // ── switchTripsTab handles itineraries / mytrips / discoveries (defined above) ──
 
-// ── Hook renderMarkers to also render community pins ──
-const _origRenderMarkers = renderMarkers;
-function renderMarkers(){
-  _origRenderMarkers();
-  renderCommunityMarkers();
-}
+// renderCommunityMarkers() called inside renderMarkers below
 
 // ── Location picking mode ──────────────────
 function startLocationPick(){
