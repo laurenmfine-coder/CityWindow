@@ -57,18 +57,17 @@ document.currentScript.parentNode.appendChild(manifestLink);
   --shadow:rgba(35,26,16,.14);
   --white:#faf7f2;
 }
-html{
-  height:100%;
-  background:#1a120a;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
-}
+html,body{height:100%;font-family:'DM Sans',sans-serif;}
+html{background:#1a120a;}
 body{
-  height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;
+  overflow:hidden;
   background:var(--cream);
+  /* phone container on desktop */
   max-width:430px;
+  width:100%;
   margin:0 auto;
   position:relative;
-  box-shadow:0 0 80px rgba(0,0,0,.45);
+  isolation:isolate;
 }
 
 
@@ -3336,32 +3335,27 @@ body.dark .itin-stop-content{background:#1a120a;border-color:rgba(35,26,16,.15)}
 }
 #overlay.show{opacity:1;pointer-events:all}
 
-/* ── DESKTOP PHONE FRAME ─────────────────────────────
-   On desktop, constrain fixed elements to phone width
-   so the app always looks like a mobile app
-──────────────────────────────────────────────────── */
-@media (min-width:431px){
-  body > *[style*="position:fixed"],
-  #bottomNav,#mapContainer,#searchBar,#moodBar,
-  #rightNowBtn,#surpriseMeBtn,#installBanner,
-  #mapTapHint,#filterToggleBtn,
-  .sheet,#placeSheet,#tripsPanel,#profilePanel,
-  #settingsPanel,#proModal,#rightNowPanel,
-  #surpriseOverlay,#togetherNameModal,#onboardOverlay,
-  #landingScreen,#importScreen,#wowScreen,
-  #filterModal,#offlinePanel,#localFindsSheet,
-  #captureSheet,#contribConfirm,#reqCityModal,
-  #discoverSheet,#togetherCentroidSheet,
-  #searchPanel,#citySelector{
-    max-width:430px !important;
-    left:50% !important;
-    transform:translateX(-50%) !important;
-    right:auto !important;
-  }
+
+
+/* ── PHONE VIEWPORT WRAPPER ───────────────────────────────────────
+   Everything lives inside #app which is a centered fixed container.
+   On mobile: full screen. On desktop: 430px centered phone shape.
+──────────────────────────────────────────────────────────────────*/
+#app{
+  position:fixed;
+  top:0; bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:430px;
+  overflow:hidden;
+  background:var(--cream);
+  box-shadow:0 0 80px rgba(0,0,0,.5);
 }
 </style>
 </head>
 <body>
+<div id="app">
 
 <!-- ════ LANDING ════ -->
 <div class="screen" id="landScreen">
@@ -11451,5 +11445,6 @@ if(/iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone &&
   </div>
 </div>
 
+</div>
 </body>
 </html>
