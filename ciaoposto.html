@@ -6488,7 +6488,7 @@ const ITINERARIES = [
       label:'Day 1',
       stops:[
         {time:'8:00 AM',name:'Le Marais Morning',note:'Before the boutiques open. The light on the hôtels particuliers.',pinId:'par_act2'},
-        {time:'10:00 AM',name:'Musée d'Orsay',note:'Free first Sunday. The Impressionist collection on the top floor first.',pinId:'par_act1'},
+        {time:'10:00 AM',name:'Musée d\'Orsay',note:'Free first Sunday. The Impressionist collection on the top floor first.',pinId:'par_act1'},
         {time:'1:30 PM',name:'Canal Saint-Martin',note:'Lunch from a boulangerie on the canal bank.',pinId:'par_act4'},
         {time:'8:00 PM',name:'Frenchie',note:'Reserve weeks ahead. The best modern bistro in Paris.'},
       ]
@@ -9303,7 +9303,7 @@ function renderDiscoveries(){
           <div class="discovery-desc">${f.description.slice(0,180)}${f.description.length>180?'…':''}</div>
           <div class="discovery-actions">
             <button class="disc-btn-confirm" onclick="confirmFind('${f.id}')">
-              ${confirmedByMe.includes(f.id) ? '✓ Confirmed' : 'I've been here too →'}
+              ${confirmedByMe.includes(f.id) ? '✓ Confirmed' : 'I\'ve been here too →'}
             </button>
             <button class="disc-btn-skip" onclick="this.closest('.discovery-card').style.display='none'">Skip</button>
           </div>
